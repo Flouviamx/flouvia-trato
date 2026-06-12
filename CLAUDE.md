@@ -35,12 +35,17 @@ Node requerido: **>=22.12.0** (ver `.nvmrc` → 22.13.0)
 | Emails | Resend (transaccionales: cotización vista, aprobada, etc.) |
 | CFDI | PAC de timbrado (mismo proveedor que la app de Shopify) |
 | Animaciones | GSAP 3 — **solo en landing/login**; dentro de la app, CSS animations |
-| Tipografía | Inter (sans) + Instrument Serif (números/montos) |
+| Tipografía | **Inter única** (las serif se ELIMINARON jun 2026 a petición de André) — montos con clase `.editorial` = Inter 600, tracking −0.03em, `tabular-nums` |
 
-⚠️ Clerk está **comentado** en `astro.config.mjs` hasta tener las keys en `.env`
-(ver `.env.example`). **Aún NO hay proyecto de Neon/Clerk/Stripe creado** (jun 2026).
-Mientras tanto, **toda la app corre con datos mock** desde `src/lib/mock.ts` — mismo
-shape que el schema, para que el swap a Neon sea cambiar imports por queries.
+✅ **Clerk YA está ACTIVO** (jun 2026): integración en `astro.config.mjs` con
+`localization: esMX` (`@clerk/localizations`), keys de development en `.env`,
+middleware en `src/middleware.ts`, componentes `<SignIn/>`/`<SignUp/>` montados
+en `/login` y `/registro` (SSR, `prerender = false`). App de Clerk: "Trato"
+(`app_3Ey07ttoq6VjvVgWmPOnI0U9rW6`), login CLI como flouvia.mx@gmail.com
+(`clerk` CLI instalado en `~/.npm-global/bin/clerk`). Falta: instancia de
+producción + proteger `/app` con auth. **Aún NO hay Neon/Stripe** (jun 2026);
+la app corre con datos mock desde `src/lib/mock.ts` — mismo shape que el schema,
+para que el swap a Neon sea cambiar imports por queries.
 
 ---
 
@@ -49,8 +54,9 @@ shape que el schema, para que el swap a Neon sea cambiar imports por queries.
 ✅ Esqueleto Astro + tokens de diseño
 ✅ **Landing de ventas completa** (estilo Stripe/Linear con ADN Flouvia) — desplegada
 ✅ **Logos reales** en `public/imgs/`: `logo-trato-navy.png` (fondos claros) y `logo-trato-white.png` (fondos oscuros) — recortados a 780×300
-✅ **App demo completa con datos mock** — dashboard, cotizaciones (lista + editor interactivo + detalle), clientes, productos, ajustes, link público `/q/{token}` y login/registro placeholder
-⬜ Conectar Neon (DATABASE_URL) + Clerk + Stripe — siguiente fase
+✅ **App demo completa con datos mock** — dashboard, cotizaciones (lista + editor interactivo + detalle), clientes, productos, ajustes, link público `/q/{token}`
+✅ **Clerk conectado** — `/login` y `/registro` con componentes reales (es-MX); falta proteger `/app`
+⬜ Conectar Neon (DATABASE_URL) + Stripe — siguiente fase
 
 ---
 
@@ -113,7 +119,7 @@ el valor antes de cada query (igual que `app.email_cliente` en flouvia-web).
 /app/clientes /app/productos → directorios (CRUD visual; import CSV después)
 /app/ajustes     → marca, datos fiscales/CSD, plan
 /q/[token]       → vista PÚBLICA de la cotización (la página mejor diseñada —
-                   marca del emisor, total serif protagonista, aprobar → success,
+                   marca del emisor, total `.editorial` protagonista, aprobar → success,
                    pie "vía trato" = loop viral). Token mock: /q/demo
 
 # Legales (pendiente)
@@ -155,7 +161,8 @@ Minimalista, lujoso, mucho aire. Secciones con `padding: 9rem` vertical. Tipogra
 grande (hero H1 `clamp(2.7rem, 6.2vw, 5rem)`). Gradient mesh sutil monocromático
 navy (NO los colores saturados de Stripe). Glows suaves estilo Linear bajo los
 mockups. **El mockup del producto es la pieza que vende** — cada uno es HTML/CSS puro
-con montos en serif italic (`.editorial`).
+con montos en `.editorial` (Inter 600 tabular). El mockup del hero AUTO-REPRODUCE
+la historia del producto en loop (ver "Hero story" abajo).
 
 ### Navbar (`Nav.astro`) — replica el sistema de flouvia-web
 
@@ -164,6 +171,14 @@ Es el mismo patrón que `../flouvia/src/components/Navbar.astro`, adaptado:
 - **Glass pill** (izquierda) Liquid Glass con los nav-links + **indicador deslizante**
   (`#nav-indicator`, cápsula de vidrio que GSAP desliza al link en hover, estilo
   segmented control iOS).
+- **Megamenú (jun 2026):** "PRODUCTO" (`data-mega`) expande la píldora EN VERTICAL —
+  la fila de links queda arriba (`.pill-row`) y abajo se revela `#pill-mega` (grid
+  2×3 de features con ícono+título+desc + footer "cómo funciona"). Cerrado colapsa
+  `width:0; height:0` (para no ensanchar la píldora); GSAP anima width/height de la
+  píldora al abrir/cerrar (mide `offsetWidth` antes/después), items con stagger
+  fade+blur, `border-radius 100px → 24px` vía clase `.mega-open` (transición CSS).
+  Abre con hover/click, cierra con mouseleave, otros links, scroll y Escape. Tiene
+  variantes de color para `.scrolled` (píldora navy).
 - **Logo central** `logo-trato-navy.png` (30px alto) que **desaparece al hacer
   scroll** y reaparece como `pill-logo` (`logo-trato-white.png`, 17px) dentro de la
   glass pill navy (misma mecánica que el logo de flouvia). En mobile: dos `<img>`
@@ -172,8 +187,8 @@ Es el mismo patrón que `../flouvia/src/components/Navbar.astro`, adaptado:
 - **Estado `.scrolled`** (>50px): la glass pill pasa a versión navy translúcida; los
   links y wordmark cambian a blanco. Transición por-propiedad `0.7s var(--ease-spring)`.
 - **Mobile:** píldora glass con hamburguesa + wordmark + CTA; overlay con `clip-path:
-  circle()` que abre desde la esquina superior derecha; links en serif italic con
-  stagger blur.
+  circle()` que abre desde la esquina superior derecha; links en Inter 700 con
+  stagger blur (sin megamenú en mobile).
 - **Anti-flash:** gate `.js-anim #navbar { opacity:0 }` (is:global) + entrada GSAP que
   oculta las piezas, revela el contenedor y las entra con stagger. `clearProps` al
   terminar para que `.scrolled`/`:hover` gobiernen.
@@ -192,11 +207,20 @@ Es el mismo patrón que `../flouvia/src/components/Navbar.astro`, adaptado:
   procesa al cargar; esos títulos quedan EXCLUIDOS del reveal genérico (`maskedSet`).
 - **Mockup settle (Stripe):** el mockup del hero entra con `rotationX: 9` y
   perspectiva, y se APLANA con scrub conforme baja el scroll (`top 88%` → `top 32%`).
+- **Hero story (jun 2026):** el mockup del hero narra el loop del producto:
+  badge `#mkStatus` cicla Enviada (azul) → Vista (ámbar) → Aprobada (verde) con
+  pop, el toast `#mkToast` aparece en "Vista", los eventos `[data-story]` del
+  timeline se encienden en orden y el chip `#mkChip` (CFDI timbrado) entra al
+  aprobar; loop infinito con fade de cierre. El HTML por defecto es el estado
+  FINAL (Aprobada) → sin JS/reduced-motion queda estático y completo.
+- **Micro-demos bento (jun 2026):** en `.ev-edit` el precio baja en vivo
+  (191.48 → 168.50) con flash verde y el chip −12% hace pop; el check del CFDI
+  entra con pop. ScrollTrigger `once:true`.
 - **Demo del teléfono (ClientView):** auto-reproducible al entrar en viewport —
   count-up del monto, items en stagger, cursor SVG que se desliza y "clickea"
   Aprobar (anillo verde de pulso), checkmark que se dibuja (strokeDashoffset),
   overlay de éxito; loop con repeatDelay 3.4s.
-- **Count-up** de números serif (`[data-countup]` + `data-decimals`) al entrar en
+- **Count-up** de números (`[data-countup]` + `data-decimals`) al entrar en
   viewport — formato `Intl.NumberFormat('es-MX')`.
 - **Parallax scrub** en watermarks (steps/footer) y hero-mesh.
 - **Reveals genéricos** (`.reveal`): patrón anti-parpadeo — `gsap.set` oculta +
@@ -231,15 +255,18 @@ Regla de oro: **misma alma, distinto cuerpo**. Tokens en `src/layouts/Layout.ast
 --color-ok: #10b981;     /* aprobada / pagada */
 --color-warn: #f59e0b;   /* pendiente / por vencer */
 --color-danger: #ef4444; /* vencida / rechazada */
---font-sans: 'Inter';  --font-serif: 'Instrument Serif';
+--font-sans: 'Inter';   /* --font-serif ELIMINADO jun 2026 — Inter única */
 --ease-ios / --ease-spring / --ease-smooth   /* mismos que flouvia */
 ```
 
 **Reglas tipográficas:**
-- **Headings 100% Inter bold** — sin palabra-acento serif (regla mayo 2026 de flouvia).
-- **Montos y números SIEMPRE en Instrument Serif italic** → clase `.editorial`
-  (definida global en Layout). Es la **firma visual del producto**. Nunca números en
-  sans bold. Aplica a: totales, precios, folios en hero, watermarks.
+- **TODO en Inter** — André pidió ELIMINAR las serif (jun 2026). NO reintroducir
+  Instrument Serif ni itálicas decorativas. La carga de Google Fonts es solo Inter
+  (weights 400–900).
+- **Montos y números** → clase `.editorial` (definida global en ambos layouts):
+  Inter weight 600, `letter-spacing: -0.03em`, `font-variant-numeric: tabular-nums`.
+  Es la firma "fintech" del producto (estilo Stripe). Nunca serif, nunca italic.
+- **Headings 100% Inter bold** — sin palabra-acento.
 - Eyebrows: `0.65rem`, weight 800, letter-spacing 3px, uppercase, color `#888`.
 - **Logos oficiales** (`public/imgs/`): `logo-trato-navy.png` para fondos claros,
   `logo-trato-white.png` para fondos oscuros (sidebar de la app, footer, pill
@@ -247,8 +274,9 @@ Regla de oro: **misma alma, distinto cuerpo**. Tokens en `src/layouts/Layout.ast
 
 **Layout / componentes:**
 - Secciones de la landing: `padding: 9rem` vertical (mucho aire, estilo Stripe/Linear).
-- Watermarks serif italic gigantes (`rgba(0,0,0,0.025)` claro / `rgba(255,255,255,0.025)`
-  oscuro) **solo en landing/login** — dentro de la app NO (es herramienta, no editorial).
+- Watermarks gigantes en **Inter 800, letter-spacing −0.06em** (`rgba(0,0,0,0.025)`
+  claro / `rgba(255,255,255,0.025)` oscuro) **solo en landing/login** — dentro de la
+  app NO (es herramienta, no editorial).
 - Liquid Glass (blur + rim light + specular) en: navbar, topbar de la app y segmented
   controls de filtros. Patrón exacto en `Nav.astro` y en el navbar de flouvia-web.
 - Sección oscura: `radial-gradient(ellipse at 20% 50%, #112240 0%, #0a192f 65%, #050b14 100%)`.

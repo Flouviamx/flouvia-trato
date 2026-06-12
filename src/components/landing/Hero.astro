@@ -16,15 +16,23 @@
         </a>
 
         <h1 class="hero-title reveal">
-            Cotizaciones B2B<br />
-            que cierran tratos.
+            De cotización<br />
+            a trato cerrado.
         </h1>
 
         <p class="hero-desc reveal">
-            Trato convierte tus cotizaciones en un sistema: precios negociados, un link
-            que tu cliente abre y aprueba, seguimiento en vivo y CFDI automático.
-            El fin del WhatsApp y el Excel.
+            Crea la cotización en minutos y mándala como un link con tu marca.
+            Tú ves el momento exacto en que tu cliente la abre; él aprueba y paga
+            en línea — y el CFDI se timbra solo. Adiós al Excel y a los PDF perdidos.
         </p>
+
+        <div class="hero-points reveal" aria-hidden="false">
+            <span class="hp-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Te avisa cuando la ven</span>
+            <span class="hp-sep"></span>
+            <span class="hp-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Aprobación en un clic</span>
+            <span class="hp-sep"></span>
+            <span class="hp-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>CFDI 4.0 automático</span>
+        </div>
 
         <div class="hero-actions reveal">
             <a href="/registro" class="btn-primary">
@@ -67,7 +75,7 @@
                             <div class="mk-folio">COT-0148</div>
                             <div class="mk-client">Distribuidora El Zarco · Net 30</div>
                         </div>
-                        <span class="mk-badge mk-badge-ok">● Aprobada</span>
+                        <span class="mk-badge mk-badge-ok" id="mkStatus">● Aprobada</span>
                     </div>
 
                     <div class="mk-table">
@@ -87,16 +95,22 @@
 
                 <aside class="mk-timeline">
                     <div class="mk-tl-title">Actividad</div>
-                    <div class="mk-tl-item"><span class="mk-tl-dot dot-green"></span><div><div class="mk-tl-text"><b>Tu cliente la vio</b></div><div class="mk-tl-time">hace 3 min</div></div></div>
+                    <div class="mk-tl-item" data-story="approved"><span class="mk-tl-dot dot-green"></span><div><div class="mk-tl-text"><b>Cotización aprobada</b></div><div class="mk-tl-time">hace un momento</div></div></div>
+                    <div class="mk-tl-item" data-story="viewed"><span class="mk-tl-dot dot-green"></span><div><div class="mk-tl-text"><b>Tu cliente la vio</b></div><div class="mk-tl-time">hace 3 min</div></div></div>
                     <div class="mk-tl-item"><span class="mk-tl-dot dot-blue"></span><div><div class="mk-tl-text">Cotización enviada</div><div class="mk-tl-time">hoy, 11:02</div></div></div>
                     <div class="mk-tl-item"><span class="mk-tl-dot dot-grey"></span><div><div class="mk-tl-text">Borrador creado</div><div class="mk-tl-time">hoy, 10:41</div></div></div>
                 </aside>
             </div>
         </div>
 
-        <div class="mk-toast">
+        <div class="mk-toast" id="mkToast">
             <span class="mk-toast-dot"></span>
             <span><b>El Zarco</b> abrió tu cotización</span>
+        </div>
+
+        <div class="mk-chip" id="mkChip">
+            <span class="mk-chip-check">✓</span>
+            <span>CFDI 4.0 timbrado · SAT</span>
         </div>
     </div>
 
@@ -198,6 +212,19 @@
         margin: 0 0 2.6rem 0;
     }
 
+    /* Chips de valor — escaneables en 2 segundos */
+    .hero-points {
+        display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap; justify-content: center;
+        margin: -0.9rem 0 2.4rem;
+    }
+    .hp-item {
+        display: inline-flex; align-items: center; gap: 7px;
+        font-size: 0.85rem; font-weight: 600; color: #44506a;
+        letter-spacing: -0.01em;
+    }
+    .hp-item svg { width: 13px; height: 13px; color: var(--color-ok); flex-shrink: 0; }
+    .hp-sep { width: 3px; height: 3px; border-radius: 50%; background: #c5ccd8; }
+
     .hero-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.3rem; }
 
     .btn-primary {
@@ -242,6 +269,12 @@
             0 90px 160px -60px rgba(10,25,47,0.4);
         border: 1px solid rgba(255,255,255,0.08);
     }
+    /* Hairline de luz en el borde superior — detalle Linear */
+    .mockup::after {
+        content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+        pointer-events: none;
+    }
 
     .mk-topbar { display: flex; align-items: center; gap: 1rem; padding: 0.7rem 1rem; background: #0d1f3a; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .mk-dots { display: flex; gap: 6px; }
@@ -261,8 +294,10 @@
     .mk-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.4rem; }
     .mk-folio { font-size: 1.15rem; font-weight: 800; color: #0a192f; letter-spacing: -0.5px; }
     .mk-client { font-size: 0.78rem; color: #667; margin-top: 3px; }
-    .mk-badge { font-size: 0.66rem; font-weight: 700; padding: 6px 12px; border-radius: 100px; letter-spacing: 0.3px; }
+    .mk-badge { font-size: 0.66rem; font-weight: 700; padding: 6px 12px; border-radius: 100px; letter-spacing: 0.3px; transition: background 0.45s var(--ease-ios), color 0.45s var(--ease-ios); }
     .mk-badge-ok { background: rgba(16,185,129,0.12); color: #059669; }
+    .mk-badge-sent { background: rgba(59,130,246,0.12); color: #2563eb; }
+    .mk-badge-viewed { background: rgba(245,158,11,0.14); color: #b45309; }
 
     .mk-table { display: flex; flex-direction: column; }
     .mk-row { display: grid; grid-template-columns: 1fr 50px 80px 90px; gap: 0.5rem; align-items: center; padding: 0.7rem 0; border-bottom: 1px solid rgba(10,25,47,0.06); font-size: 0.82rem; color: #334; }
@@ -302,6 +337,21 @@
     .mk-toast-dot { width: 9px; height: 9px; background: #10b981; border-radius: 50%; animation: pulse-dot 2s infinite; }
     @keyframes toast-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
+    /* Chip flotante CFDI (aparece en el paso "Aprobada" de la historia) */
+    .mk-chip {
+        position: absolute; top: 14%; left: -2%; z-index: 2;
+        display: flex; align-items: center; gap: 9px;
+        background: #fff; padding: 10px 16px; border-radius: 12px;
+        box-shadow: 0 18px 44px -14px rgba(10,25,47,0.32); border: 1px solid rgba(10,25,47,0.06);
+        font-size: 0.78rem; font-weight: 600; color: #334;
+    }
+    .mk-chip-check {
+        width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+        background: rgba(16,185,129,0.14); color: #059669;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.65rem; font-weight: 800;
+    }
+
     /* Trust */
     .hero-trust { margin-top: 5rem; display: flex; flex-direction: column; align-items: center; gap: 1.3rem; }
     .trust-label { font-size: 0.62rem; font-weight: 800; letter-spacing: 2px; color: #aab; }
@@ -317,6 +367,9 @@
         .mk-brand { display: none; }
         .mk-timeline { border-left: none; border-top: 1px solid rgba(10,25,47,0.06); }
         .mk-toast { right: 50%; transform: translateX(50%); bottom: -20px; animation: none; }
+        .mk-chip { display: none; }
+        .hero-points { gap: 0.7rem; }
+        .hp-item { font-size: 0.78rem; }
     }
     @media (max-width: 560px) {
         .mk-navitem { font-size: 0.72rem; padding: 6px 9px; }

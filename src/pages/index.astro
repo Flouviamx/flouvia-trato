@@ -100,8 +100,9 @@ import Footer from '../components/landing/Footer.astro';
             .to('.hero .hero-pill', { opacity: 1, y: 0, duration: 0.8 }, 0)
             .to(heroTitleLines, { yPercent: 0, duration: 1.15, ease: 'power3.out', stagger: 0.11 }, 0.08)
             .to('.hero .hero-desc', { opacity: 1, y: 0, duration: 0.9 }, 0.45)
-            .to('.hero .hero-actions', { opacity: 1, y: 0, duration: 0.9 }, 0.55)
-            .to('.hero .hero-microcopy', { opacity: 1, y: 0, duration: 0.9 }, 0.65);
+            .to('.hero .hero-points', { opacity: 1, y: 0, duration: 0.9 }, 0.55)
+            .to('.hero .hero-actions', { opacity: 1, y: 0, duration: 0.9 }, 0.65)
+            .to('.hero .hero-microcopy', { opacity: 1, y: 0, duration: 0.9 }, 0.75);
 
         // Mockup del hero: entra con perspectiva y se ASIENTA al hacer scroll (Stripe).
         const heroMockup = document.querySelector<HTMLElement>('.hero .reveal-mockup');
@@ -116,6 +117,53 @@ import Footer from '../components/landing/Footer.astro';
                 rotationX: 0, ease: 'none',
                 scrollTrigger: { trigger: heroMockup, start: 'top 88%', end: 'top 32%', scrub: 0.6 },
             });
+        }
+
+        // ───────── HERO STORY: Enviada → Vista → Aprobada (loop) ─────────
+        // El HTML por defecto es el estado final (Aprobada) — sin JS o con
+        // reduced-motion el mockup queda estático y completo. Con JS, la
+        // historia arranca desde "Enviada" y recorre el loop del producto.
+        const mkStatus = document.getElementById('mkStatus');
+        const mkToast = document.getElementById('mkToast');
+        const mkChip = document.getElementById('mkChip');
+        const tlViewed = document.querySelector<HTMLElement>('.mk-tl-item[data-story="viewed"]');
+        const tlApproved = document.querySelector<HTMLElement>('.mk-tl-item[data-story="approved"]');
+
+        if (mkStatus && mkToast && mkChip && tlViewed && tlApproved) {
+            const setStatus = (cls: string, label: string) => () => {
+                mkStatus.className = `mk-badge ${cls}`;
+                mkStatus.textContent = `● ${label}`;
+            };
+            const popBadge = () =>
+                gsap.fromTo(mkStatus, { scale: 0.82, opacity: 0.3 }, { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' });
+
+            // Estado inicial inmediato (antes de que el mockup termine de entrar)
+            gsap.set([tlViewed, tlApproved], { opacity: 0, y: 8 });
+            gsap.set(mkToast, { opacity: 0 });
+            gsap.set(mkChip, { opacity: 0, y: -10 });
+            setStatus('mk-badge-sent', 'Enviada')();
+
+            const story = gsap.timeline({ repeat: -1, delay: 2.0 });
+            story
+                // reset (para los loops siguientes)
+                .set([tlViewed, tlApproved], { opacity: 0, y: 8 })
+                .set(mkToast, { opacity: 0 })
+                .set(mkChip, { opacity: 0, y: -10 })
+                .call(setStatus('mk-badge-sent', 'Enviada'))
+                .call(popBadge)
+                // 1) el cliente la abre — toast + badge "Vista" + evento en timeline
+                .to(mkToast, { opacity: 1, duration: 0.55, ease: 'power2.out' }, '+=1.9')
+                .call(setStatus('mk-badge-viewed', 'Vista'), undefined, '<0.15')
+                .call(popBadge, undefined, '<0.15')
+                .to(tlViewed, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '<0.1')
+                // 2) aprueba — badge verde, evento, CFDI timbrado
+                .call(setStatus('mk-badge-ok', 'Aprobada'), undefined, '+=2.6')
+                .call(popBadge, undefined, '+=0.01')
+                .to(tlApproved, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '<0.1')
+                .to(mkToast, { opacity: 0, duration: 0.45 }, '<0.2')
+                .to(mkChip, { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out' }, '<0.3')
+                // 3) respiro y cierre suave antes de reiniciar
+                .to([tlViewed, tlApproved, mkChip], { opacity: 0, duration: 0.6, ease: 'power2.in' }, '+=3.4');
         }
 
         // Trust strip del hero (está bajo el fold normalmente)
@@ -151,7 +199,41 @@ import Footer from '../components/landing/Footer.astro';
             });
         });
 
-        // ───────────────────────── COUNT-UP (números serif) ─────────────────────────
+        // ───────────────────────── MICRO-DEMOS DE LOS BENTO ─────────────────────────
+        // Editor: el precio negociado "baja" en vivo y el chip de descuento hace pop.
+        const evLine = document.querySelector<HTMLElement>('.ev-edit');
+        const evPrice = document.querySelector<HTMLElement>('.ev-edit .editorial');
+        const evTag = document.querySelector<HTMLElement>('.ev-edit .ev-tag');
+        if (evLine && evPrice && evTag) {
+            gsap.set(evTag, { scale: 0, transformOrigin: 'center' });
+            ScrollTrigger.create({
+                trigger: evLine, start: 'top 88%', once: true,
+                onEnter: () => {
+                    const obj = { v: 191.48 }; // precio de lista antes del −12%
+                    const tl = gsap.timeline({ delay: 0.5 });
+                    tl.to(obj, {
+                        v: 168.5, duration: 1.1, ease: 'power2.out',
+                        onUpdate: () => { evPrice.textContent = mxn(obj.v, 2); },
+                    }, 0)
+                    .fromTo(evLine,
+                        { backgroundColor: 'rgba(16,185,129,0.04)' },
+                        { backgroundColor: 'rgba(16,185,129,0.16)', duration: 0.4, yoyo: true, repeat: 1, onComplete: () => gsap.set(evLine, { clearProps: 'backgroundColor' }) },
+                        0.5)
+                    .fromTo(evTag, { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: 'power3.out' }, 0.7);
+                },
+            });
+        }
+
+        // CFDI: el check de timbrado entra con un pop sutil.
+        const cfdiCheck = document.querySelector<HTMLElement>('.cfdi-visual .cfdi-check');
+        if (cfdiCheck) {
+            ScrollTrigger.create({
+                trigger: cfdiCheck, start: 'top 90%', once: true,
+                onEnter: () => gsap.fromTo(cfdiCheck, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.55, ease: 'power3.out', delay: 0.45, clearProps: 'transform,opacity' }),
+            });
+        }
+
+        // ───────────────────────── COUNT-UP (números) ─────────────────────────
         gsap.utils.toArray<HTMLElement>('[data-countup]').forEach((el) => {
             const target = parseFloat(el.dataset.countup || '0');
             const dec = parseInt(el.dataset.decimals || '0', 10);

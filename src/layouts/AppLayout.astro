@@ -31,7 +31,7 @@ const NAV = [
         <meta name="robots" content="noindex, nofollow" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
         <meta name="theme-color" content="#0a192f" />
         <title>{title}</title>
     </head>
@@ -106,7 +106,6 @@ const NAV = [
         --color-warn: #f59e0b;
         --color-danger: #ef4444;
         --font-sans: 'Inter', system-ui, sans-serif;
-        --font-serif: 'Instrument Serif', serif;
         --ease-ios: cubic-bezier(0.25, 1, 0.5, 1);
         --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
         --sidebar-w: 232px;
@@ -123,7 +122,13 @@ const NAV = [
     }
     ::selection { background: #0a192f; color: #fff; }
 
-    .editorial { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+    .editorial {
+        font-family: var(--font-sans);
+        font-style: normal;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+    }
 
     /* ── Entrada de página (CSS, no GSAP) ── */
     @keyframes app-fadein {
