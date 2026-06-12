@@ -1,0 +1,75 @@
+---
+// Clientes — directorio con términos y límite de crédito. Datos mock.
+import AppLayout from '../../layouts/AppLayout.astro';
+import { CLIENTES, COTIZACIONES, money } from '../../lib/mock';
+
+const countQuotes = (empresa: string) => COTIZACIONES.filter(q => q.cliente === empresa).length;
+---
+
+<AppLayout title="Clientes — Trato" page="clientes" heading="Clientes">
+    <button slot="topbar-actions" class="btn-new">+ Nuevo cliente</button>
+
+    <section class="card table-card">
+        <div class="t-head">
+            <span>Cliente</span><span>Contacto</span><span>RFC</span><span>Términos</span><span class="t-right">Límite de crédito</span><span class="t-right">Cotizaciones</span>
+        </div>
+        {CLIENTES.map((c) => (
+            <div class="t-row">
+                <span class="t-client"><span class="t-avatar">{c.inicial}</span>{c.empresa}</span>
+                <span class="t-contact">{c.contacto}<small>{c.email}</small></span>
+                <span class="t-muted">{c.rfc}</span>
+                <span class="t-term">{c.terminos}</span>
+                <span class="editorial t-amount t-right">{c.limite > 0 ? money(c.limite, 0) : '—'}</span>
+                <span class="t-muted t-right">{countQuotes(c.empresa)}</span>
+            </div>
+        ))}
+    </section>
+</AppLayout>
+
+<style>
+    .btn-new {
+        font-family: var(--font-sans);
+        background: var(--color-blue-deep); color: #fff;
+        font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer;
+        padding: 9px 16px; border-radius: 9px;
+        box-shadow: 0 6px 18px -8px rgba(10,25,47,0.5);
+        transition: transform 0.4s var(--ease-spring);
+    }
+    .btn-new:hover { transform: translateY(-2px); }
+
+    .table-card { overflow: hidden; }
+    .t-head, .t-row {
+        display: grid;
+        grid-template-columns: 1.6fr 1.4fr 1fr 0.7fr 1fr 0.8fr;
+        gap: 1rem; align-items: center;
+        padding: 0.85rem 1.3rem;
+    }
+    .t-head {
+        font-size: 0.62rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+        color: #99a2af; border-bottom: 1px solid var(--color-border);
+        background: var(--color-bg-soft);
+    }
+    .t-row { border-bottom: 1px solid var(--color-border); transition: background 0.2s var(--ease-ios); }
+    .t-row:last-of-type { border-bottom: none; }
+    .t-row:hover { background: var(--color-bg-soft); }
+
+    .t-client { display: flex; align-items: center; gap: 10px; font-size: 0.86rem; font-weight: 600; }
+    .t-avatar {
+        width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+        background: var(--color-blue-deep); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.62rem; font-weight: 800;
+    }
+    .t-contact { display: flex; flex-direction: column; font-size: 0.82rem; font-weight: 500; }
+    .t-contact small { font-size: 0.7rem; color: var(--color-text-muted); }
+    .t-muted { font-size: 0.78rem; color: var(--color-text-muted); }
+    .t-term { font-size: 0.74rem; font-weight: 700; color: var(--color-blue-deep); }
+    .t-amount { font-size: 0.95rem; color: var(--color-blue-deep); }
+    .t-right { text-align: right; }
+
+    @media (max-width: 880px) {
+        .t-head { display: none; }
+        .t-row { grid-template-columns: 1fr auto; gap: 0.3rem 1rem; }
+        .t-muted, .t-contact { display: none; }
+    }
+</style>

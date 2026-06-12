@@ -1,0 +1,335 @@
+---
+// Editor de cotizaciones — LA pantalla crítica. Interactivo con datos mock:
+// agregas productos del catálogo, negocias precio por línea, el total se
+// recalcula en vivo con IVA. (Guardar = demo; con Neon será un POST real.)
+import AppLayout from '../../../layouts/AppLayout.astro';
+import { PRODUCTOS, CLIENTES } from '../../../lib/mock';
+
+const catalogo = PRODUCTOS.filter(p => p.activo);
+---
+
+<AppLayout title="Nueva cotización — Trato" page="cotizaciones" heading="Nueva cotización">
+    <span slot="topbar-actions" class="draft-tag">Borrador · COT-0149</span>
+
+    <div class="editor-grid">
+        <!-- ── Columna principal ── -->
+        <div class="ed-main">
+            <!-- Cliente -->
+            <section class="card ed-block">
+                <h2 class="ed-title">Cliente</h2>
+                <div class="client-row">
+                    <select class="ed-select" id="clientSelect">
+                        {CLIENTES.map((c, i) => (
+                            <option value={c.id} selected={i === 0}>{c.empresa} — {c.contacto}</option>
+                        ))}
+                    </select>
+                    <div class="term-chips" id="termChips">
+                        {['Contado', 'Net 30', 'Net 60'].map((t) => (
+                            <button class:list={['chip', { active: t === 'Net 30' }]} data-term={t}>{t}</button>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Productos -->
+            <section class="card ed-block">
+                <div class="ed-block-head">
+                    <h2 class="ed-title">Productos</h2>
+                    <div class="add-product">
+                        <select class="ed-select" id="productSelect">
+                            <option value="" disabled selected>Agregar producto del catálogo…</option>
+                            {catalogo.map((p, i) => (
+                                <option value={i}>{p.nombre} — ${p.precio.toFixed(2)} / {p.unidad}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="lines-head">
+                    <span>Producto</span><span>Cant.</span><span>Lista</span><span>Negociado</span><span class="lh-right">Importe</span><span></span>
+                </div>
+                <div id="lines"></div>
+                <p class="lines-empty" id="linesEmpty">Agrega productos del catálogo para empezar.</p>
+            </section>
+
+            <!-- Notas -->
+            <section class="card ed-block">
+                <h2 class="ed-title">Notas para el cliente <span class="opt">(opcional)</span></h2>
+                <textarea class="ed-textarea" rows="2" placeholder="Ej. Precio especial por volumen — entrega en obra incluida."></textarea>
+            </section>
+        </div>
+
+        <!-- ── Sidebar resumen ── -->
+        <aside class="ed-side">
+            <section class="card ed-summary">
+                <h2 class="ed-title">Resumen</h2>
+                <div class="sum-line"><span>Subtotal</span><span class="editorial" id="sumSubtotal">$0.00</span></div>
+                <div class="sum-line"><span>IVA 16%</span><span class="editorial" id="sumIva">$0.00</span></div>
+                <div class="sum-divider"></div>
+                <div class="sum-line sum-total"><span>Total</span><span class="editorial" id="sumTotal">$0.00</span></div>
+
+                <div class="sum-field">
+                    <label>Vigencia</label>
+                    <select class="ed-select">
+                        <option>15 días</option>
+                        <option selected>30 días</option>
+                        <option>60 días</option>
+                    </select>
+                </div>
+
+                <button class="btn-send" id="btnSend">
+                    <span>Enviar cotización</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+                <button class="btn-draft">Guardar borrador</button>
+                <p class="sum-note">Al enviar se genera el link público y el PDF con tu marca.</p>
+            </section>
+        </aside>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" hidden>
+        <span class="toast-dot"></span>
+        <span id="toastMsg">Cotización enviada</span>
+    </div>
+</AppLayout>
+
+<script is:inline define:vars={{ catalogo }}>
+    const lines = [];
+    const $lines = document.getElementById('lines');
+    const $empty = document.getElementById('linesEmpty');
+    const $select = document.getElementById('productSelect');
+    const fmt = (n) => '$' + new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+
+    function recalc() {
+        const subtotal = lines.reduce((s, l) => s + (l.negociado ?? l.lista) * l.cantidad, 0);
+        document.getElementById('sumSubtotal').textContent = fmt(subtotal);
+        document.getElementById('sumIva').textContent = fmt(subtotal * 0.16);
+        document.getElementById('sumTotal').textContent = fmt(subtotal * 1.16);
+    }
+
+    function render() {
+        $empty.hidden = lines.length > 0;
+        $lines.innerHTML = '';
+        lines.forEach((l, idx) => {
+            const importe = (l.negociado ?? l.lista) * l.cantidad;
+            const row = document.createElement('div');
+            row.className = 'line-row';
+            row.innerHTML = `
+                <span class="lr-name">${l.nombre}<small>${l.unidad}</small></span>
+                <input type="number" min="1" value="${l.cantidad}" class="lr-input" data-idx="${idx}" data-field="cantidad" />
+                <span class="lr-lista">${fmt(l.lista)}</span>
+                <input type="number" min="0" step="0.01" value="${(l.negociado ?? l.lista).toFixed(2)}" class="lr-input lr-nego ${l.negociado !== null && l.negociado < l.lista ? 'is-deal' : ''}" data-idx="${idx}" data-field="negociado" />
+                <span class="editorial lr-importe">${fmt(importe)}</span>
+                <button class="lr-del" data-del="${idx}" aria-label="Quitar">×</button>
+            `;
+            $lines.appendChild(row);
+        });
+        recalc();
+    }
+
+    $select.addEventListener('change', () => {
+        const p = catalogo[parseInt($select.value, 10)];
+        if (!p) return;
+        lines.push({ nombre: p.nombre, unidad: p.unidad, lista: p.precio, negociado: null, cantidad: 1 });
+        $select.selectedIndex = 0;
+        render();
+    });
+
+    $lines.addEventListener('input', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLInputElement)) return;
+        const idx = parseInt(t.dataset.idx, 10);
+        const val = parseFloat(t.value) || 0;
+        if (t.dataset.field === 'cantidad') lines[idx].cantidad = Math.max(1, Math.round(val));
+        if (t.dataset.field === 'negociado') {
+            lines[idx].negociado = val;
+            t.classList.toggle('is-deal', val < lines[idx].lista);
+        }
+        // recalcula sin re-render (no perder el foco del input)
+        const row = t.closest('.line-row');
+        const l = lines[idx];
+        row.querySelector('.lr-importe').textContent = fmt((l.negociado ?? l.lista) * l.cantidad);
+        recalc();
+    });
+
+    $lines.addEventListener('click', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement) || t.dataset.del === undefined) return;
+        lines.splice(parseInt(t.dataset.del, 10), 1);
+        render();
+    });
+
+    // Chips de términos
+    document.querySelectorAll('#termChips .chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('#termChips .chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+        });
+    });
+
+    // Enviar (demo)
+    const toast = document.getElementById('toast');
+    document.getElementById('btnSend').addEventListener('click', () => {
+        if (!lines.length) {
+            document.getElementById('toastMsg').textContent = 'Agrega al menos un producto';
+            toast.hidden = false;
+            setTimeout(() => { toast.hidden = true; }, 2200);
+            return;
+        }
+        document.getElementById('toastMsg').textContent = 'Cotización enviada — link generado ✓';
+        toast.hidden = false;
+        setTimeout(() => { window.location.href = '/app/cotizaciones'; }, 1400);
+    });
+    document.querySelector('.btn-draft').addEventListener('click', () => {
+        document.getElementById('toastMsg').textContent = 'Borrador guardado';
+        toast.hidden = false;
+        setTimeout(() => { toast.hidden = true; }, 2000);
+    });
+
+    // arranca con una línea de ejemplo
+    lines.push({ nombre: catalogo[0].nombre, unidad: catalogo[0].unidad, lista: catalogo[0].precio, negociado: 182, cantidad: 120 });
+    render();
+</script>
+
+<style is:global>
+    /* Filas del editor — inyectadas por JS, por eso van en is:global */
+    .line-row {
+        display: grid;
+        grid-template-columns: 1.7fr 70px 90px 110px 1fr 30px;
+        gap: 0.8rem; align-items: center;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid rgba(10,25,47,0.07);
+    }
+    .line-row:last-child { border-bottom: none; }
+    .lr-name { font-size: 0.86rem; font-weight: 600; color: #0f1729; display: flex; flex-direction: column; }
+    .lr-name small { font-size: 0.68rem; color: #99a2af; font-weight: 500; }
+    .lr-lista { font-size: 0.8rem; color: #99a2af; text-decoration: line-through; }
+    .lr-input {
+        font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600;
+        color: #0f1729; background: #fafbfc;
+        border: 1px solid rgba(10,25,47,0.1); border-radius: 8px;
+        padding: 8px 10px; width: 100%;
+        transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .lr-input:focus { outline: none; border-color: #0a192f; box-shadow: 0 0 0 3px rgba(10,25,47,0.08); }
+    .lr-nego.is-deal { color: #059669; border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.04); }
+    .lr-importe { font-size: 0.98rem; color: #0a192f; text-align: right; }
+    .lr-del {
+        background: none; border: none; cursor: pointer;
+        color: #c3c9d2; font-size: 1.1rem; line-height: 1;
+        border-radius: 6px; padding: 4px 7px;
+        transition: color 0.2s, background 0.2s;
+    }
+    .lr-del:hover { color: #ef4444; background: rgba(239,68,68,0.07); }
+
+    @media (max-width: 720px) {
+        .line-row { grid-template-columns: 1fr 60px 90px auto; }
+        .lr-lista, .lr-importe { display: none; }
+    }
+</style>
+
+<style>
+    .draft-tag { font-size: 0.72rem; font-weight: 700; color: var(--color-text-muted); background: #fff; border: 1px solid var(--color-border); padding: 6px 12px; border-radius: 100px; }
+
+    .editor-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: start; }
+    .ed-main { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+    .ed-block { padding: 1.3rem 1.4rem; }
+    .ed-block-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+    .ed-title { font-size: 0.92rem; font-weight: 700; margin: 0 0 0.9rem; letter-spacing: -0.2px; }
+    .ed-block-head .ed-title { margin: 0; }
+    .opt { font-size: 0.72rem; font-weight: 500; color: var(--color-text-muted); }
+
+    .client-row { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+    .ed-select {
+        font-family: var(--font-sans); font-size: 0.85rem; font-weight: 500;
+        color: var(--color-text); background: var(--color-bg-soft);
+        border: 1px solid var(--color-border); border-radius: 9px;
+        padding: 9px 12px; min-width: 220px; cursor: pointer;
+        transition: border-color 0.25s;
+    }
+    .ed-select:focus { outline: none; border-color: var(--color-blue-deep); }
+
+    .term-chips { display: flex; gap: 0.4rem; }
+    .chip {
+        font-family: var(--font-sans); font-size: 0.76rem; font-weight: 600;
+        color: var(--color-text-muted); background: #fff;
+        border: 1px solid var(--color-border); border-radius: 100px;
+        padding: 7px 13px; cursor: pointer;
+        transition: all 0.25s var(--ease-ios);
+    }
+    .chip.active { background: var(--color-blue-deep); color: #fff; border-color: var(--color-blue-deep); }
+
+    .lines-head {
+        display: grid; grid-template-columns: 1.7fr 70px 90px 110px 1fr 30px;
+        gap: 0.8rem;
+        font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+        color: #99a2af;
+        padding: 0.6rem 0 0.5rem; border-bottom: 1px solid var(--color-border);
+    }
+    .lh-right { text-align: right; }
+    .lines-empty { font-size: 0.82rem; color: var(--color-text-muted); padding: 1.4rem 0 0.6rem; margin: 0; }
+
+    .ed-textarea {
+        font-family: var(--font-sans); font-size: 0.86rem; width: 100%;
+        color: var(--color-text); background: var(--color-bg-soft);
+        border: 1px solid var(--color-border); border-radius: 9px;
+        padding: 10px 12px; resize: vertical;
+    }
+    .ed-textarea:focus { outline: none; border-color: var(--color-blue-deep); }
+
+    .ed-side { position: sticky; top: 76px; }
+    .ed-summary { padding: 1.3rem 1.4rem; display: flex; flex-direction: column; gap: 0.7rem; }
+    .sum-line { display: flex; justify-content: space-between; font-size: 0.84rem; color: var(--color-text-muted); }
+    .sum-line .editorial { color: var(--color-blue-deep); font-size: 0.95rem; }
+    .sum-divider { height: 1px; background: var(--color-border); margin: 0.2rem 0; }
+    .sum-total { font-weight: 700; color: var(--color-text); }
+    .sum-total .editorial { font-size: 1.6rem; }
+
+    .sum-field { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.4rem; }
+    .sum-field label { font-size: 0.62rem; font-weight: 800; letter-spacing: 1.2px; color: #99a2af; }
+    .sum-field .ed-select { min-width: 0; }
+
+    .btn-send {
+        display: flex; align-items: center; justify-content: center; gap: 9px;
+        font-family: var(--font-sans); font-size: 0.9rem; font-weight: 600;
+        background: var(--color-blue-deep); color: #fff;
+        border: none; border-radius: 11px; padding: 13px; cursor: pointer;
+        box-shadow: 0 10px 26px -10px rgba(10,25,47,0.55);
+        transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-spring);
+        margin-top: 0.5rem;
+    }
+    .btn-send svg { width: 15px; height: 15px; }
+    .btn-send:hover { transform: translateY(-2px); box-shadow: 0 14px 32px -10px rgba(10,25,47,0.6); }
+    .btn-draft {
+        font-family: var(--font-sans); font-size: 0.84rem; font-weight: 600;
+        color: var(--color-text-muted); background: none;
+        border: 1px solid var(--color-border); border-radius: 11px;
+        padding: 11px; cursor: pointer;
+        transition: color 0.25s, border-color 0.25s;
+    }
+    .btn-draft:hover { color: var(--color-blue-deep); border-color: rgba(10,25,47,0.25); }
+    .sum-note { font-size: 0.7rem; color: #99a2af; margin: 0.2rem 0 0; line-height: 1.5; }
+
+    .toast {
+        position: fixed; bottom: 1.6rem; left: 50%; transform: translateX(-50%);
+        display: flex; align-items: center; gap: 10px;
+        background: var(--color-blue-deep); color: #fff;
+        font-size: 0.85rem; font-weight: 600;
+        padding: 12px 20px; border-radius: 12px;
+        box-shadow: 0 18px 44px -12px rgba(10,25,47,0.6);
+        z-index: 200;
+        animation: toast-in 0.4s var(--ease-spring);
+    }
+    @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-ok); }
+
+    @media (max-width: 980px) {
+        .editor-grid { grid-template-columns: 1fr; }
+        .ed-side { position: static; }
+    }
+    @media (max-width: 720px) {
+        .lines-head { grid-template-columns: 1fr 60px 90px auto; }
+        .lines-head span:nth-child(3), .lines-head span:nth-child(5) { display: none; }
+    }
+</style>

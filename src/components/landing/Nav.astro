@@ -22,7 +22,9 @@
                 <div class="glass-pill" id="glass-pill">
                     <div class="pill-shimmer" aria-hidden="true"></div>
                     <span class="nav-indicator" id="nav-indicator" aria-hidden="true"></span>
-                    <a href="/" class="pill-logo" id="pill-logo">trato</a>
+                    <a href="/" class="pill-logo" id="pill-logo">
+                        <img src="/imgs/logo-trato-white.png" alt="Trato" class="pill-logo-img" />
+                    </a>
                     <a href="#producto" class="nav-link" data-path="#producto">PRODUCTO</a>
                     <a href="#como" class="nav-link" data-path="#como">CÓMO FUNCIONA</a>
                     <a href="#precios" class="nav-link" data-path="#precios">PRECIOS</a>
@@ -31,7 +33,9 @@
             </div>
 
             <div class="nav-center desktop-nav">
-                <a href="/" class="main-logo" id="main-logo">trato</a>
+                <a href="/" class="main-logo" id="main-logo">
+                    <img src="/imgs/logo-trato-navy.png" alt="Trato" class="main-logo-img" />
+                </a>
             </div>
 
             <div class="nav-right desktop-nav" id="nav-right">
@@ -49,7 +53,10 @@
                         <button class="hamburger-btn" id="menu-toggle" aria-label="Menú">
                             <div class="burger-lines"><span class="l1"></span><span class="l2"></span><span class="l3"></span></div>
                         </button>
-                        <a href="/" class="mobile-logo">trato</a>
+                        <a href="/" class="mobile-logo">
+                            <img src="/imgs/logo-trato-navy.png" alt="Trato" class="logo-mobile-img default-logo" />
+                            <img src="/imgs/logo-trato-white.png" alt="Trato" class="logo-mobile-img scrolled-logo" />
+                        </a>
                     </div>
                     <a href="/registro" class="btn-contact-mobile squircle">
                         <span>Empezar gratis</span>
@@ -189,24 +196,24 @@
         box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), inset 0 0 0 0.5px rgba(255,255,255,0.1), inset 0 -3px 8px rgba(0,0,0,0.12);
     }
 
-    /* pill-logo (wordmark que aparece al scroll) */
+    /* pill-logo (logo blanco que aparece al scroll dentro de la pill navy) */
     .pill-logo {
         display: flex; align-items: center;
         max-width: 0; overflow: hidden; opacity: 0;
-        font-size: 1.05rem; font-weight: 800; letter-spacing: -0.5px; color: var(--nb-dark);
         text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
-        transition: max-width 0.7s var(--ease-expo), opacity 0.5s, margin 0.5s, padding 0.5s, color 0.7s var(--ease-spring);
+        transition: max-width 0.7s var(--ease-expo), opacity 0.5s, margin 0.5s, padding 0.5s;
     }
-    .navbar-wrapper.scrolled .pill-logo { max-width: 90px; opacity: 1; margin-right: 6px; padding-left: 10px; color: #fff; }
+    .navbar-wrapper.scrolled .pill-logo { max-width: 100px; opacity: 1; margin-right: 8px; padding-left: 12px; }
+    .pill-logo-img { height: 17px; width: auto; display: block; }
 
-    /* ── CENTER WORDMARK ── */
+    /* ── CENTER LOGO ── */
     .nav-center { justify-content: center; }
     .main-logo {
         display: flex; align-items: center;
-        font-size: 1.7rem; font-weight: 800; letter-spacing: -1px; color: var(--nb-dark);
         text-decoration: none;
         transition: opacity 0.7s var(--ease-expo), transform 0.7s var(--ease-expo);
     }
+    .main-logo-img { height: 30px; width: auto; display: block; }
     .navbar-wrapper.scrolled .main-logo { opacity: 0; transform: translateY(-12px) scale(0.94); pointer-events: none; }
 
     /* ── RIGHT ── */
@@ -277,9 +284,14 @@
         .navbar-wrapper.menu-open .burger-lines .l2 { opacity: 0; transform: scaleX(0); }
         .navbar-wrapper.menu-open .burger-lines .l3 { transform: translateY(-4px) rotate(-45deg); }
 
-        .mobile-logo { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; color: var(--nb-dark); text-decoration: none; transition: color 0.5s var(--ease-expo); }
-        .navbar-wrapper.scrolled .mobile-logo { color: #fff; }
-        .navbar-wrapper.menu-open .mobile-logo { color: #fff !important; }
+        .mobile-logo { display: block; position: relative; height: 22px; width: max-content; text-decoration: none; }
+        .logo-mobile-img { height: 100%; width: auto; display: block; transition: opacity 0.5s var(--ease-expo); }
+        .default-logo { position: relative; z-index: 1; }
+        .scrolled-logo { position: absolute; left: 0; top: 0; opacity: 0; z-index: 2; }
+        .navbar-wrapper.scrolled .default-logo { opacity: 0; }
+        .navbar-wrapper.scrolled .scrolled-logo { opacity: 1; }
+        .navbar-wrapper.menu-open .default-logo { opacity: 0 !important; }
+        .navbar-wrapper.menu-open .scrolled-logo { opacity: 1 !important; }
         .navbar-wrapper.menu-open .mobile-pill-inner { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.1) !important; box-shadow: none !important; }
 
         .btn-contact-mobile {

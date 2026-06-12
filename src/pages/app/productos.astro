@@ -1,0 +1,71 @@
+---
+// Productos — catálogo con precios de lista. Datos mock.
+import AppLayout from '../../layouts/AppLayout.astro';
+import { PRODUCTOS, money } from '../../lib/mock';
+---
+
+<AppLayout title="Productos — Trato" page="productos" heading="Productos">
+    <button slot="topbar-actions" class="btn-new">+ Nuevo producto</button>
+
+    <section class="card table-card">
+        <div class="t-head">
+            <span>SKU</span><span>Producto</span><span>Unidad</span><span class="t-right">Precio de lista</span><span>Estado</span>
+        </div>
+        {PRODUCTOS.map((p) => (
+            <div class="t-row">
+                <span class="t-sku">{p.sku}</span>
+                <span class="t-name">{p.nombre}</span>
+                <span class="t-muted">{p.unidad}</span>
+                <span class="editorial t-amount t-right">{money(p.precio)}</span>
+                <span class:list={['t-state', p.activo ? 'on' : 'off']}>{p.activo ? '● Activo' : '○ Inactivo'}</span>
+            </div>
+        ))}
+    </section>
+
+    <p class="hint">💡 Con la base de datos conectada podrás importar tu catálogo completo desde CSV.</p>
+</AppLayout>
+
+<style>
+    .btn-new {
+        font-family: var(--font-sans);
+        background: var(--color-blue-deep); color: #fff;
+        font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer;
+        padding: 9px 16px; border-radius: 9px;
+        box-shadow: 0 6px 18px -8px rgba(10,25,47,0.5);
+        transition: transform 0.4s var(--ease-spring);
+    }
+    .btn-new:hover { transform: translateY(-2px); }
+
+    .table-card { overflow: hidden; }
+    .t-head, .t-row {
+        display: grid;
+        grid-template-columns: 100px 1.8fr 0.8fr 1fr 110px;
+        gap: 1rem; align-items: center;
+        padding: 0.8rem 1.3rem;
+    }
+    .t-head {
+        font-size: 0.62rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+        color: #99a2af; border-bottom: 1px solid var(--color-border);
+        background: var(--color-bg-soft);
+    }
+    .t-row { border-bottom: 1px solid var(--color-border); transition: background 0.2s var(--ease-ios); }
+    .t-row:last-of-type { border-bottom: none; }
+    .t-row:hover { background: var(--color-bg-soft); }
+
+    .t-sku { font-size: 0.74rem; font-weight: 700; color: var(--color-text-muted); letter-spacing: 0.4px; }
+    .t-name { font-size: 0.86rem; font-weight: 600; }
+    .t-muted { font-size: 0.8rem; color: var(--color-text-muted); }
+    .t-amount { font-size: 0.95rem; color: var(--color-blue-deep); }
+    .t-right { text-align: right; }
+    .t-state { font-size: 0.72rem; font-weight: 700; }
+    .t-state.on { color: #059669; }
+    .t-state.off { color: #99a2af; }
+
+    .hint { font-size: 0.78rem; color: var(--color-text-muted); margin-top: 1rem; }
+
+    @media (max-width: 720px) {
+        .t-head { display: none; }
+        .t-row { grid-template-columns: 1fr auto; gap: 0.3rem 1rem; }
+        .t-sku, .t-muted, .t-state { display: none; }
+    }
+</style>

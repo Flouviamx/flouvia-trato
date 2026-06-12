@@ -1,5 +1,5 @@
 -- ============================================================
--- Trato — schema multi-tenant (Supabase / PostgreSQL)
+-- Trato — schema multi-tenant (Neon / PostgreSQL)
 -- PK de relación: org_id (NO email_cliente como el portal de flouvia-web).
 -- Cada negocio que se registra es una org; todo cuelga de ahí.
 -- Patrón RLS: org_id = current_setting('app.org_id', TRUE)::uuid

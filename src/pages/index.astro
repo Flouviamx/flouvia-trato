@@ -26,26 +26,15 @@ import Footer from '../components/landing/Footer.astro';
     <Footer />
 </Layout>
 
-<!-- Gate anti-FOUC + estilos de microinteracciones globales -->
+<!-- Gate anti-FOUC + estilos de los masked line reveals -->
 <style is:global>
     .js-anim .reveal,
     .js-anim .reveal-mockup { opacity: 0; }
 
-    /* Ripple de click en CTAs */
-    .click-ripple {
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.35);
-        transform: scale(0);
-        pointer-events: none;
-        animation: click-ripple 0.6s ease-out forwards;
-        z-index: 0;
-    }
-    @keyframes click-ripple {
-        to { transform: scale(2.4); opacity: 0; }
-    }
-    /* El contenido del botón queda sobre el ripple */
-    .btn-primary > *, .fc-btn > * { position: relative; z-index: 1; }
+    /* Masked line reveal (Linear-style): cada línea del título sube desde
+       una máscara con overflow hidden. Los spans los inyecta el JS. */
+    .m-line { display: block; overflow: hidden; }
+    .m-line-in { display: inline-block; will-change: transform; }
 </style>
 
 <script>
@@ -55,12 +44,10 @@ import Footer from '../components/landing/Footer.astro';
 
     document.addEventListener('DOMContentLoaded', () => {
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const finePointer = window.matchMedia('(pointer: fine)').matches;
 
-        // ───────────────────────── COUNT-UP ─────────────────────────
+        // ───────────────────────── COUNT-UP util ─────────────────────────
         const mxn = (n: number, dec: number) =>
             '$' + new Intl.NumberFormat('es-MX', { minimumFractionDigits: dec, maximumFractionDigits: dec }).format(n);
-
         const countUp = (el: HTMLElement, target: number, dec: number, dur = 1.3) => {
             const obj = { v: 0 };
             return gsap.to(obj, {
@@ -71,24 +58,81 @@ import Footer from '../components/landing/Footer.astro';
 
         if (reduced) {
             gsap.set('.reveal, .reveal-mockup', { opacity: 1, y: 0 });
-            return; // los números ya muestran su valor final en el HTML
+            return; // números muestran su valor final del HTML; nada se anima
         }
 
-        // El navbar (Nav.astro) maneja su propia entrada GSAP internamente.
+        // ───────────────────── MASKED LINE REVEALS (Linear) ─────────────────────
+        // Envuelve cada línea (separada por <br>) en una máscara y la sube.
+        // Los títulos marcados dejan de participar del reveal genérico.
+        const wrapLines = (el: HTMLElement): HTMLElement[] => {
+            const parts = el.innerHTML.split(/<br\s*\/?>/i);
+            el.innerHTML = parts
+                .map(p => `<span class="m-line"><span class="m-line-in">${p.trim()}</span></span>`)
+                .join('');
+            return Array.from(el.querySelectorAll<HTMLElement>('.m-line-in'));
+        };
+
+        const maskTargets = gsap.utils.toArray<HTMLElement>(
+            '.hero-title, .ft-title, .steps-title, .cv-title, .pr-title, .faq-title, .fc-title'
+        );
+        const maskedSet = new Set<HTMLElement>(maskTargets);
+
+        maskTargets.forEach((el) => {
+            const lines = wrapLines(el);
+            gsap.set(lines, { yPercent: 115 });
+            gsap.set(el, { opacity: 1 }); // el gate ya no lo oculta; lo ocultan las máscaras
+            if (el.classList.contains('hero-title')) return; // el hero lo orquesta su timeline
+            ScrollTrigger.create({
+                trigger: el, start: 'top 86%', once: true,
+                onEnter: () => gsap.to(lines, {
+                    yPercent: 0, duration: 1.0, ease: 'power3.out', stagger: 0.09,
+                }),
+            });
+        });
 
         // ───────────────────────── HERO (en carga) ─────────────────────────
-        const heroReveals = gsap.utils.toArray<HTMLElement>('.hero .reveal');
+        const heroTitleLines = document.querySelectorAll<HTMLElement>('.hero-title .m-line-in');
+        const heroReveals = gsap.utils.toArray<HTMLElement>('.hero .reveal').filter(el => !maskedSet.has(el));
         gsap.set(heroReveals, { y: 16 });
-        gsap.to(heroReveals, { opacity: 1, y: 0, duration: 0.95, ease: 'power2.out', stagger: 0.08, delay: 0.1 });
 
+        const heroTl = gsap.timeline({ delay: 0.15, defaults: { ease: 'power2.out' } });
+        heroTl
+            .to('.hero .hero-pill', { opacity: 1, y: 0, duration: 0.8 }, 0)
+            .to(heroTitleLines, { yPercent: 0, duration: 1.15, ease: 'power3.out', stagger: 0.11 }, 0.08)
+            .to('.hero .hero-desc', { opacity: 1, y: 0, duration: 0.9 }, 0.45)
+            .to('.hero .hero-actions', { opacity: 1, y: 0, duration: 0.9 }, 0.55)
+            .to('.hero .hero-microcopy', { opacity: 1, y: 0, duration: 0.9 }, 0.65);
+
+        // Mockup del hero: entra con perspectiva y se ASIENTA al hacer scroll (Stripe).
         const heroMockup = document.querySelector<HTMLElement>('.hero .reveal-mockup');
-        if (heroMockup) {
-            gsap.set(heroMockup, { y: 40, scale: 0.98 });
-            gsap.to(heroMockup, { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: 'power3.out', delay: 0.5 });
+        const heroMk = document.querySelector<HTMLElement>('.hero .mockup');
+        if (heroMockup && heroMk) {
+            gsap.set(heroMk, { transformPerspective: 1400, transformOrigin: 'center top' });
+            gsap.set(heroMockup, { y: 50 });
+            gsap.set(heroMk, { rotationX: 9 });
+            gsap.to(heroMockup, { opacity: 1, y: 0, duration: 1.3, ease: 'power3.out', delay: 0.55 });
+            // settle: la perspectiva se aplana conforme el mockup viaja hacia el centro
+            gsap.to(heroMk, {
+                rotationX: 0, ease: 'none',
+                scrollTrigger: { trigger: heroMockup, start: 'top 88%', end: 'top 32%', scrub: 0.6 },
+            });
+        }
+
+        // Trust strip del hero (está bajo el fold normalmente)
+        const heroTrust = document.querySelector<HTMLElement>('.hero-trust');
+        if (heroTrust) {
+            const logos = heroTrust.querySelectorAll('.trust-label, .trust-logos > *');
+            gsap.set(heroTrust, { opacity: 1, y: 0 });
+            gsap.set(logos, { opacity: 0, y: 8 });
+            ScrollTrigger.create({
+                trigger: heroTrust, start: 'top 92%', once: true,
+                onEnter: () => gsap.to(logos, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', stagger: 0.05 }),
+            });
         }
 
         // ───────────────────────── REVEALS ON-SCROLL ─────────────────────────
-        const scrollReveals = gsap.utils.toArray<HTMLElement>('.reveal').filter((el) => !el.closest('.hero'));
+        const scrollReveals = gsap.utils.toArray<HTMLElement>('.reveal')
+            .filter((el) => !el.closest('.hero') && !maskedSet.has(el));
         scrollReveals.forEach((el) => {
             gsap.set(el, { y: 18 });
             ScrollTrigger.create({
@@ -100,7 +144,7 @@ import Footer from '../components/landing/Footer.astro';
 
         const otherMockups = gsap.utils.toArray<HTMLElement>('.reveal-mockup').filter((el) => !el.closest('.hero'));
         otherMockups.forEach((el) => {
-            gsap.set(el, { y: 40, scale: 0.97 });
+            gsap.set(el, { y: 36, scale: 0.985 });
             ScrollTrigger.create({
                 trigger: el, start: 'top 85%', once: true,
                 onEnter: () => gsap.to(el, { opacity: 1, y: 0, scale: 1, duration: 1.1, ease: 'power3.out' }),
@@ -117,29 +161,7 @@ import Footer from '../components/landing/Footer.astro';
             });
         });
 
-        // ───────────────────────── TILT 3D con el cursor (profundidad) ─────────────────────────
-        const setupTilt = (el: HTMLElement, container: HTMLElement, maxDeg: number) => {
-            if (!finePointer) return;
-            gsap.set(el, { transformPerspective: 1100, transformOrigin: 'center' });
-            const rotX = gsap.quickTo(el, 'rotationX', { duration: 0.7, ease: 'power3.out' });
-            const rotY = gsap.quickTo(el, 'rotationY', { duration: 0.7, ease: 'power3.out' });
-            container.addEventListener('mousemove', (e) => {
-                const r = container.getBoundingClientRect();
-                const px = (e.clientX - r.left) / r.width - 0.5;
-                const py = (e.clientY - r.top) / r.height - 0.5;
-                rotY(px * maxDeg * 2);
-                rotX(-py * maxDeg * 2);
-            });
-            container.addEventListener('mouseleave', () => { rotX(0); rotY(0); });
-        };
-        const heroMk = document.querySelector<HTMLElement>('.hero .mockup');
-        const heroMkWrap = document.querySelector<HTMLElement>('.hero .mockup-wrap');
-        if (heroMk && heroMkWrap) setupTilt(heroMk, heroMkWrap, 4);
-        const phone = document.querySelector<HTMLElement>('#cvPhone');
-        const phoneWrap = document.querySelector<HTMLElement>('.cv-visual');
-        if (phone && phoneWrap) setupTilt(phone, phoneWrap, 6);
-
-        // ───────────────────────── DEMO DEL TELÉFONO (auto-reproducible) ─────────────────────────
+        // ───────────────────────── DEMO DEL TELÉFONO ─────────────────────────
         const stage = document.querySelector<HTMLElement>('.cv-visual');
         if (stage) {
             const amount = stage.querySelector<HTMLElement>('#cvAmount');
@@ -154,7 +176,7 @@ import Footer from '../components/landing/Footer.astro';
                 const len = check.getTotalLength();
                 gsap.set(check, { strokeDasharray: len, strokeDashoffset: len });
                 gsap.set(items, { opacity: 0, y: 10 });
-                gsap.set(cursor, { opacity: 0, xPercent: -20, yPercent: -10 });
+                gsap.set(cursor, { opacity: 0 });
 
                 const center = (el: HTMLElement) => ({
                     x: el.offsetLeft + el.offsetWidth * 0.62,
@@ -173,7 +195,7 @@ import Footer from '../components/landing/Footer.astro';
                         .to(cursor, { x: t.x, y: t.y, duration: 1.0, ease: 'power3.inOut' })
                         .to(approve, { scale: 0.95, duration: 0.12 }, '-=0.04')
                         .to(ring, { opacity: 1, scale: 1.18, duration: 0.5, ease: 'power2.out' }, '<')
-                        .to(approve, { scale: 1, duration: 0.34, ease: 'back.out(2.2)' })
+                        .to(approve, { scale: 1, duration: 0.3, ease: 'power2.out' })
                         .to(ring, { opacity: 0, duration: 0.35 }, '<')
                         .to(success, { opacity: 1, duration: 0.4 }, '-=0.1')
                         .to(check, { strokeDashoffset: 0, duration: 0.6, ease: 'power2.out' }, '<0.12')
@@ -192,7 +214,7 @@ import Footer from '../components/landing/Footer.astro';
             }
         }
 
-        // ───────────────────────── PARALLAX (scroll hipnótico) ─────────────────────────
+        // ───────────────────────── PARALLAX (scrub sutil) ─────────────────────────
         const parallax = (sel: string, amount: number, triggerSel: string) => {
             const el = document.querySelector<HTMLElement>(sel);
             const trig = document.querySelector<HTMLElement>(triggerSel);
@@ -205,36 +227,6 @@ import Footer from '../components/landing/Footer.astro';
         parallax('.steps-watermark', -22, '.steps');
         parallax('.footer-watermark', -16, '.footer');
         parallax('.hero-mesh', 18, '.hero');
-
-        // ───────────────────────── BOTONES MAGNÉTICOS + RIPPLE ─────────────────────────
-        const magnetic = (btn: HTMLElement, strength: number) => {
-            if (!finePointer) return;
-            const x = gsap.quickTo(btn, 'x', { duration: 0.5, ease: 'power3.out' });
-            const y = gsap.quickTo(btn, 'y', { duration: 0.5, ease: 'power3.out' });
-            btn.addEventListener('mousemove', (e) => {
-                const r = btn.getBoundingClientRect();
-                x((e.clientX - (r.left + r.width / 2)) * strength);
-                y((e.clientY - (r.top + r.height / 2)) * strength);
-            });
-            btn.addEventListener('mouseleave', () => { x(0); y(0); });
-        };
-        const ripple = (btn: HTMLElement) => {
-            btn.addEventListener('click', (e) => {
-                const r = btn.getBoundingClientRect();
-                const size = Math.max(r.width, r.height);
-                const span = document.createElement('span');
-                span.className = 'click-ripple';
-                span.style.width = span.style.height = size + 'px';
-                span.style.left = (e.clientX - r.left - size / 2) + 'px';
-                span.style.top = (e.clientY - r.top - size / 2) + 'px';
-                btn.appendChild(span);
-                span.addEventListener('animationend', () => span.remove());
-            });
-        };
-        gsap.utils.toArray<HTMLElement>('.btn-primary, .fc-btn').forEach((btn) => {
-            magnetic(btn, 0.3);
-            ripple(btn);
-        });
 
         // ───────────────────────── SMOOTH SCROLL + REFRESH ─────────────────────────
         document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {

@@ -1,0 +1,204 @@
+---
+// Detalle de cotización — items, totales, timeline de eventos y acciones.
+import AppLayout from '../../../layouts/AppLayout.astro';
+import { findQuote, STATUS_META, money, lineTotal, quoteSubtotal, quoteIva, quoteTotal } from '../../../lib/mock';
+
+const { id } = Astro.params;
+const q = findQuote(id ?? '');
+if (!q) return Astro.redirect('/app/cotizaciones');
+
+const meta = STATUS_META[q.status];
+const dotColor = (tipo: string) =>
+    tipo === 'approved' || tipo === 'paid' ? '#10b981'
+    : tipo === 'viewed' ? '#7c3aed'
+    : tipo === 'sent' ? '#3b82f6'
+    : tipo === 'rejected' ? '#ef4444'
+    : '#cbd5e1';
+---
+
+<AppLayout title={`${q.folio} — Trato`} page="cotizaciones" heading={q.folio}>
+    <span slot="topbar-actions" class="status-pill tb-status" style={`color:${meta.color}; background:${meta.bg}`}>{meta.label}</span>
+
+    <a href="/app/cotizaciones" class="back-link">← Cotizaciones</a>
+
+    <div class="detail-grid">
+        <div class="d-main">
+            <!-- Encabezado -->
+            <section class="card d-head">
+                <div class="dh-client">
+                    <div class="dh-avatar">{q.clienteInicial}</div>
+                    <div>
+                        <h2 class="dh-name">{q.cliente}</h2>
+                        <p class="dh-meta">{q.terminos} · Vigente hasta {q.vigencia} · Creada {q.creada}</p>
+                    </div>
+                </div>
+                <div class="dh-total">
+                    <span class="dh-total-label">TOTAL</span>
+                    <span class="editorial dh-total-val">{money(quoteTotal(q))}</span>
+                </div>
+            </section>
+
+            <!-- Items -->
+            <section class="card d-items">
+                <div class="di-head"><span>Producto</span><span>Cant.</span><span>Precio</span><span class="di-right">Importe</span></div>
+                {q.items.map((it) => (
+                    <div class="di-row">
+                        <span class="di-name">{it.descripcion}<small>{it.unidad}</small></span>
+                        <span class="di-qty">{it.cantidad.toLocaleString('es-MX')}</span>
+                        <span class="di-price">
+                            {it.precioNegociado !== null && <s>{money(it.precioLista)}</s>}
+                            <span class="editorial">{money(it.precioNegociado ?? it.precioLista)}</span>
+                        </span>
+                        <span class="editorial di-amount di-right">{money(lineTotal(it))}</span>
+                    </div>
+                ))}
+                <div class="di-totals">
+                    <div class="dt-line"><span>Subtotal</span><span class="editorial">{money(quoteSubtotal(q))}</span></div>
+                    <div class="dt-line"><span>IVA 16%</span><span class="editorial">{money(quoteIva(q))}</span></div>
+                    <div class="dt-line dt-grand"><span>Total</span><span class="editorial">{money(quoteTotal(q))}</span></div>
+                </div>
+            </section>
+
+            {q.notas && (
+                <section class="card d-notes">
+                    <span class="dn-label">NOTAS</span>
+                    <p>{q.notas}</p>
+                </section>
+            )}
+        </div>
+
+        <!-- Sidebar: acciones + timeline -->
+        <aside class="d-side">
+            <section class="card d-actions">
+                <a href={`/q/${q.token}`} class="act-primary" target="_blank">
+                    <span>Ver link público</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </a>
+                <button class="act-secondary">Descargar PDF</button>
+                <button class="act-secondary">Reenviar al cliente</button>
+                {(q.status === 'approved') && <button class="act-cfdi">Timbrar CFDI 4.0</button>}
+            </section>
+
+            <section class="card d-timeline">
+                <h3 class="dt-title">Actividad</h3>
+                <div class="tl">
+                    {q.eventos.map((e) => (
+                        <div class="tl-item">
+                            <span class="tl-dot" style={`background:${dotColor(e.tipo)}`}></span>
+                            <div class="tl-body">
+                                <span class="tl-text">{e.detalle}</span>
+                                <span class="tl-time">{e.cuando}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+        </aside>
+    </div>
+</AppLayout>
+
+<style>
+    .tb-status { font-size: 0.74rem; }
+    .back-link {
+        display: inline-block; font-size: 0.78rem; font-weight: 600;
+        color: var(--color-text-muted); text-decoration: none; margin-bottom: 0.9rem;
+        transition: color 0.25s;
+    }
+    .back-link:hover { color: var(--color-blue-deep); }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 300px; gap: 1rem; align-items: start; }
+    .d-main { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+
+    .d-head { padding: 1.4rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+    .dh-client { display: flex; align-items: center; gap: 14px; }
+    .dh-avatar {
+        width: 46px; height: 46px; border-radius: 12px;
+        background: var(--color-blue-deep); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem; font-weight: 800;
+    }
+    .dh-name { font-size: 1.15rem; font-weight: 700; margin: 0; letter-spacing: -0.3px; }
+    .dh-meta { font-size: 0.78rem; color: var(--color-text-muted); margin: 3px 0 0; }
+    .dh-total { display: flex; flex-direction: column; align-items: flex-end; }
+    .dh-total-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 1.6px; color: #99a2af; }
+    .dh-total-val { font-size: 2rem; color: var(--color-blue-deep); line-height: 1.1; }
+
+    .d-items { overflow: hidden; }
+    .di-head, .di-row {
+        display: grid; grid-template-columns: 1.8fr 80px 150px 1fr;
+        gap: 1rem; align-items: center; padding: 0.75rem 1.4rem;
+    }
+    .di-head {
+        font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+        color: #99a2af; background: var(--color-bg-soft);
+        border-bottom: 1px solid var(--color-border);
+    }
+    .di-row { border-bottom: 1px solid var(--color-border); }
+    .di-name { font-size: 0.86rem; font-weight: 600; display: flex; flex-direction: column; }
+    .di-name small { font-size: 0.68rem; color: #99a2af; font-weight: 500; }
+    .di-qty { font-size: 0.84rem; color: var(--color-text-muted); }
+    .di-price { display: flex; flex-direction: column; }
+    .di-price s { font-size: 0.7rem; color: #b6bcc6; }
+    .di-price .editorial { font-size: 0.92rem; color: var(--color-blue-deep); }
+    .di-amount { font-size: 0.98rem; color: var(--color-blue-deep); }
+    .di-right { text-align: right; }
+
+    .di-totals { padding: 1rem 1.4rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
+    .dt-line { display: flex; justify-content: space-between; gap: 3rem; min-width: 230px; font-size: 0.82rem; color: var(--color-text-muted); }
+    .dt-line .editorial { color: var(--color-blue-deep); font-size: 0.95rem; }
+    .dt-grand { border-top: 1px solid var(--color-border); padding-top: 0.6rem; font-weight: 700; color: var(--color-text); }
+    .dt-grand .editorial { font-size: 1.3rem; }
+
+    .d-notes { padding: 1.1rem 1.4rem; }
+    .dn-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 1.6px; color: #99a2af; }
+    .d-notes p { font-size: 0.86rem; color: var(--color-text); margin: 0.4rem 0 0; line-height: 1.55; }
+
+    .d-side { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 76px; }
+    .d-actions { padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .act-primary {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        font-size: 0.86rem; font-weight: 600; text-decoration: none;
+        background: var(--color-blue-deep); color: #fff;
+        padding: 11px; border-radius: 10px;
+        box-shadow: 0 8px 22px -10px rgba(10,25,47,0.5);
+        transition: transform 0.4s var(--ease-spring);
+    }
+    .act-primary svg { width: 14px; height: 14px; }
+    .act-primary:hover { transform: translateY(-2px); }
+    .act-secondary {
+        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600;
+        color: var(--color-text); background: var(--color-bg-soft);
+        border: 1px solid var(--color-border); border-radius: 10px;
+        padding: 10px; cursor: pointer;
+        transition: background 0.25s, border-color 0.25s;
+    }
+    .act-secondary:hover { background: #fff; border-color: rgba(10,25,47,0.2); }
+    .act-cfdi {
+        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 700;
+        color: #059669; background: rgba(16,185,129,0.08);
+        border: 1px solid rgba(16,185,129,0.25); border-radius: 10px;
+        padding: 10px; cursor: pointer;
+        transition: background 0.25s;
+    }
+    .act-cfdi:hover { background: rgba(16,185,129,0.14); }
+
+    .d-timeline { padding: 1.2rem 1.3rem; }
+    .dt-title { font-size: 0.88rem; font-weight: 700; margin: 0 0 1rem; }
+    .tl { display: flex; flex-direction: column; gap: 1rem; position: relative; }
+    .tl::before { content: ''; position: absolute; left: 3.5px; top: 8px; bottom: 8px; width: 1px; background: var(--color-border); }
+    .tl-item { display: flex; gap: 13px; position: relative; }
+    .tl-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; box-shadow: 0 0 0 3px #fff; z-index: 1; }
+    .tl-body { display: flex; flex-direction: column; gap: 1px; }
+    .tl-text { font-size: 0.8rem; font-weight: 500; color: var(--color-text); }
+    .tl-time { font-size: 0.68rem; color: var(--color-text-muted); }
+
+    @media (max-width: 980px) {
+        .detail-grid { grid-template-columns: 1fr; }
+        .d-side { position: static; }
+    }
+    @media (max-width: 680px) {
+        .di-head { display: none; }
+        .di-row { grid-template-columns: 1fr auto; }
+        .di-qty, .di-price { display: none; }
+    }
+</style>

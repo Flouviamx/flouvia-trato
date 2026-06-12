@@ -30,7 +30,7 @@ Node requerido: **>=22.12.0** (ver `.nvmrc` → 22.13.0)
 |------|-----------|
 | Framework | Astro 6.1.2 (`output: 'server'`) + `@astrojs/vercel` |
 | Auth | Clerk (`@clerk/astro`) — **signup ABIERTO** (no invitation-only como el portal de flouvia) |
-| DB | Supabase (PostgreSQL) — schema en `supabase/schema.sql` |
+| DB | **Neon (PostgreSQL serverless)** — schema en `db/schema.sql`. Decisión jun 2026: Neon en vez de Supabase. Crear vía Vercel Marketplace → integración Neon (auto-provisiona `DATABASE_URL`). |
 | Billing | Stripe Billing (freemium) |
 | Emails | Resend (transaccionales: cotización vista, aprobada, etc.) |
 | CFDI | PAC de timbrado (mismo proveedor que la app de Shopify) |
@@ -38,9 +38,9 @@ Node requerido: **>=22.12.0** (ver `.nvmrc` → 22.13.0)
 | Tipografía | Inter (sans) + Instrument Serif (números/montos) |
 
 ⚠️ Clerk está **comentado** en `astro.config.mjs` hasta tener las keys en `.env`
-(ver `.env.example`). Descomentar al crear la app de Clerk de Trato. **Aún NO hay
-ningún proyecto de Supabase/Clerk/Stripe creado** (estado a jun 2026) — solo el
-repo + deploy de la landing.
+(ver `.env.example`). **Aún NO hay proyecto de Neon/Clerk/Stripe creado** (jun 2026).
+Mientras tanto, **toda la app corre con datos mock** desde `src/lib/mock.ts` — mismo
+shape que el schema, para que el swap a Neon sea cambiar imports por queries.
 
 ---
 
@@ -48,7 +48,9 @@ repo + deploy de la landing.
 
 ✅ Esqueleto Astro + tokens de diseño
 ✅ **Landing de ventas completa** (estilo Stripe/Linear con ADN Flouvia) — desplegada
-⬜ App funcional (Fase 1: auth + dashboard + editor) — bloqueada hasta tener keys
+✅ **Logos reales** en `public/imgs/`: `logo-trato-navy.png` (fondos claros) y `logo-trato-white.png` (fondos oscuros) — recortados a 780×300
+✅ **App demo completa con datos mock** — dashboard, cotizaciones (lista + editor interactivo + detalle), clientes, productos, ajustes, link público `/q/{token}` y login/registro placeholder
+⬜ Conectar Neon (DATABASE_URL) + Clerk + Stripe — siguiente fase
 
 ---
 
@@ -78,7 +80,7 @@ PK de relación = **`org_id`** (NO `email_cliente` como el portal de flouvia-web
 Cada negocio registrado es una `org`; v1 = 1 usuario Clerk por org
 (`orgs.clerk_user_id`; multi-usuario en fase 2 con Clerk Organizations).
 
-**Tablas** (`supabase/schema.sql`):
+**Tablas** (`db/schema.sql`):
 - `orgs` — el negocio (nombre, logo, datos fiscales/RFC/CSD, `quote_prefix`, plan, Stripe IDs)
 - `productos` — catálogo de cada org
 - `clientes` — a quién se cotiza (con `terminos_default` y `limite_credito`)
@@ -95,23 +97,40 @@ el valor antes de cada query (igual que `app.email_cliente` en flouvia-web).
 ## Mapa de rutas
 
 ```
-# Landing (prerender:true) — YA CONSTRUIDA
+# Landing (prerender:true) — CONSTRUIDA
 /                → landing de ventas (un solo index.astro que monta los componentes)
 
-# App (Fase 1+ — pendiente)
-/login /registro → Clerk, diseño borderless tipo LoginUI de flouvia
-/app             → dashboard (pipeline por estado, monto por cerrar, activity feed)
-/app/cotizaciones        → tabla con filtros segmented-glass
-/app/cotizaciones/nueva  → EL EDITOR (pantalla crítica)
-/app/cotizaciones/[id]   → detalle + timeline + acciones
-/app/productos /app/clientes → CRUDs con import CSV
-/app/ajustes     → marca del PDF, datos fiscales/CSD, plan (Stripe portal)
-/q/[token]       → vista PÚBLICA de la cotización para el cliente final
-                   (la pantalla mejor diseñada — cada cotización enviada es un demo)
+# App — CONSTRUIDA con datos mock (src/lib/mock.ts); usa AppLayout.astro
+/login /registro → placeholder borderless (botón entra a /app); Clerk los reemplaza después
+/app             → dashboard: KPIs con count-up vanilla, pipeline por estado,
+                   recientes, activity feed
+/app/cotizaciones        → tabla con filtros por estado (client-side)
+/app/cotizaciones/nueva  → EL EDITOR (interactivo: agregar del catálogo, precio
+                           negociado por línea con highlight verde, totales+IVA en
+                           vivo, chips de términos, toast). Script is:inline con
+                           define:vars={{ catalogo }}
+/app/cotizaciones/[id]   → detalle + timeline + acciones (link público, PDF, CFDI)
+/app/clientes /app/productos → directorios (CRUD visual; import CSV después)
+/app/ajustes     → marca, datos fiscales/CSD, plan
+/q/[token]       → vista PÚBLICA de la cotización (la página mejor diseñada —
+                   marca del emisor, total serif protagonista, aprobar → success,
+                   pie "vía trato" = loop viral). Token mock: /q/demo
 
 # Legales (pendiente)
 /privacidad /terminos
 ```
+
+**Mock data:** `src/lib/mock.ts` exporta `ORG`, `PRODUCTOS`, `CLIENTES`,
+`COTIZACIONES` (con items + eventos), `STATUS_META` (label/color/bg por estado),
+helpers de dinero (`money`, `quoteTotal`…) y `findQuote`/`findQuoteByToken`.
+La org demo es "Materiales del Valle" (construcción) — coherente con el mockup
+del hero (COT-0148 → El Zarco). Al conectar Neon: reemplazar imports por queries.
+
+**AppLayout (`src/layouts/AppLayout.astro`):** sidebar navy sticky (logo blanco,
+nav con íconos, card de org abajo), topbar con título + badge "DEMO" + slot
+`topbar-actions`, content max-width 1240px. Entradas con CSS `app-fadein`
+escalonado (NO GSAP — la app no carga GSAP). Mobile: sidebar → tab bar inferior
+fija. Clases globales reutilizables: `.card`, `.status-pill`, `.editorial`.
 
 ---
 
@@ -145,9 +164,10 @@ Es el mismo patrón que `../flouvia/src/components/Navbar.astro`, adaptado:
 - **Glass pill** (izquierda) Liquid Glass con los nav-links + **indicador deslizante**
   (`#nav-indicator`, cápsula de vidrio que GSAP desliza al link en hover, estilo
   segmented control iOS).
-- **Wordmark central** "trato" (texto Inter 800, no SVG) que **desaparece al hacer
-  scroll** y reaparece como `pill-logo` dentro de la glass pill (misma mecánica que
-  el logo de flouvia).
+- **Logo central** `logo-trato-navy.png` (30px alto) que **desaparece al hacer
+  scroll** y reaparece como `pill-logo` (`logo-trato-white.png`, 17px) dentro de la
+  glass pill navy (misma mecánica que el logo de flouvia). En mobile: dos `<img>`
+  apiladas (navy/white) que se intercambian por opacity con `.scrolled`.
 - **Derecha:** "Entrar" + botón navy "Empezar gratis".
 - **Estado `.scrolled`** (>50px): la glass pill pasa a versión navy translúcida; los
   links y wordmark cambian a blanco. Transición por-propiedad `0.7s var(--ease-spring)`.
@@ -160,17 +180,31 @@ Es el mismo patrón que `../flouvia/src/components/Navbar.astro`, adaptado:
 - Diferencias vs flouvia: SIN lang switch (v1 solo español), SIN login-icon pill
   (usa "Entrar" en texto), wordmark de texto en vez de logos SVG.
 
-### Animaciones de la landing (`index.astro`)
+### Animaciones de la landing (`index.astro`) — refinadas jun 2026 (Stripe/Linear)
 
-Estándar único heredado de flouvia (ver sección Diseño). El `<script>` de `index.astro`:
-- Gate global `.js-anim .reveal, .js-anim .reveal-mockup { opacity:0 }`.
-- **Hero** (sobre el fold): revela en carga con stagger `power2.out`; el mockup entra
-  con `y:40, scale:0.98 → 1` un poco después.
-- **Resto** (`.reveal` fuera del hero): patrón anti-parpadeo — `gsap.set` oculta +
-  `ScrollTrigger {once:true, onEnter: gsap.to}`. NUNCA `gsap.from`+`immediateRender`.
-- **Mockups fuera del hero** (`.reveal-mockup`, ej. ClientView): entrada con escala.
-- Smooth scroll para anchors `#`. `ScrollTrigger.refresh()` tras `fonts.ready`+`load`.
-- `prefers-reduced-motion` → todo visible, return temprano.
+> El usuario RECHAZÓ: botones magnéticos, ripple de click y tilt 3D con el cursor
+> ("lo típico"). No reintroducirlos. El lenguaje actual es sutil y craft:
+
+- **Masked line reveals (Linear):** los títulos (`.hero-title, .ft-title,
+  .steps-title, .cv-title, .pr-title, .faq-title, .fc-title`) se parten por `<br>`
+  en líneas envueltas en `.m-line` (overflow hidden) + `.m-line-in`; cada línea sube
+  con `yPercent: 115 → 0`, `power3.out`, stagger 0.09–0.11. El util `wrapLines` los
+  procesa al cargar; esos títulos quedan EXCLUIDOS del reveal genérico (`maskedSet`).
+- **Mockup settle (Stripe):** el mockup del hero entra con `rotationX: 9` y
+  perspectiva, y se APLANA con scrub conforme baja el scroll (`top 88%` → `top 32%`).
+- **Demo del teléfono (ClientView):** auto-reproducible al entrar en viewport —
+  count-up del monto, items en stagger, cursor SVG que se desliza y "clickea"
+  Aprobar (anillo verde de pulso), checkmark que se dibuja (strokeDashoffset),
+  overlay de éxito; loop con repeatDelay 3.4s.
+- **Count-up** de números serif (`[data-countup]` + `data-decimals`) al entrar en
+  viewport — formato `Intl.NumberFormat('es-MX')`.
+- **Parallax scrub** en watermarks (steps/footer) y hero-mesh.
+- **Reveals genéricos** (`.reveal`): patrón anti-parpadeo — `gsap.set` oculta +
+  `ScrollTrigger {once:true, onEnter: gsap.to}` con `clearProps: 'transform'`
+  (NUNCA limpiar opacity — el gate lo volvería a ocultar; bug conocido).
+- Gate global `.js-anim .reveal/.reveal-mockup { opacity:0 }`; estilos `.m-line`
+  en `<style is:global>`.
+- `prefers-reduced-motion` → return temprano, todo visible y estático.
 - El navbar maneja su PROPIA entrada (no la toca `index.astro`).
 
 ---
@@ -207,7 +241,9 @@ Regla de oro: **misma alma, distinto cuerpo**. Tokens en `src/layouts/Layout.ast
   (definida global en Layout). Es la **firma visual del producto**. Nunca números en
   sans bold. Aplica a: totales, precios, folios en hero, watermarks.
 - Eyebrows: `0.65rem`, weight 800, letter-spacing 3px, uppercase, color `#888`.
-- Wordmark: "**trato**" en Inter bold lowercase. "by Flouvia" en eyebrow.
+- **Logos oficiales** (`public/imgs/`): `logo-trato-navy.png` para fondos claros,
+  `logo-trato-white.png` para fondos oscuros (sidebar de la app, footer, pill
+  scrolled, mockups). Recortados a 780×300. NO recrear el wordmark con texto.
 
 **Layout / componentes:**
 - Secciones de la landing: `padding: 9rem` vertical (mucho aire, estilo Stripe/Linear).
@@ -243,16 +279,19 @@ Sin SplitText, sin blur/scale en reveals de contenido.
 
 ## Variables de entorno
 
-Ver `.env.example`. Los proyectos de Supabase, Clerk y Stripe son NUEVOS y separados
+Ver `.env.example`. Los proyectos de Neon, Clerk y Stripe son NUEVOS y separados
 de los de flouvia.com:
 
 ```
-SUPABASE_URL=  SUPABASE_ANON_KEY=  SUPABASE_SERVICE_ROLE_KEY=   # SSR only
+DATABASE_URL=                                                   # Neon (PostgreSQL)
 PUBLIC_CLERK_PUBLISHABLE_KEY=  CLERK_SECRET_KEY=                # signup ABIERTO
 STRIPE_SECRET_KEY=  STRIPE_WEBHOOK_SECRET=  PUBLIC_STRIPE_PUBLISHABLE_KEY=
 RESEND_API_KEY=
 PAC_API_KEY=                                                    # timbrado CFDI
 ```
+
+Neon se recomienda provisionar vía **Vercel Marketplace → Neon** desde el proyecto
+de Vercel de trato (auto-inyecta `DATABASE_URL` en todos los environments).
 
 ---
 
