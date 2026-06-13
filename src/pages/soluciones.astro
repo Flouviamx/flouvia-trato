@@ -1,0 +1,211 @@
+---
+// Soluciones por industria — a quién le sirve Trato y cómo.
+// Mismo lenguaje visual que /producto/* (PageAnims).
+export const prerender = true;
+
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/landing/Nav.astro';
+import Footer from '../components/landing/Footer.astro';
+import PageAnims from '../components/landing/PageAnims.astro';
+
+const SOLUCIONES = [
+    {
+        id: 'distribuidoras',
+        eyebrow: 'DISTRIBUIDORAS Y MAYORISTAS',
+        titulo: 'Cada cliente, su lista<br/>de precios.',
+        copy: 'Vendes lo mismo a 200 clientes a 200 precios distintos. Trato registra el precio negociado de cada línea y los términos de cada cliente, para que cualquiera de tu equipo cotice sin regalar margen ni romper acuerdos.',
+        bullets: [
+            'Precio negociado por línea con el descuento visible',
+            'Términos default por cliente: Contado, Net 30, Net 60',
+            'Catálogo central — se acabaron las listas de Excel desactualizadas',
+        ],
+        kpi: { num: '−12%', label: 'de descuento controlado, no improvisado' },
+    },
+    {
+        id: 'construccion',
+        eyebrow: 'CONSTRUCCIÓN Y MATERIALES',
+        titulo: 'Volumen, obra<br/>y crédito bajo control.',
+        copy: 'Cotizaciones de cientos de miles de pesos, entregas en obra y clientes que piden Net 60: el día a día de los materialistas. Trato le pone folio, vigencia y límite de crédito a cada trato — y te avisa cuando lo aprueban.',
+        bullets: [
+            'Cotizaciones grandes con unidades reales: sacos, m³, tramos, rollos',
+            'Límite de crédito por cliente para decir que sí con confianza',
+            'Notas por cotización: obra, condiciones de entrega, anticipo',
+        ],
+        kpi: { num: '$196,469', label: 'cotizados y aprobados en el mismo día' },
+    },
+    {
+        id: 'manufactura',
+        eyebrow: 'MANUFACTURA',
+        titulo: 'Cotiza especificación,<br/>lote y tiempo de entrega.',
+        copy: 'En manufactura cada cotización es un pequeño proyecto: especificaciones, cantidades mínimas, tiempos. Con líneas libres y notas por cotización, Trato documenta el acuerdo completo — y el timeline guarda quién aprobó qué y cuándo.',
+        bullets: [
+            'Líneas libres para conceptos fuera de catálogo',
+            'Historial completo por cliente: qué pidió, a qué precio, cuándo',
+            'CFDI 4.0 al cerrar — sin recapturar en otro sistema',
+        ],
+        kpi: { num: '100%', label: 'del acuerdo documentado en un solo lugar' },
+    },
+    {
+        id: 'servicios',
+        eyebrow: 'SERVICIOS PROFESIONALES',
+        titulo: 'Propuestas que se ven<br/>tan serias como tu trabajo.',
+        copy: 'Una propuesta en PDF genérico compite mal contra una página elegante con tu marca, montos claros y un botón de aprobar. Manda un link que cierra por ti — y entérate en el momento en que tu prospecto lo abre.',
+        bullets: [
+            'Link público con tu logo y tu color de marca',
+            'Aviso al instante cuando ven tu propuesta',
+            'Aprobación en un clic, sin cuentas ni fricción',
+        ],
+        kpi: { num: '1 clic', label: 'entre tu propuesta y el "sí"' },
+    },
+];
+---
+
+<Layout
+    title="Soluciones — Trato"
+    description="Trato para distribuidoras, construcción, manufactura y servicios profesionales. Cotizaciones B2B con precios negociados, crédito y CFDI para tu industria."
+>
+    <Nav />
+    <main>
+        <section class="pp-hero sol-hero">
+            <div class="sol-mesh" aria-hidden="true"></div>
+            <div class="sol-hero-inner">
+                <p class="sol-eyebrow reveal">SOLUCIONES</p>
+                <h1 class="sol-title masked-title">Si cotizas para vender,<br/>Trato es para ti.</h1>
+                <p class="sol-sub reveal">
+                    Trato funciona para cualquier negocio B2B en México. Así se ve en cuatro
+                    industrias donde cotizar bien es la diferencia entre cerrar o perder el trato.
+                </p>
+                <div class="sol-jump reveal">
+                    {SOLUCIONES.map((s) => (
+                        <a href={`#${s.id}`}>{s.eyebrow.charAt(0) + s.eyebrow.slice(1).toLowerCase()}</a>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        <section class="sol-blocks">
+            {SOLUCIONES.map((s, i) => (
+                <article class:list={['sol-block', { 'sol-flip': i % 2 === 1 }]} id={s.id}>
+                    <div class="sol-text">
+                        <p class="sol-eyebrow reveal">{s.eyebrow}</p>
+                        <h2 class="sol-h2 masked-title" set:html={s.titulo} />
+                        <p class="sol-copy reveal">{s.copy}</p>
+                        <ul class="sol-bullets">
+                            {s.bullets.map((b) => (
+                                <li class="reveal">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    <span>{b}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div class="sol-visual reveal-mockup">
+                        <span class="sol-kpi editorial">{s.kpi.num}</span>
+                        <span class="sol-kpi-label">{s.kpi.label}</span>
+                    </div>
+                </article>
+            ))}
+        </section>
+    </main>
+
+    <Footer
+        ctaTitle="Tu industria ya cotiza<br />con Trato."
+        ctaSub="Empieza gratis hoy — 5 cotizaciones activas, sin tarjeta."
+    />
+    <PageAnims />
+</Layout>
+
+<style>
+    .sol-hero {
+        position: relative;
+        padding: 11.5rem 5% 6rem;
+        text-align: center;
+        overflow: clip;
+    }
+    .sol-mesh {
+        position: absolute; inset: -20% -10% auto;
+        height: 90%;
+        background:
+            radial-gradient(ellipse 50% 60% at 28% 20%, rgba(10,25,47,0.05) 0%, transparent 60%),
+            radial-gradient(ellipse 44% 54% at 76% 12%, rgba(10,25,47,0.04) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .sol-hero-inner { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; }
+    .sol-eyebrow {
+        font-size: 0.65rem; font-weight: 800; letter-spacing: 3px;
+        text-transform: uppercase; color: #888; margin: 0 0 1.4rem;
+    }
+    .sol-title {
+        font-size: clamp(2.4rem, 5.4vw, 4.2rem);
+        font-weight: 800; line-height: 1.04; letter-spacing: -0.035em;
+        color: var(--color-text); margin: 0 0 1.6rem;
+    }
+    .sol-sub {
+        font-size: 1.12rem; line-height: 1.65; color: var(--color-text-muted);
+        max-width: 620px; margin: 0 auto 2.4rem;
+    }
+    .sol-jump { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+    .sol-jump a {
+        font-size: 0.78rem; font-weight: 600; color: var(--color-text);
+        text-decoration: none;
+        padding: 9px 16px; border-radius: 100px;
+        background: var(--color-bg-soft);
+        border: 1px solid var(--color-border);
+        transition: transform 0.4s var(--ease-spring), border-color 0.3s, background 0.3s, color 0.3s;
+    }
+    .sol-jump a:hover {
+        transform: translateY(-2px);
+        background: var(--color-blue-deep); color: #fff; border-color: var(--color-blue-deep);
+    }
+
+    .sol-blocks {
+        max-width: 1080px; margin: 0 auto;
+        padding: 3rem 5% 8rem;
+        display: flex; flex-direction: column; gap: 7rem;
+    }
+    .sol-block {
+        display: grid; grid-template-columns: 1.1fr 0.9fr;
+        gap: 4.5rem; align-items: center;
+        scroll-margin-top: 130px;
+    }
+    .sol-flip .sol-text { order: 2; }
+    .sol-flip .sol-visual { order: 1; }
+
+    .sol-h2 {
+        font-size: clamp(1.7rem, 3vw, 2.4rem);
+        font-weight: 800; line-height: 1.12; letter-spacing: -0.03em;
+        color: var(--color-text); margin: 0 0 1.1rem;
+    }
+    .sol-copy { font-size: 1.02rem; line-height: 1.7; color: var(--color-text-muted); margin: 0 0 1.6rem; }
+    .sol-bullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.8rem; }
+    .sol-bullets li { display: flex; align-items: flex-start; gap: 11px; font-size: 0.95rem; color: var(--color-text); font-weight: 500; }
+    .sol-bullets svg { width: 16px; height: 16px; color: var(--color-ok); flex-shrink: 0; margin-top: 3px; }
+
+    .sol-visual {
+        position: relative;
+        min-height: 250px;
+        border-radius: 24px;
+        background: linear-gradient(165deg, #0e2240 0%, #0a192f 55%, #081424 100%);
+        box-shadow:
+            0 40px 90px -36px rgba(5,11,20,0.6),
+            inset 0 0 0 0.5px rgba(255,255,255,0.08);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 0.8rem; padding: 2rem; text-align: center;
+        transition: transform 0.5s var(--ease-spring);
+    }
+    .sol-visual:hover { transform: translateY(-4px); }
+    .sol-kpi {
+        font-size: clamp(2.6rem, 5vw, 3.6rem);
+        color: #fff; line-height: 1;
+    }
+    .sol-kpi-label { font-size: 0.85rem; color: rgba(255,255,255,0.5); max-width: 240px; line-height: 1.5; }
+
+    @media (max-width: 860px) {
+        .sol-hero { padding-top: 9.5rem; }
+        .sol-blocks { gap: 4.5rem; }
+        .sol-block { grid-template-columns: 1fr; gap: 1.8rem; }
+        .sol-flip .sol-text { order: 1; }
+        .sol-flip .sol-visual { order: 2; }
+        .sol-visual { min-height: 180px; }
+    }
+</style>

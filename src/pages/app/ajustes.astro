@@ -1,5 +1,5 @@
 ---
-// Ajustes — marca, datos fiscales y plan. Datos reales (Neon).
+// Ajustes — marca, contacto, fiscales, cotizaciones y PDF. Guarda en Neon (/api/org).
 import AppLayout from '../../layouts/AppLayout.astro';
 import { getOrg } from '../../lib/queries';
 
@@ -12,28 +12,35 @@ const ORG = await getOrg();
         <section class="card s-block">
             <div class="s-head">
                 <h2>Marca</h2>
-                <p>Tu logo y colores aparecen en el link público y el PDF de cada cotización.</p>
+                <p>Tu nombre y color aparecen en el link público y en el PDF de cada cotización.</p>
             </div>
             <div class="s-body">
-                <div class="s-field">
-                    <label>Logo</label>
-                    <div class="logo-drop">
-                        <div class="logo-preview">{ORG.inicial}</div>
-                        <span>Arrastra tu logo o <b>haz click para subir</b></span>
+                <div class="s-row">
+                    <div class="s-field">
+                        <label for="oNombre">Nombre del negocio</label>
+                        <input class="s-input" id="oNombre" value={ORG.nombre} />
+                    </div>
+                    <div class="s-field">
+                        <label for="oColor">Color de marca</label>
+                        <div class="color-row">
+                            <input type="color" id="oColorPick" value={ORG.colorMarca} aria-label="Elegir color" />
+                            <input class="s-input" id="oColor" value={ORG.colorMarca} maxlength="7" />
+                        </div>
                     </div>
                 </div>
                 <div class="s-row">
                     <div class="s-field">
-                        <label>Nombre del negocio</label>
-                        <input class="s-input" value={ORG.nombre} />
+                        <label for="oEmail">Correo de contacto</label>
+                        <input class="s-input" id="oEmail" type="email" value={ORG.email} placeholder="ventas@tunegocio.mx" />
                     </div>
                     <div class="s-field">
-                        <label>Color de marca</label>
-                        <div class="color-row">
-                            <span class="color-swatch"></span>
-                            <input class="s-input" value="#0a192f" />
-                        </div>
+                        <label for="oTelefono">Teléfono</label>
+                        <input class="s-input" id="oTelefono" value={ORG.telefono} placeholder="55 1234 5678" />
                     </div>
+                </div>
+                <div class="s-field">
+                    <label for="oDireccion">Dirección</label>
+                    <input class="s-input" id="oDireccion" value={ORG.direccion} placeholder="Av. Industria 123, Tlalnepantla, Edo. Méx." />
                 </div>
             </div>
         </section>
@@ -47,12 +54,12 @@ const ORG = await getOrg();
             <div class="s-body">
                 <div class="s-row">
                     <div class="s-field">
-                        <label>RFC</label>
-                        <input class="s-input" value={ORG.rfc} />
+                        <label for="oRfc">RFC</label>
+                        <input class="s-input" id="oRfc" value={ORG.rfc} maxlength="13" />
                     </div>
                     <div class="s-field">
-                        <label>Razón social</label>
-                        <input class="s-input" value="Materiales del Valle SA de CV" />
+                        <label for="oRazon">Razón social</label>
+                        <input class="s-input" id="oRazon" value={ORG.razonSocial} />
                     </div>
                 </div>
                 <div class="s-field">
@@ -62,6 +69,52 @@ const ORG = await getOrg();
                         <span>Sin conectar — disponible al activar el plan Negocio</span>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Cotizaciones -->
+        <section class="card s-block">
+            <div class="s-head">
+                <h2>Cotizaciones</h2>
+                <p>Folio e impuestos con los que se generan tus cotizaciones.</p>
+            </div>
+            <div class="s-body">
+                <div class="s-row">
+                    <div class="s-field">
+                        <label for="oPrefix">Prefijo de folio</label>
+                        <input class="s-input" id="oPrefix" value={ORG.prefix} maxlength="6" />
+                        <span class="s-hint">Ej. {ORG.prefix}-0149</span>
+                    </div>
+                    <div class="s-field">
+                        <label for="oIva">IVA (%)</label>
+                        <input class="s-input" id="oIva" type="number" min="0" max="100" step="1" value={ORG.ivaPct} />
+                        <span class="s-hint">16% en casi todo México; 8% en franja fronteriza</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PDF -->
+        <section class="card s-block">
+            <div class="s-head">
+                <h2>Documento PDF</h2>
+                <p>Personaliza el PDF que tus clientes descargan o reciben impreso. Cada cuenta tiene el suyo.</p>
+            </div>
+            <div class="s-body">
+                <div class="s-field">
+                    <label for="oPdfMensaje">Mensaje de pie de página</label>
+                    <input class="s-input" id="oPdfMensaje" value={ORG.pdfMensaje} placeholder="Gracias por su preferencia. Precios sujetos a cambio sin previo aviso." />
+                </div>
+                <div class="s-field">
+                    <label for="oPdfCond">Condiciones comerciales</label>
+                    <textarea class="s-input s-textarea" id="oPdfCond" rows="3" placeholder={"Entrega en obra sujeta a disponibilidad.\nAnticipo del 50% para pedidos especiales."}>{ORG.pdfCondiciones}</textarea>
+                    <span class="s-hint">Aparecen al final del documento, una por línea.</span>
+                </div>
+                <label class="s-toggle">
+                    <input type="checkbox" id="oPdfLista" checked={ORG.pdfMostrarLista} />
+                    <span class="s-toggle-track" aria-hidden="true"><span class="s-toggle-thumb"></span></span>
+                    <span class="s-toggle-text">Mostrar precio de lista tachado y % de descuento por línea</span>
+                </label>
             </div>
         </section>
 
@@ -82,8 +135,10 @@ const ORG = await getOrg();
             </div>
         </section>
 
-        <button class="s-save">Guardar cambios</button>
-        <p class="s-note">Los cambios se guardarán cuando la base de datos esté conectada (Neon).</p>
+        <div class="s-save-row">
+            <button class="s-save" id="btnSave">Guardar cambios</button>
+            <span class="s-saved" id="savedMsg">✓ Cambios guardados</span>
+        </div>
     </div>
 </AppLayout>
 
@@ -104,25 +159,15 @@ const ORG = await getOrg();
         transition: border-color 0.25s;
     }
     .s-input:focus { outline: none; border-color: var(--color-blue-deep); }
-
-    .logo-drop {
-        display: flex; align-items: center; gap: 14px;
-        border: 1.5px dashed rgba(10,25,47,0.18); border-radius: 12px;
-        padding: 1rem 1.2rem; cursor: pointer;
-        font-size: 0.8rem; color: var(--color-text-muted);
-        transition: border-color 0.25s, background 0.25s;
-    }
-    .logo-drop:hover { border-color: var(--color-blue-deep); background: var(--color-bg-soft); }
-    .logo-drop b { color: var(--color-blue-deep); }
-    .logo-preview {
-        width: 44px; height: 44px; border-radius: 11px;
-        background: var(--color-blue-deep); color: #fff;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.85rem; font-weight: 800;
-    }
+    .s-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+    .s-hint { font-size: 0.68rem; color: #99a2af; }
 
     .color-row { display: flex; align-items: center; gap: 9px; }
-    .color-swatch { width: 36px; height: 36px; border-radius: 9px; background: #0a192f; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); }
+    .color-row input[type="color"] {
+        width: 40px; height: 40px; padding: 0; border: 1px solid var(--color-border);
+        border-radius: 9px; background: none; cursor: pointer; flex-shrink: 0;
+    }
+    .color-row .s-input { flex: 1; }
 
     .csd-state {
         display: flex; align-items: center; gap: 9px;
@@ -131,6 +176,24 @@ const ORG = await getOrg();
         border-radius: 9px; padding: 10px 12px;
     }
     .csd-dot { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; }
+
+    /* Toggle */
+    .s-toggle { display: flex; align-items: center; gap: 11px; cursor: pointer; user-select: none; }
+    .s-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+    .s-toggle-track {
+        width: 38px; height: 22px; border-radius: 100px; flex-shrink: 0;
+        background: rgba(10,25,47,0.15); position: relative;
+        transition: background 0.3s var(--ease-ios);
+    }
+    .s-toggle-thumb {
+        position: absolute; top: 2px; left: 2px;
+        width: 18px; height: 18px; border-radius: 50%;
+        background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+        transition: transform 0.3s var(--ease-spring);
+    }
+    .s-toggle input:checked + .s-toggle-track { background: var(--color-ok); }
+    .s-toggle input:checked + .s-toggle-track .s-toggle-thumb { transform: translateX(16px); }
+    .s-toggle-text { font-size: 0.82rem; color: var(--color-text); font-weight: 500; }
 
     .plan-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
     .plan-name { display: block; font-size: 0.92rem; font-weight: 700; }
@@ -145,16 +208,75 @@ const ORG = await getOrg();
     }
     .plan-btn:hover { border-color: rgba(10,25,47,0.25); }
 
+    .s-save-row { display: flex; align-items: center; gap: 1rem; }
     .s-save {
         font-family: var(--font-sans); font-size: 0.88rem; font-weight: 600;
         background: var(--color-blue-deep); color: #fff;
         border: none; border-radius: 10px; padding: 12px; cursor: pointer;
         box-shadow: 0 8px 22px -10px rgba(10,25,47,0.5);
-        transition: transform 0.4s var(--ease-spring);
+        transition: transform 0.4s var(--ease-spring), opacity 0.2s;
         width: max-content; padding-inline: 26px;
     }
     .s-save:hover { transform: translateY(-2px); }
-    .s-note { font-size: 0.72rem; color: #99a2af; margin: -0.3rem 0 0; }
+    .s-save:disabled { opacity: 0.6; cursor: wait; transform: none; }
+    .s-saved {
+        font-size: 0.8rem; font-weight: 600; color: var(--color-ok);
+        opacity: 0; transition: opacity 0.3s var(--ease-ios);
+    }
+    .s-saved.show { opacity: 1; }
+    .s-saved.error { color: var(--color-danger); }
 
     @media (max-width: 640px) { .s-row { grid-template-columns: 1fr; } }
 </style>
+
+<script>
+    // Guarda los ajustes vía PATCH /api/org.
+    document.addEventListener('DOMContentLoaded', () => {
+        const v = (id: string) => (document.getElementById(id) as HTMLInputElement).value;
+        const btn = document.getElementById('btnSave') as HTMLButtonElement;
+        const msg = document.getElementById('savedMsg')!;
+        const colorPick = document.getElementById('oColorPick') as HTMLInputElement;
+        const colorText = document.getElementById('oColor') as HTMLInputElement;
+
+        // sincroniza el picker con el campo de texto
+        colorPick.addEventListener('input', () => { colorText.value = colorPick.value; });
+        colorText.addEventListener('input', () => {
+            if (/^#[0-9a-fA-F]{6}$/.test(colorText.value)) colorPick.value = colorText.value;
+        });
+
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            msg.classList.remove('show', 'error');
+            try {
+                const res = await fetch('/api/org', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre: v('oNombre'),
+                        color_marca: v('oColor'),
+                        email_contacto: v('oEmail'),
+                        telefono: v('oTelefono'),
+                        direccion: v('oDireccion'),
+                        rfc: v('oRfc'),
+                        razon_social: v('oRazon'),
+                        quote_prefix: v('oPrefix'),
+                        iva_pct: v('oIva'),
+                        pdf_mensaje: v('oPdfMensaje'),
+                        pdf_condiciones: v('oPdfCond'),
+                        pdf_mostrar_lista: (document.getElementById('oPdfLista') as HTMLInputElement).checked,
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo guardar');
+                msg.textContent = '✓ Cambios guardados';
+                msg.classList.add('show');
+                setTimeout(() => msg.classList.remove('show'), 2600);
+            } catch (err: any) {
+                msg.textContent = err.message;
+                msg.classList.add('show', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    });
+</script>

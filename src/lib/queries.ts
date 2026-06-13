@@ -50,15 +50,23 @@ export async function getOrg() {
     const orgId = await getActiveOrgId();
     const [o] = await sql`select * from orgs where id = ${orgId}`;
     return {
+        id: orgId,
         nombre: o.nombre as string,
         inicial: initials(o.nombre),
         rfc: (o.rfc as string) ?? '',
         razonSocial: (o.razon_social as string) ?? '',
-        email: '',
+        email: (o.email_contacto as string) ?? '',
+        telefono: (o.telefono as string) ?? '',
+        direccion: (o.direccion as string) ?? '',
         plan: PLAN_LABEL[o.plan] ?? 'Gratis',
         prefix: o.quote_prefix as string,
         moneda: o.moneda as string,
         ivaPct: num(o.iva_pct),
+        logoUrl: (o.logo_url as string) ?? '',
+        colorMarca: (o.color_marca as string) || '#0a192f',
+        pdfMensaje: (o.pdf_mensaje as string) ?? '',
+        pdfCondiciones: (o.pdf_condiciones as string) ?? '',
+        pdfMostrarLista: (o.pdf_mostrar_lista as boolean) ?? true,
     };
 }
 
@@ -151,7 +159,8 @@ export async function getCotizacion(id: string): Promise<MockQuote | null> {
 export async function getCotizacionByToken(token: string) {
     const rows = await sql`
         select c.*, cl.empresa, coalesce(c.terminos, cl.terminos_default) as terminos,
-               o.nombre as org_nombre, o.rfc as org_rfc
+               o.nombre as org_nombre, o.rfc as org_rfc, o.color_marca as org_color,
+               o.pdf_mensaje as org_pdf_mensaje, o.iva_pct as org_iva_pct
         from cotizaciones c
         left join clientes cl on cl.id = c.cliente_id
         join orgs o on o.id = c.org_id
@@ -161,7 +170,14 @@ export async function getCotizacionByToken(token: string) {
     const quote = rowToQuote(rows[0], items, []);
     return {
         quote,
-        org: { nombre: rows[0].org_nombre as string, inicial: initials(rows[0].org_nombre), rfc: (rows[0].org_rfc as string) ?? '' },
+        org: {
+            nombre: rows[0].org_nombre as string,
+            inicial: initials(rows[0].org_nombre),
+            rfc: (rows[0].org_rfc as string) ?? '',
+            colorMarca: (rows[0].org_color as string) || '#0a192f',
+            pdfMensaje: (rows[0].org_pdf_mensaje as string) ?? '',
+            ivaPct: num(rows[0].org_iva_pct) || 16,
+        },
     };
 }
 

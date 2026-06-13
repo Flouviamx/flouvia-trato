@@ -120,3 +120,13 @@ create table facturas_cfdi (
   created_at      timestamptz default now()
 );
 create index on facturas_cfdi(org_id, created_at desc);
+
+-- ── Personalización de marca y PDF (jun 2026) ──
+-- Se aplican con `alter ... if not exists` para que db:migrate siga siendo re-ejecutable.
+alter table orgs add column if not exists color_marca text not null default '#0a192f';
+alter table orgs add column if not exists email_contacto text;
+alter table orgs add column if not exists telefono text;
+alter table orgs add column if not exists direccion text;
+alter table orgs add column if not exists pdf_mensaje text;
+alter table orgs add column if not exists pdf_condiciones text;
+alter table orgs add column if not exists pdf_mostrar_lista boolean not null default true;

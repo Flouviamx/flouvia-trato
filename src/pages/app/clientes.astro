@@ -1,30 +1,96 @@
 ---
-// Clientes — directorio con términos y límite de crédito. Datos reales (Neon).
+// Clientes — directorio con términos y límite de crédito. CRUD real (Neon).
 import AppLayout from '../../layouts/AppLayout.astro';
 import { getClientes, getCotizaciones, money } from '../../lib/queries';
 
 const [CLIENTES, COTIZACIONES] = await Promise.all([getClientes(), getCotizaciones()]);
 const countQuotes = (empresa: string) => COTIZACIONES.filter(q => q.cliente === empresa).length;
+
+const TERM_VALUE: Record<string, string> = { 'Contado': 'contado', 'Net 30': 'net30', 'Net 60': 'net60' };
 ---
 
 <AppLayout title="Clientes — Trato" page="clientes" heading="Clientes">
-    <button slot="topbar-actions" class="btn-new">+ Nuevo cliente</button>
+    <button slot="topbar-actions" class="btn-new" id="btnNew">+ Nuevo cliente</button>
 
     <section class="card table-card">
         <div class="t-head">
             <span>Cliente</span><span>Contacto</span><span>RFC</span><span>Términos</span><span class="t-right">Límite de crédito</span><span class="t-right">Cotizaciones</span>
         </div>
         {CLIENTES.map((c) => (
-            <div class="t-row">
+            <button
+                class="t-row"
+                data-id={c.id}
+                data-empresa={c.empresa}
+                data-contacto={c.contacto}
+                data-email={c.email}
+                data-rfc={c.rfc}
+                data-terminos={TERM_VALUE[c.terminos] ?? 'contado'}
+                data-limite={c.limite > 0 ? String(c.limite) : ''}
+            >
                 <span class="t-client"><span class="t-avatar">{c.inicial}</span>{c.empresa}</span>
                 <span class="t-contact">{c.contacto}<small>{c.email}</small></span>
                 <span class="t-muted">{c.rfc}</span>
                 <span class="t-term">{c.terminos}</span>
                 <span class="editorial t-amount t-right">{c.limite > 0 ? money(c.limite, 0) : '—'}</span>
                 <span class="t-muted t-right">{countQuotes(c.empresa)}</span>
-            </div>
+            </button>
         ))}
+        {CLIENTES.length === 0 && (
+            <p class="t-empty">Aún no tienes clientes. Crea el primero con "+ Nuevo cliente".</p>
+        )}
     </section>
+
+    <!-- Modal alta / edición -->
+    <dialog class="modal" id="clientModal">
+        <form method="dialog" class="m-form" id="clientForm">
+            <div class="m-head">
+                <h2 id="mTitle">Nuevo cliente</h2>
+                <button type="button" class="m-close" id="mClose" aria-label="Cerrar">✕</button>
+            </div>
+
+            <div class="m-field">
+                <label for="fEmpresa">Empresa *</label>
+                <input class="m-input" id="fEmpresa" name="empresa" required placeholder="Distribuidora El Zarco" />
+            </div>
+            <div class="m-row">
+                <div class="m-field">
+                    <label for="fContacto">Contacto</label>
+                    <input class="m-input" id="fContacto" name="contacto" placeholder="Raúl Mendoza" />
+                </div>
+                <div class="m-field">
+                    <label for="fEmail">Correo</label>
+                    <input class="m-input" id="fEmail" name="email" type="email" placeholder="compras@elzarco.mx" />
+                </div>
+            </div>
+            <div class="m-row">
+                <div class="m-field">
+                    <label for="fRfc">RFC</label>
+                    <input class="m-input" id="fRfc" name="rfc" placeholder="DEZ981123QX1" maxlength="13" />
+                </div>
+                <div class="m-field">
+                    <label for="fLimite">Límite de crédito (MXN)</label>
+                    <input class="m-input" id="fLimite" name="limite" type="number" min="0" step="1000" placeholder="500000" />
+                </div>
+            </div>
+            <div class="m-field">
+                <label>Términos de pago</label>
+                <div class="m-chips" id="fTerminos">
+                    <button type="button" class="chip active" data-v="contado">Contado</button>
+                    <button type="button" class="chip" data-v="net30">Net 30</button>
+                    <button type="button" class="chip" data-v="net60">Net 60</button>
+                </div>
+            </div>
+
+            <p class="m-error" id="mError"></p>
+
+            <div class="m-actions">
+                <button type="button" class="m-delete" id="mDelete">Eliminar</button>
+                <span class="m-spacer"></span>
+                <button type="button" class="m-cancel" id="mCancel">Cancelar</button>
+                <button type="submit" class="m-save" id="mSave">Guardar cliente</button>
+            </div>
+        </form>
+    </dialog>
 </AppLayout>
 
 <style>
@@ -50,27 +116,176 @@ const countQuotes = (empresa: string) => COTIZACIONES.filter(q => q.cliente === 
         color: #99a2af; border-bottom: 1px solid var(--color-border);
         background: var(--color-bg-soft);
     }
-    .t-row { border-bottom: 1px solid var(--color-border); transition: background 0.2s var(--ease-ios); }
+    .t-row {
+        width: 100%; text-align: left;
+        font-family: var(--font-sans); background: none; border: none; cursor: pointer;
+        border-bottom: 1px solid var(--color-border);
+        transition: background 0.2s var(--ease-ios);
+    }
     .t-row:last-of-type { border-bottom: none; }
     .t-row:hover { background: var(--color-bg-soft); }
 
-    .t-client { display: flex; align-items: center; gap: 10px; font-size: 0.86rem; font-weight: 600; }
+    .t-client { display: flex; align-items: center; gap: 10px; font-size: 0.86rem; font-weight: 600; color: var(--color-text); }
     .t-avatar {
         width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
         background: var(--color-blue-deep); color: #fff;
         display: flex; align-items: center; justify-content: center;
         font-size: 0.62rem; font-weight: 800;
     }
-    .t-contact { display: flex; flex-direction: column; font-size: 0.82rem; font-weight: 500; }
+    .t-contact { display: flex; flex-direction: column; font-size: 0.82rem; font-weight: 500; color: var(--color-text); }
     .t-contact small { font-size: 0.7rem; color: var(--color-text-muted); }
     .t-muted { font-size: 0.78rem; color: var(--color-text-muted); }
     .t-term { font-size: 0.74rem; font-weight: 700; color: var(--color-blue-deep); }
     .t-amount { font-size: 0.95rem; color: var(--color-blue-deep); }
     .t-right { text-align: right; }
+    .t-empty { padding: 2rem 1.3rem; font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
+
+    /* ── Modal ── */
+    .modal {
+        border: none; border-radius: 18px; padding: 0;
+        width: min(520px, calc(100vw - 2rem));
+        box-shadow: 0 40px 90px -30px rgba(10,25,47,0.45);
+    }
+    .modal::backdrop { background: rgba(10,25,47,0.38); backdrop-filter: blur(4px); }
+    .m-form { display: flex; flex-direction: column; gap: 0.95rem; padding: 1.5rem 1.6rem 1.4rem; }
+    .m-head { display: flex; align-items: center; justify-content: space-between; }
+    .m-head h2 { font-size: 1.05rem; font-weight: 700; margin: 0; letter-spacing: -0.3px; }
+    .m-close {
+        background: var(--color-bg-soft); border: 1px solid var(--color-border);
+        width: 30px; height: 30px; border-radius: 9px; cursor: pointer;
+        font-size: 0.8rem; color: var(--color-text-muted);
+    }
+    .m-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.95rem; }
+    .m-field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .m-field label { font-size: 0.62rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #99a2af; }
+    .m-input {
+        font-family: var(--font-sans); font-size: 0.88rem; font-weight: 500;
+        color: var(--color-text); background: var(--color-bg-soft);
+        border: 1px solid var(--color-border); border-radius: 9px;
+        padding: 10px 12px; transition: border-color 0.25s;
+    }
+    .m-input:focus { outline: none; border-color: var(--color-blue-deep); }
+
+    .m-chips { display: flex; gap: 0.5rem; }
+    .chip {
+        font-family: var(--font-sans); font-size: 0.78rem; font-weight: 600;
+        color: var(--color-text-muted); background: var(--color-bg-soft);
+        border: 1px solid var(--color-border); border-radius: 100px;
+        padding: 7px 16px; cursor: pointer;
+        transition: all 0.25s var(--ease-ios);
+    }
+    .chip.active { background: var(--color-blue-deep); color: #fff; border-color: var(--color-blue-deep); }
+
+    .m-error { font-size: 0.78rem; color: var(--color-danger); margin: 0; min-height: 1em; }
+
+    .m-actions { display: flex; align-items: center; gap: 0.6rem; }
+    .m-spacer { flex: 1; }
+    .m-delete {
+        font-family: var(--font-sans); font-size: 0.8rem; font-weight: 600;
+        color: var(--color-danger); background: none; border: none; cursor: pointer;
+        padding: 9px 4px;
+    }
+    .m-delete[hidden] { display: none; }
+    .m-cancel {
+        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600;
+        color: var(--color-text); background: var(--color-bg-soft);
+        border: 1px solid var(--color-border); border-radius: 9px;
+        padding: 9px 16px; cursor: pointer;
+    }
+    .m-save {
+        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600;
+        background: var(--color-blue-deep); color: #fff;
+        border: none; border-radius: 9px; padding: 9px 18px; cursor: pointer;
+        box-shadow: 0 6px 18px -8px rgba(10,25,47,0.5);
+    }
+    .m-save:disabled { opacity: 0.6; cursor: wait; }
 
     @media (max-width: 880px) {
         .t-head { display: none; }
         .t-row { grid-template-columns: 1fr auto; gap: 0.3rem 1rem; }
         .t-muted, .t-contact { display: none; }
+        .m-row { grid-template-columns: 1fr; }
     }
 </style>
+
+<script>
+    // CRUD de clientes contra /api/clientes. Click en fila = editar.
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('clientModal') as HTMLDialogElement;
+        const form = document.getElementById('clientForm') as HTMLFormElement;
+        const title = document.getElementById('mTitle')!;
+        const errorEl = document.getElementById('mError')!;
+        const btnDelete = document.getElementById('mDelete') as HTMLButtonElement;
+        const btnSave = document.getElementById('mSave') as HTMLButtonElement;
+        const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('#fTerminos .chip'));
+
+        let editId: string | null = null;
+        let terminos = 'contado';
+
+        const input = (id: string) => document.getElementById(id) as HTMLInputElement;
+        const setTerm = (v: string) => {
+            terminos = v;
+            chips.forEach(c => c.classList.toggle('active', c.dataset.v === v));
+        };
+
+        const open = (data?: DOMStringMap) => {
+            errorEl.textContent = '';
+            editId = data?.id ?? null;
+            title.textContent = editId ? 'Editar cliente' : 'Nuevo cliente';
+            btnDelete.hidden = !editId;
+            input('fEmpresa').value = data?.empresa ?? '';
+            input('fContacto').value = data?.contacto ?? '';
+            input('fEmail').value = data?.email ?? '';
+            input('fRfc').value = data?.rfc ?? '';
+            input('fLimite').value = data?.limite ?? '';
+            setTerm(data?.terminos ?? 'contado');
+            modal.showModal();
+        };
+
+        document.getElementById('btnNew')?.addEventListener('click', () => open());
+        document.querySelectorAll<HTMLElement>('.t-row[data-id]').forEach(row =>
+            row.addEventListener('click', () => open(row.dataset)));
+        document.getElementById('mClose')?.addEventListener('click', () => modal.close());
+        document.getElementById('mCancel')?.addEventListener('click', () => modal.close());
+        chips.forEach(c => c.addEventListener('click', () => setTerm(c.dataset.v!)));
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btnSave.disabled = true;
+            errorEl.textContent = '';
+            const payload = {
+                id: editId ?? undefined,
+                empresa: input('fEmpresa').value,
+                contacto: input('fContacto').value,
+                email: input('fEmail').value,
+                rfc: input('fRfc').value,
+                terminos,
+                limite: input('fLimite').value,
+            };
+            try {
+                const res = await fetch('/api/clientes', {
+                    method: editId ? 'PATCH' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo guardar');
+                location.reload();
+            } catch (err: any) {
+                errorEl.textContent = err.message;
+                btnSave.disabled = false;
+            }
+        });
+
+        btnDelete.addEventListener('click', async () => {
+            if (!editId || !confirm('¿Eliminar este cliente? Sus cotizaciones se conservan.')) return;
+            const res = await fetch('/api/clientes', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: editId }),
+            });
+            if (res.ok) location.reload();
+            else errorEl.textContent = (await res.json()).error || 'No se pudo eliminar';
+        });
+    });
+</script>

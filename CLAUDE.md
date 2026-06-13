@@ -56,7 +56,12 @@ para que el swap a Neon sea cambiar imports por queries.
 ✅ **Logos reales** en `public/imgs/`: `logo-trato-navy.png` (fondos claros) y `logo-trato-white.png` (fondos oscuros) — recortados a 780×300
 ✅ **App demo completa con datos mock** — dashboard, cotizaciones (lista + editor interactivo + detalle), clientes, productos, ajustes, link público `/q/{token}`
 ✅ **Clerk conectado** — `/login` y `/registro` con componentes reales (es-MX); falta proteger `/app`
-⬜ Conectar Neon (DATABASE_URL) + Stripe — siguiente fase
+✅ **Neon conectado** — la app lee/escribe real (`src/lib/queries.ts`, org demo `demo-user`)
+✅ **Páginas de producto** `/producto/*` (5) + `/soluciones` — estilo Stripe, animaciones compartidas en `PageAnims.astro`
+✅ **App funcional (jun 2026)** — CRUD de clientes/productos (modales), ajustes que guardan,
+   acciones de cotización (enviar/aprobar/rechazar/pago/facturar), aprobar/rechazar REAL
+   en `/q/[token]`, PDF imprimible personalizado por cuenta (`/app/cotizaciones/[id]/imprimir`)
+⬜ Stripe Billing + proteger `/app` con Clerk — siguiente fase
 
 ---
 
@@ -105,26 +110,42 @@ el valor antes de cada query (igual que `app.email_cliente` en flouvia-web).
 ```
 # Landing (prerender:true) — CONSTRUIDA
 /                → landing de ventas (un solo index.astro que monta los componentes)
+/producto/[slug] → páginas de producto (jun 2026, estilo Stripe): editor,
+                   link-publico, seguimiento, cfdi, clientes-credito. Contenido en
+                   src/lib/producto.ts; mockup por feature en [slug].astro;
+                   animaciones compartidas en components/landing/PageAnims.astro
+                   (masked titles via clase .masked-title, hero .pp-hero)
+/soluciones      → por industria con anclas: #distribuidoras #construccion
+                   #manufactura #servicios. Usa PageAnims también.
 
-# App — CONSTRUIDA con datos mock (src/lib/mock.ts); usa AppLayout.astro
-/login /registro → placeholder borderless (botón entra a /app); Clerk los reemplaza después
-/app             → dashboard: KPIs con count-up vanilla, pipeline por estado,
-                   recientes, activity feed
+# App — CONECTADA a Neon (src/lib/queries.ts); usa AppLayout.astro
+/login /registro → Clerk SignIn/SignUp (es-MX)
+/app             → dashboard: KPIs, pipeline por estado, recientes, activity feed
 /app/cotizaciones        → tabla con filtros por estado (client-side)
-/app/cotizaciones/nueva  → EL EDITOR (interactivo: agregar del catálogo, precio
-                           negociado por línea con highlight verde, totales+IVA en
-                           vivo, chips de términos, toast). Script is:inline con
-                           define:vars={{ catalogo }}
-/app/cotizaciones/[id]   → detalle + timeline + acciones (link público, PDF, CFDI)
-/app/clientes /app/productos → directorios (CRUD visual; import CSV después)
-/app/ajustes     → marca, datos fiscales/CSD, plan
-/q/[token]       → vista PÚBLICA de la cotización (la página mejor diseñada —
-                   marca del emisor, total `.editorial` protagonista, aprobar → success,
-                   pie "vía trato" = loop viral). Token mock: /q/demo
+/app/cotizaciones/nueva  → EL EDITOR — POST /api/cotizaciones (real)
+/app/cotizaciones/[id]   → detalle + timeline + ACCIONES REALES (enviar, aprobar,
+                           rechazar, pago, facturar, copiar link, eliminar borrador)
+                           via PATCH/DELETE /api/cotizaciones/[id]
+/app/cotizaciones/[id]/imprimir → PDF imprimible (window.print) personalizado con
+                           la marca de la org (color, contacto, mensaje, condiciones)
+/app/clientes /app/productos → CRUD real con modal <dialog> (POST/PATCH/DELETE
+                           /api/clientes y /api/productos)
+/app/ajustes     → guarda real via PATCH /api/org: marca (color picker), contacto,
+                   fiscales, folio/IVA, y sección "Documento PDF" (mensaje de pie,
+                   condiciones, toggle precio de lista)
+/q/[token]       → vista PÚBLICA — aprobar/rechazar REALES via POST /api/q/[token]
+                   (token = secreto, sin auth); muestra estado si ya se decidió;
+                   "Descargar PDF" = window.print con @media print; color de marca
+                   de la org. Token demo: /q/demo
 
 # Legales (pendiente)
 /privacidad /terminos
 ```
+
+**Columnas de personalización en `orgs`** (jun 2026, al final de `db/schema.sql`
+como `alter table … if not exists`): `color_marca`, `email_contacto`, `telefono`,
+`direccion`, `pdf_mensaje`, `pdf_condiciones`, `pdf_mostrar_lista`. ⚠️ Correr
+`npm run db:migrate` tras pull — `/q/[token]` y `/api/org` las leen explícitamente.
 
 **Mock data:** `src/lib/mock.ts` exporta `ORG`, `PRODUCTOS`, `CLIENTES`,
 `COTIZACIONES` (con items + eventos), `STATUS_META` (label/color/bg por estado),
@@ -153,8 +174,8 @@ las animaciones GSAP globales. Orden de secciones:
 | `Steps.astro` | Cómo funciona (`#como`) | 3 pasos sobre fondo navy |
 | `ClientView.astro` | Experiencia del cliente | Mockup de teléfono del link público `/q/` |
 | `Pricing.astro` | Precios (`#precios`) | 3 planes, el de en medio destacado en navy |
-| `Faq.astro` | FAQ (`#faq`) | Acordeón nativo `<details>` |
-| `Footer.astro` | CTA final + footer | Navy, enlaza a flouvia.com |
+| `Faq.astro` | FAQ (`#faq`) | Acordeón animado (botones + grid 0fr→1fr; uno abierto a la vez) |
+| `Footer.astro` | CTA final + footer | Navy, enlaza a flouvia.com. Acepta props `ctaTitle`/`ctaSub` (las subpáginas personalizan el CTA) |
 
 **Filosofía visual (jun 2026):** referencias = **Stripe + Linear**, alma = **Flouvia**.
 Minimalista, lujoso, mucho aire. Secciones con `padding: 9rem` vertical. Tipografía
@@ -171,19 +192,22 @@ Es el mismo patrón que `../flouvia/src/components/Navbar.astro`, adaptado:
 - **Glass pill** (izquierda) Liquid Glass con los nav-links + **indicador deslizante**
   (`#nav-indicator`, cápsula de vidrio que GSAP desliza al link en hover, estilo
   segmented control iOS).
-- **Megamenú (jun 2026):** "PRODUCTO" (`data-mega`) expande la píldora EN VERTICAL —
-  la fila de links queda arriba (`.pill-row`) y abajo se revela `#pill-mega` (grid
-  2×3 de features con ícono+título+desc + footer "cómo funciona"). Cerrado colapsa
-  `width:0; height:0` (para no ensanchar la píldora); GSAP anima width/height de la
-  píldora al abrir/cerrar (mide `offsetWidth` antes/después), items con stagger
-  fade+blur, `border-radius 100px → 24px` vía clase `.mega-open` (transición CSS).
-  Abre con hover/click, cierra con mouseleave, otros links, scroll y Escape. Tiene
-  variantes de color para `.scrolled` (píldora navy).
+- **Megamenús (jun 2026):** estructura = PRODUCTO · SOLUCIONES · PRECIOS · RECURSOS.
+  Tres triggers `data-mega` (producto/soluciones/recursos), cada uno con su panel
+  `.pill-mega[data-panel=…]`; la píldora se expande EN VERTICAL y revela el panel
+  activo. Cerrado colapsa `width:0; height:0`; GSAP anima width/height midiendo
+  `offsetWidth` antes/después; cambiar de trigger con otro abierto colapsa el
+  anterior al instante y abre el nuevo. Items con stagger fade+blur,
+  `border-radius 100px → 24px` vía `.mega-open`; caret rota con `.mega-active`
+  en el trigger (no con `.mega-open` global). Abre con hover/click, cierra con
+  mouseleave, links sin mega, scroll y Escape. Variantes `.scrolled` (navy).
+  Links del nav usan rutas absolutas (`/#precios`) para funcionar desde subpáginas.
 - **Logo central** `logo-trato-navy.png` (30px alto) que **desaparece al hacer
   scroll** y reaparece como `pill-logo` (`logo-trato-white.png`, 17px) dentro de la
   glass pill navy (misma mecánica que el logo de flouvia). En mobile: dos `<img>`
   apiladas (navy/white) que se intercambian por opacity con `.scrolled`.
-- **Derecha:** "Entrar" + botón navy "Empezar gratis".
+- **Derecha:** píldora glass "Entrar" con ícono de usuario (`.nav-login-pill`,
+  estilo flouvia.com; versión navy en `.scrolled`) + botón navy "Empezar gratis".
 - **Estado `.scrolled`** (>50px): la glass pill pasa a versión navy translúcida; los
   links y wordmark cambian a blanco. Transición por-propiedad `0.7s var(--ease-spring)`.
 - **Mobile:** píldora glass con hamburguesa + wordmark + CTA; overlay con `clip-path:
@@ -192,8 +216,8 @@ Es el mismo patrón que `../flouvia/src/components/Navbar.astro`, adaptado:
 - **Anti-flash:** gate `.js-anim #navbar { opacity:0 }` (is:global) + entrada GSAP que
   oculta las piezas, revela el contenedor y las entra con stagger. `clearProps` al
   terminar para que `.scrolled`/`:hover` gobiernen.
-- Diferencias vs flouvia: SIN lang switch (v1 solo español), SIN login-icon pill
-  (usa "Entrar" en texto), wordmark de texto en vez de logos SVG.
+- Diferencias vs flouvia: SIN lang switch (v1 solo español); wordmark de texto en
+  vez de logos SVG. El login-icon pill SÍ existe desde jun 2026 (André lo pidió).
 
 ### Animaciones de la landing (`index.astro`) — refinadas jun 2026 (Stripe/Linear)
 
@@ -222,7 +246,8 @@ Es el mismo patrón que `../flouvia/src/components/Navbar.astro`, adaptado:
   overlay de éxito; loop con repeatDelay 3.4s.
 - **Count-up** de números (`[data-countup]` + `data-decimals`) al entrar en
   viewport — formato `Intl.NumberFormat('es-MX')`.
-- **Parallax scrub** en watermarks (steps/footer) y hero-mesh.
+- **Parallax scrub** en hero-mesh. (Los watermarks de steps/footer se ELIMINARON
+  jun 2026 a petición de André — ver regla de watermarks abajo.)
 - **Reveals genéricos** (`.reveal`): patrón anti-parpadeo — `gsap.set` oculta +
   `ScrollTrigger {once:true, onEnter: gsap.to}` con `clearProps: 'transform'`
   (NUNCA limpiar opacity — el gate lo volvería a ocultar; bug conocido).
@@ -260,9 +285,12 @@ Regla de oro: **misma alma, distinto cuerpo**. Tokens en `src/layouts/Layout.ast
 ```
 
 **Reglas tipográficas:**
-- **TODO en Inter** — André pidió ELIMINAR las serif (jun 2026). NO reintroducir
-  Instrument Serif ni itálicas decorativas. La carga de Google Fonts es solo Inter
-  (weights 400–900).
+- **Landing/login en Inter; la APP usa tipografía de SISTEMA (jun 2026, petición
+  de André: "tipo Apple")** — AppLayout define `--font-sans: -apple-system,
+  BlinkMacSystemFont, 'SF Pro Text', …` y NO carga Google Fonts. La landing
+  (Layout.astro) sigue cargando solo Inter (weights 400–900).
+- Sin serif — André pidió ELIMINARLAS (jun 2026). NO reintroducir Instrument Serif
+  ni itálicas decorativas.
 - **Montos y números** → clase `.editorial` (definida global en ambos layouts):
   Inter weight 600, `letter-spacing: -0.03em`, `font-variant-numeric: tabular-nums`.
   Es la firma "fintech" del producto (estilo Stripe). Nunca serif, nunca italic.
@@ -274,7 +302,9 @@ Regla de oro: **misma alma, distinto cuerpo**. Tokens en `src/layouts/Layout.ast
 
 **Layout / componentes:**
 - Secciones de la landing: `padding: 9rem` vertical (mucho aire, estilo Stripe/Linear).
-- Watermarks gigantes en **Inter 800, letter-spacing −0.06em** (`rgba(0,0,0,0.025)`
+- **Watermarks gigantes: ELIMINADOS del index (jun 2026, petición de André) — NO
+  reintroducirlos en la landing.** Solo sobreviven en login/registro y en /q
+  (fondo "Trato"). Si se usan ahí: Inter 800, letter-spacing −0.06em (`rgba(0,0,0,0.025)`
   claro / `rgba(255,255,255,0.025)` oscuro) **solo en landing/login** — dentro de la
   app NO (es herramienta, no editorial).
 - Liquid Glass (blur + rim light + specular) en: navbar, topbar de la app y segmented

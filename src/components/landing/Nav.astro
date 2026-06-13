@@ -26,33 +26,33 @@
                         <a href="/" class="pill-logo" id="pill-logo">
                             <img src="/imgs/logo-trato-white.png" alt="Trato" class="pill-logo-img" />
                         </a>
-                        <a href="#producto" class="nav-link" data-path="#producto" data-mega="producto" aria-haspopup="true" aria-expanded="false">PRODUCTO<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
-                        <a href="#como" class="nav-link" data-path="#como">CÓMO FUNCIONA</a>
-                        <a href="#precios" class="nav-link" data-path="#precios">PRECIOS</a>
-                        <a href="#faq" class="nav-link" data-path="#faq">FAQ</a>
+                        <a href="/#producto" class="nav-link" data-mega="producto" aria-haspopup="true" aria-expanded="false">PRODUCTO<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <a href="/soluciones" class="nav-link" data-mega="soluciones" aria-haspopup="true" aria-expanded="false">SOLUCIONES<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <a href="/#precios" class="nav-link" data-path="#precios">PRECIOS</a>
+                        <a href="/#faq" class="nav-link" data-mega="recursos" aria-haspopup="true" aria-expanded="false">RECURSOS<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
                     </div>
 
-                    <!-- Megamenú: la píldora se expande verticalmente y revela esto -->
-                    <div class="pill-mega" id="pill-mega" aria-hidden="true">
+                    <!-- Megamenús: la píldora se expande verticalmente y revela el panel activo -->
+                    <div class="pill-mega" data-panel="producto" aria-hidden="true">
                         <div class="mega-inner">
                             <div class="mega-grid">
-                                <a href="#producto" class="mega-item">
+                                <a href="/producto/editor" class="mega-item">
                                     <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
                                     <span class="mega-copy"><b>Editor de cotizaciones</b><i>Precios negociados, línea por línea</i></span>
                                 </a>
-                                <a href="#producto" class="mega-item">
+                                <a href="/producto/link-publico" class="mega-item">
                                     <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></span>
                                     <span class="mega-copy"><b>Link público</b><i>Tu cliente aprueba en un clic</i></span>
                                 </a>
-                                <a href="#producto" class="mega-item">
+                                <a href="/producto/seguimiento" class="mega-item">
                                     <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg></span>
                                     <span class="mega-copy"><b>Seguimiento en vivo</b><i>Sabes el momento en que la ven</i></span>
                                 </a>
-                                <a href="#producto" class="mega-item">
+                                <a href="/producto/cfdi" class="mega-item">
                                     <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></span>
                                     <span class="mega-copy"><b>CFDI 4.0</b><i>Timbrado automático ante el SAT</i></span>
                                 </a>
-                                <a href="#producto" class="mega-item">
+                                <a href="/producto/clientes-credito" class="mega-item">
                                     <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
                                     <span class="mega-copy"><b>Clientes y crédito</b><i>Net 30/60 y límite por cliente</i></span>
                                 </a>
@@ -61,8 +61,62 @@
                                     <span class="mega-copy"><b>Cotización de ejemplo</b><i>Mira lo que recibe tu cliente</i></span>
                                 </a>
                             </div>
-                            <a href="#como" class="mega-foot">
+                            <a href="/#como" class="mega-foot">
                                 <span>Ver cómo funciona, en tres pasos</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pill-mega" data-panel="soluciones" aria-hidden="true">
+                        <div class="mega-inner">
+                            <div class="mega-grid">
+                                <a href="/soluciones#distribuidoras" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8Z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+                                    <span class="mega-copy"><b>Distribuidoras y mayoristas</b><i>Listas de precios por cliente</i></span>
+                                </a>
+                                <a href="/soluciones#construccion" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V8l7-5 7 5v12"/><path d="M9 20v-6h6v6"/></svg></span>
+                                    <span class="mega-copy"><b>Construcción y materiales</b><i>Volumen, obra y crédito</i></span>
+                                </a>
+                                <a href="/soluciones#manufactura" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M4 20V10l5 3V10l5 3V8l6 4v8"/></svg></span>
+                                    <span class="mega-copy"><b>Manufactura</b><i>Cotiza especificación y lote</i></span>
+                                </a>
+                                <a href="/soluciones#servicios" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+                                    <span class="mega-copy"><b>Servicios profesionales</b><i>Propuestas que se aprueban solas</i></span>
+                                </a>
+                            </div>
+                            <a href="/soluciones" class="mega-foot">
+                                <span>Ver todas las soluciones</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pill-mega" data-panel="recursos" aria-hidden="true">
+                        <div class="mega-inner">
+                            <div class="mega-grid">
+                                <a href="/#como" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></span>
+                                    <span class="mega-copy"><b>Cómo funciona</b><i>El flujo completo, en tres pasos</i></span>
+                                </a>
+                                <a href="/q/demo" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg></span>
+                                    <span class="mega-copy"><b>Cotización de ejemplo</b><i>Lo que tu cliente recibe</i></span>
+                                </a>
+                                <a href="/#faq" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></span>
+                                    <span class="mega-copy"><b>Preguntas frecuentes</b><i>Planes, CFDI, seguridad y más</i></span>
+                                </a>
+                                <a href="mailto:hola@flouvia.com" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                                    <span class="mega-copy"><b>Hablar con el equipo</b><i>hola@flouvia.com</i></span>
+                                </a>
+                            </div>
+                            <a href="https://flouvia.com" target="_blank" rel="noopener" class="mega-foot">
+                                <span>Conoce Flouvia, la casa de Trato</span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                             </a>
                         </div>
@@ -77,7 +131,10 @@
             </div>
 
             <div class="nav-right desktop-nav" id="nav-right">
-                <a href="/login" class="nav-login-text">Entrar</a>
+                <a href="/login" class="nav-login-pill" aria-label="Entrar a tu cuenta">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Entrar</span>
+                </a>
                 <a href="/registro" class="btn-contact">
                     <span class="btn-contact-label">Empezar gratis</span>
                     <svg class="contact-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="19" x2="19" y2="5"/><polyline points="9 5 19 5 19 15"/></svg>
@@ -116,10 +173,10 @@
             </div>
 
             <nav class="mobile-links" id="mobile-links">
-                <a href="#producto" class="m-link">Producto</a>
-                <a href="#como" class="m-link">Cómo funciona</a>
-                <a href="#precios" class="m-link">Precios</a>
-                <a href="#faq" class="m-link">FAQ</a>
+                <a href="/#producto" class="m-link">Producto</a>
+                <a href="/soluciones" class="m-link">Soluciones</a>
+                <a href="/#precios" class="m-link">Precios</a>
+                <a href="/#faq" class="m-link">Recursos</a>
             </nav>
 
             <div class="mobile-menu-footer">
@@ -188,7 +245,7 @@
 
     .nav-caret { width: 11px; height: 11px; margin-left: 5px; opacity: 0.45; transition: transform 0.5s var(--ease-spring); vertical-align: -1px; }
     .nav-link[data-mega] { display: inline-flex; align-items: center; }
-    .glass-pill.mega-open .nav-link[data-mega] .nav-caret { transform: rotate(180deg); }
+    .nav-link[data-mega].mega-active .nav-caret { transform: rotate(180deg); }
 
     /* ── MEGAMENÚ ── */
     /* Cerrado colapsa en AMBOS ejes para no ensanchar la píldora; GSAP anima
@@ -311,14 +368,45 @@
 
     /* ── RIGHT ── */
     .nav-right { justify-content: flex-end; gap: 14px; }
-    .nav-login-text {
+    /* Píldora de login (estilo flouvia.com): glass con ícono de usuario */
+    .nav-login-pill {
+        display: inline-flex; align-items: center; gap: 7px;
         font-size: 9.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
         color: rgba(0,0,0,0.6); text-decoration: none;
-        transition: color 0.45s var(--ease-spring);
+        padding: 9px 17px; border-radius: 100px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.5) 100%);
+        backdrop-filter: blur(30px) saturate(1.9) brightness(1.04);
+        -webkit-backdrop-filter: blur(30px) saturate(1.9) brightness(1.04);
+        border: 1px solid rgba(255,255,255,0.55);
+        box-shadow:
+            inset 0 1px 1px rgba(255,255,255,0.95),
+            inset 0 0 0 0.5px rgba(255,255,255,0.4),
+            0 8px 26px rgba(10,25,47,0.09),
+            0 2px 5px rgba(10,25,47,0.05);
+        transition: color 0.45s var(--ease-spring), box-shadow 0.6s var(--ease-spring),
+                    border-color 0.6s var(--ease-spring), background 0.6s var(--ease-spring),
+                    transform 0.4s var(--ease-expo);
     }
-    .nav-login-text:hover { color: rgba(0,0,0,0.95); }
-    .navbar-wrapper.scrolled .nav-login-text { color: rgba(255,255,255,0.55); }
-    .navbar-wrapper.scrolled .nav-login-text:hover { color: #fff; }
+    .nav-login-pill svg { width: 12px; height: 12px; opacity: 0.7; transition: opacity 0.3s; }
+    .nav-login-pill:hover {
+        color: rgba(0,0,0,0.95); transform: translateY(-1px);
+        box-shadow:
+            inset 0 1px 1px rgba(255,255,255,0.98),
+            inset 0 0 0 0.5px rgba(255,255,255,0.5),
+            0 14px 38px rgba(10,25,47,0.13),
+            0 3px 7px rgba(10,25,47,0.06);
+    }
+    .nav-login-pill:hover svg { opacity: 1; }
+    .navbar-wrapper.scrolled .nav-login-pill {
+        color: rgba(255,255,255,0.75);
+        background: linear-gradient(180deg, rgba(24,46,80,0.62) 0%, rgba(10,25,47,0.5) 100%);
+        border-color: rgba(255,255,255,0.14);
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.22),
+            inset 0 0 0 0.5px rgba(255,255,255,0.08),
+            0 14px 40px rgba(0,0,0,0.28);
+    }
+    .navbar-wrapper.scrolled .nav-login-pill:hover { color: #fff; }
 
     .btn-contact {
         display: inline-flex; align-items: center; gap: 7px;
@@ -527,70 +615,103 @@
             window.addEventListener('resize', () => indicatorRelayout && indicatorRelayout(false), { passive: true });
         }
 
-        // ── MEGAMENÚ (la píldora se expande en vertical) ──
+        // ── MEGAMENÚS (la píldora se expande en vertical; un panel por trigger) ──
         const pillEl = document.getElementById('glass-pill');
-        const mega = document.getElementById('pill-mega');
-        const megaTrigger = pillEl?.querySelector<HTMLElement>('.nav-link[data-mega]') ?? null;
-        if (pillEl && mega && megaTrigger) {
-            const megaPieces = Array.from(mega.querySelectorAll<HTMLElement>('.mega-item, .mega-foot'));
+        const panels = pillEl ? Array.from(pillEl.querySelectorAll<HTMLElement>('.pill-mega')) : [];
+        const triggers = pillEl ? Array.from(pillEl.querySelectorAll<HTMLElement>('.nav-link[data-mega]')) : [];
+        if (pillEl && panels.length && triggers.length) {
             const dur = reducedMotion ? 0 : 1;
-            let megaOpen = false;
-
             const pillRow = document.getElementById('pill-row');
+            let current: string | null = null;
 
-            const openMega = () => {
-                if (megaOpen) return;
-                megaOpen = true;
-                pillEl.classList.add('mega-open');
-                megaTrigger.setAttribute('aria-expanded', 'true');
-                mega.setAttribute('aria-hidden', 'false');
-                gsap.killTweensOf([pillEl, mega, ...megaPieces]);
+            const panelOf = (name: string) => panels.find(p => p.dataset.panel === name) ?? null;
+            const triggerOf = (name: string) => triggers.find(t => t.dataset.mega === name) ?? null;
+            const piecesOf = (panel: HTMLElement) => Array.from(panel.querySelectorAll<HTMLElement>('.mega-item, .mega-foot'));
 
-                // medir: ancho cerrado → ancho con el panel desplegado
+            const openMega = (name: string) => {
+                if (current === name) return;
+                const panel = panelOf(name);
+                if (!panel) return;
+                const pieces = piecesOf(panel);
+
                 const w0 = pillEl.offsetWidth;
-                gsap.set(mega, { width: 'auto', height: 'auto' });
+
+                // si hay otro panel abierto, colápsalo al instante (estamos cambiando de pestaña)
+                if (current) {
+                    const prev = panelOf(current);
+                    const prevTrigger = triggerOf(current);
+                    if (prev) {
+                        gsap.killTweensOf([prev, ...piecesOf(prev)]);
+                        gsap.set(prev, { width: 0, height: 0 });
+                        gsap.set(piecesOf(prev), { clearProps: 'opacity,transform,filter' });
+                        prev.setAttribute('aria-hidden', 'true');
+                    }
+                    prevTrigger?.classList.remove('mega-active');
+                    prevTrigger?.setAttribute('aria-expanded', 'false');
+                }
+
+                current = name;
+                pillEl.classList.add('mega-open');
+                const trigger = triggerOf(name);
+                trigger?.classList.add('mega-active');
+                trigger?.setAttribute('aria-expanded', 'true');
+                panel.setAttribute('aria-hidden', 'false');
+                gsap.killTweensOf([pillEl, panel, ...pieces]);
+
+                // medir: ancho actual → ancho con el panel desplegado
+                gsap.set(panel, { width: 'auto', height: 'auto' });
                 const w1 = pillEl.offsetWidth;
 
                 gsap.fromTo(pillEl, { width: w0 }, { width: Math.max(w0, w1), duration: 0.62 * dur, ease: 'power3.out', clearProps: 'width' });
-                gsap.from(mega, {
+                gsap.from(panel, {
                     height: 0, duration: 0.62 * dur, ease: 'power3.out',
-                    onComplete: () => gsap.set(mega, { height: 'auto' }),
+                    onComplete: () => gsap.set(panel, { height: 'auto' }),
                 });
-                gsap.fromTo(megaPieces,
+                gsap.fromTo(pieces,
                     { opacity: 0, y: 9, filter: 'blur(4px)' },
                     { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.5 * dur, stagger: 0.035 * dur, delay: 0.08 * dur, ease: 'power2.out', clearProps: 'filter,transform' },
                 );
             };
+
             const closeMega = () => {
-                if (!megaOpen) return;
-                megaOpen = false;
-                megaTrigger.setAttribute('aria-expanded', 'false');
-                mega.setAttribute('aria-hidden', 'true');
-                gsap.killTweensOf([pillEl, mega, ...megaPieces]);
+                if (!current) return;
+                const panel = panelOf(current);
+                const trigger = triggerOf(current);
+                current = null;
+                trigger?.classList.remove('mega-active');
+                trigger?.setAttribute('aria-expanded', 'false');
+                if (!panel) { pillEl.classList.remove('mega-open'); return; }
+                const pieces = piecesOf(panel);
+                panel.setAttribute('aria-hidden', 'true');
+                gsap.killTweensOf([pillEl, panel, ...pieces]);
 
                 const w1 = pillEl.offsetWidth;
                 const w0 = (pillRow ? pillRow.offsetWidth : 0) + 12; // + padding horizontal de la píldora
 
-                gsap.to(megaPieces, { opacity: 0, duration: 0.22 * dur });
+                gsap.to(pieces, { opacity: 0, duration: 0.22 * dur });
                 gsap.fromTo(pillEl, { width: w1 }, { width: w0, duration: 0.5 * dur, ease: 'power3.inOut' });
-                gsap.to(mega, {
+                gsap.to(panel, {
                     height: 0, duration: 0.5 * dur, ease: 'power3.inOut',
                     onComplete: () => {
-                        gsap.set(mega, { width: 0 });
+                        gsap.set(panel, { width: 0 });
+                        gsap.set(pieces, { clearProps: 'opacity' });
                         gsap.set(pillEl, { clearProps: 'width' });
                         pillEl.classList.remove('mega-open');
                     },
                 });
             };
 
-            megaTrigger.addEventListener('mouseenter', openMega);
-            megaTrigger.addEventListener('click', (e) => {
-                if (!megaOpen) { e.preventDefault(); openMega(); }
-                else { closeMega(); } // segundo click: cierra y deja navegar al ancla
+            triggers.forEach((trigger) => {
+                const name = trigger.dataset.mega!;
+                trigger.addEventListener('mouseenter', () => openMega(name));
+                trigger.addEventListener('click', (e) => {
+                    if (current !== name) { e.preventDefault(); openMega(name); }
+                    else { closeMega(); } // segundo click: cierra y deja navegar al href
+                });
             });
             pillEl.querySelectorAll<HTMLElement>('.nav-link:not([data-mega])').forEach(l => l.addEventListener('mouseenter', closeMega));
             pillEl.addEventListener('mouseleave', closeMega);
-            mega.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMega));
+            panels.forEach(p => p.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMega)));
             window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMega(); });
             window.addEventListener('scroll', closeMega, { passive: true });
         }

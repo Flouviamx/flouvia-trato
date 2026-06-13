@@ -1,15 +1,22 @@
 ---
 // CTA final + footer — dark navy, coherente con el footer de flouvia.com.
+// Las subpáginas (/producto/*, /soluciones) pueden personalizar el CTA via props.
+interface Props {
+    ctaTitle?: string;   // admite <br />
+    ctaSub?: string;
+}
+const {
+    ctaTitle = 'Tu próxima cotización<br />merece verse profesional.',
+    ctaSub = 'Crea tu cuenta gratis y manda tu primera cotización con Trato en menos de 10 minutos.',
+} = Astro.props;
 ---
 
 <section class="final-cta">
     <div class="fc-glow" aria-hidden="true"></div>
     <div class="fc-inner reveal">
         <p class="fc-eyebrow">EMPIEZA HOY</p>
-        <h2 class="fc-title">Tu próxima cotización<br />merece verse profesional.</h2>
-        <p class="fc-sub">
-            Crea tu cuenta gratis y manda tu primera cotización con Trato en menos de 10 minutos.
-        </p>
+        <h2 class="fc-title masked-title" set:html={ctaTitle} />
+        <p class="fc-sub">{ctaSub}</p>
         <div class="fc-actions">
             <a href="/registro" class="fc-btn">
                 <span>Empezar gratis</span>
@@ -22,7 +29,6 @@
 </section>
 
 <footer class="footer">
-    <div class="footer-watermark editorial" aria-hidden="true">trato</div>
     <div class="footer-inner">
         <div class="footer-top">
             <div class="footer-brand">
@@ -36,15 +42,20 @@
             <div class="footer-cols">
                 <div class="footer-col">
                     <span class="footer-col-title">/01 Producto</span>
-                    <a href="#producto">Funciones</a>
-                    <a href="#como">Cómo funciona</a>
-                    <a href="#precios">Precios</a>
+                    <a href="/producto/editor">Editor de cotizaciones</a>
+                    <a href="/producto/link-publico">Link público</a>
+                    <a href="/producto/seguimiento">Seguimiento en vivo</a>
+                    <a href="/producto/cfdi">CFDI 4.0</a>
+                    <a href="/producto/clientes-credito">Clientes y crédito</a>
                 </div>
                 <div class="footer-col">
-                    <span class="footer-col-title">/02 Cuenta</span>
+                    <span class="footer-col-title">/02 Empresa</span>
+                    <a href="/soluciones">Soluciones</a>
+                    <a href="/#como">Cómo funciona</a>
+                    <a href="/#precios">Precios</a>
+                    <a href="/#faq">FAQ</a>
                     <a href="/login">Entrar</a>
                     <a href="/registro">Crear cuenta</a>
-                    <a href="#faq">FAQ</a>
                 </div>
                 <div class="footer-col">
                     <span class="footer-col-title">/03 Contacto</span>
@@ -109,13 +120,6 @@
         padding: 4.5rem 5% 2.5rem;
         overflow: clip;
     }
-    .footer-watermark {
-        position: absolute; bottom: -6vw; right: -2vw;
-        font-size: 22vw; line-height: 0.85;
-        font-weight: 800; letter-spacing: -0.06em;
-        color: rgba(255,255,255,0.022);
-        pointer-events: none; user-select: none; white-space: nowrap;
-    }
     .footer-inner { position: relative; z-index: 2; max-width: 1120px; margin: 0 auto; }
     .footer-top {
         display: grid;
@@ -152,6 +156,5 @@
         .footer-top { grid-template-columns: 1fr; gap: 2.5rem; }
         .footer-cols { grid-template-columns: 1fr 1fr; }
         .footer-bottom { flex-direction: column; align-items: flex-start; }
-        .footer-watermark { font-size: 44vw; }
     }
 </style>

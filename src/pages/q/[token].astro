@@ -12,6 +12,11 @@ const { quote: q, org: ORG } = result;
 
 // Registra la apertura del cliente (y pasa a 'viewed' si estaba 'sent').
 await markViewed(token ?? '');
+
+// Estado actual: si ya se decidió, el cliente ve el resultado, no los botones.
+const yaAprobada = ['approved', 'paid', 'invoiced'].includes(q.status);
+const yaRechazada = q.status === 'rejected';
+const color = ORG.colorMarca;
 ---
 
 <Layout title={`Cotización ${q.folio} — ${ORG.nombre}`} noindex={true}>
@@ -21,7 +26,7 @@ await markViewed(token ?? '');
         <div class="q-card">
             <!-- Marca del negocio emisor -->
             <header class="q-brand">
-                <div class="q-logo">{ORG.inicial}</div>
+                <div class="q-logo" style={`background: ${color}`}>{ORG.inicial}</div>
                 <div class="q-brand-info">
                     <span class="q-company">{ORG.nombre}</span>
                     <span class="q-rfc">RFC {ORG.rfc}</span>
@@ -53,7 +58,7 @@ await markViewed(token ?? '');
             <!-- Total protagonista -->
             <div class="q-total-hero">
                 <span class="q-total-label">TOTAL</span>
-                <span class="editorial q-total-val">{money(quoteTotal(q))}</span>
+                <span class="editorial q-total-val" style={`color: ${color}`}>{money(quoteTotal(q))}</span>
                 <span class="q-total-cur">MXN · IVA incluido</span>
             </div>
 
@@ -70,29 +75,37 @@ await markViewed(token ?? '');
                 ))}
                 <div class="qi-totals">
                     <div class="qt-line"><span>Subtotal</span><span class="editorial">{money(quoteSubtotal(q))}</span></div>
-                    <div class="qt-line"><span>IVA 16%</span><span class="editorial">{money(quoteIva(q))}</span></div>
+                    <div class="qt-line"><span>IVA {ORG.ivaPct}%</span><span class="editorial">{money(quoteIva(q))}</span></div>
                     <div class="qt-line qt-grand"><span>Total</span><span class="editorial">{money(quoteTotal(q))}</span></div>
                 </div>
             </div>
 
             {q.notas && <p class="q-notes">{q.notas}</p>}
 
-            <!-- Acciones del cliente -->
-            <div class="q-actions" id="qActions">
-                <button class="q-approve" id="qApprove">Aprobar cotización</button>
+            <!-- Acciones del cliente (solo si la cotización sigue viva) -->
+            <div class="q-actions" id="qActions" hidden={yaAprobada || yaRechazada} data-token={q.token}>
+                <button class="q-approve" id="qApprove" style={`background: ${color}`}>Aprobar cotización</button>
                 <div class="q-secondary-row">
-                    <button class="q-secondary">Descargar PDF</button>
+                    <button class="q-secondary" id="qPdf">Descargar PDF</button>
                     <button class="q-secondary q-reject" id="qReject">Rechazar</button>
                 </div>
+                <p class="q-error" id="qError"></p>
             </div>
 
             <!-- Estado de éxito -->
-            <div class="q-done" id="qDone" hidden>
+            <div class="q-done" id="qDone" hidden={!yaAprobada}>
                 <div class="q-done-circle">
                     <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <span class="q-done-title">Cotización aprobada</span>
                 <span class="q-done-sub">{ORG.nombre} recibió tu confirmación. Te contactarán en breve.</span>
+                <button class="q-secondary q-done-pdf" id="qPdfDone">Descargar PDF</button>
+            </div>
+
+            <!-- Estado rechazada -->
+            <div class="q-done" id="qRejected" hidden={!yaRechazada}>
+                <span class="q-done-title">Cotización rechazada</span>
+                <span class="q-done-sub">Le avisamos a {ORG.nombre}. Si cambias de opinión, contáctalos directamente.</span>
             </div>
         </div>
 
@@ -104,17 +117,53 @@ await markViewed(token ?? '');
 </Layout>
 
 <script>
-    const approve = document.getElementById('qApprove');
-    const reject = document.getElementById('qReject');
+    // Decisión real del cliente: POST /api/q/[token] (el token es el secreto).
     const actions = document.getElementById('qActions');
     const done = document.getElementById('qDone');
-    approve?.addEventListener('click', () => {
-        if (actions) actions.hidden = true;
-        if (done) done.hidden = false;
+    const rejected = document.getElementById('qRejected');
+    const errorEl = document.getElementById('qError');
+    const token = actions?.dataset.token ?? '';
+
+    const decide = async (action: 'approve' | 'reject', comentario = '') => {
+        if (errorEl) errorEl.textContent = '';
+        const res = await fetch(`/api/q/${token}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, comentario }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            if (errorEl) errorEl.textContent = data.error || 'Algo salió mal, intenta de nuevo.';
+            return false;
+        }
+        return true;
+    };
+
+    document.getElementById('qApprove')?.addEventListener('click', async (e) => {
+        const btn = e.currentTarget as HTMLButtonElement;
+        btn.disabled = true;
+        if (await decide('approve')) {
+            if (actions) actions.hidden = true;
+            if (done) done.hidden = false;
+        } else {
+            btn.disabled = false;
+        }
     });
-    reject?.addEventListener('click', () => {
-        alert('Demo: aquí el cliente puede rechazar o dejar un comentario para negociar.');
+
+    document.getElementById('qReject')?.addEventListener('click', async (e) => {
+        const comentario = prompt('¿Quieres dejar un comentario? (opcional — puede ayudar a negociar)') ?? '';
+        const btn = e.currentTarget as HTMLButtonElement;
+        btn.disabled = true;
+        if (await decide('reject', comentario)) {
+            if (actions) actions.hidden = true;
+            if (rejected) rejected.hidden = false;
+        } else {
+            btn.disabled = false;
+        }
     });
+
+    document.getElementById('qPdf')?.addEventListener('click', () => window.print());
+    document.getElementById('qPdfDone')?.addEventListener('click', () => window.print());
 </script>
 
 <style>
@@ -248,6 +297,9 @@ await markViewed(token ?? '');
     .q-via:hover { color: var(--color-blue-deep); }
     .q-via:hover img { opacity: 1; }
 
+    .q-error { font-size: 0.78rem; color: var(--color-danger); margin: 0; text-align: center; min-height: 0; }
+    .q-done-pdf { margin-top: 0.7rem; flex: none; padding-inline: 22px; }
+
     @media (max-width: 600px) {
         .q-card { padding: 1.8rem 1.4rem; }
         .q-meta { grid-template-columns: 1fr 1fr; }
@@ -255,5 +307,13 @@ await markViewed(token ?? '');
         .qi-row { grid-template-columns: 1fr auto; }
         .qi-qty, .qi-right:not(.qi-amount) { display: none; }
         .q-folio-box { display: none; }
+    }
+
+    /* ── Impresión: el link público ES el PDF del cliente ── */
+    @media print {
+        .q-page { background: #fff; padding: 0; min-height: 0; display: block; }
+        .q-watermark, .q-via, .q-actions, .q-done-pdf { display: none !important; }
+        .q-card { box-shadow: none; border-radius: 0; max-width: none; padding: 0; animation: none; }
+        @page { margin: 1.4cm 1.6cm; }
     }
 </style>

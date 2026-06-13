@@ -36,14 +36,16 @@ const faqs = [
         </div>
 
         <div class="faq-list">
-            {faqs.map((f) => (
-                <details class="faq-item reveal">
-                    <summary class="faq-q">
+            {faqs.map((f, i) => (
+                <div class="faq-item reveal">
+                    <button class="faq-q" aria-expanded="false" aria-controls={`faq-panel-${i}`}>
                         <span>{f.q}</span>
                         <span class="faq-icon" aria-hidden="true"></span>
-                    </summary>
-                    <p class="faq-a">{f.a}</p>
-                </details>
+                    </button>
+                    <div class="faq-panel" id={`faq-panel-${i}`} role="region">
+                        <p class="faq-a">{f.a}</p>
+                    </div>
+                </div>
             ))}
         </div>
     </div>
@@ -65,15 +67,16 @@ const faqs = [
         justify-content: space-between;
         align-items: center;
         gap: 1.5rem;
+        width: 100%;
         padding: 1.5rem 0.2rem;
         cursor: pointer;
-        list-style: none;
+        background: none; border: none; text-align: left;
+        font-family: var(--font-sans);
         font-size: 1.08rem;
         font-weight: 600;
         color: var(--color-text);
         transition: color 0.3s var(--ease-ios);
     }
-    .faq-q::-webkit-details-marker { display: none; }
     .faq-q:hover { color: var(--color-blue-deep); }
 
     .faq-icon {
@@ -90,14 +93,56 @@ const faqs = [
     }
     .faq-icon::before { width: 14px; height: 2px; transform: translate(-50%, -50%); }
     .faq-icon::after { width: 2px; height: 14px; transform: translate(-50%, -50%); }
-    .faq-item[open] .faq-icon::after { transform: translate(-50%, -50%) scaleY(0); }
+    .faq-item.open .faq-icon { transform: rotate(90deg); }
+    .faq-item.open .faq-icon::after { transform: translate(-50%, -50%) scaleY(0); }
+    .faq-icon { transition: transform 0.5s var(--ease-spring); }
+    .faq-item.open .faq-q { color: var(--color-blue-deep); }
+
+    /* Panel: grid 0fr → 1fr = animación de altura sin medir con JS */
+    .faq-panel {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.55s var(--ease-spring);
+    }
+    .faq-panel > .faq-a { overflow: hidden; min-height: 0; }
+    .faq-item.open .faq-panel { grid-template-rows: 1fr; }
 
     .faq-a {
         margin: 0;
-        padding: 0 0.2rem 1.6rem;
+        padding: 0 0.2rem;
         font-size: 1rem;
         line-height: 1.7;
         color: var(--color-text-muted);
         max-width: 90%;
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: opacity 0.45s var(--ease-ios) 0.08s, transform 0.5s var(--ease-spring) 0.08s, padding 0.45s var(--ease-spring);
+    }
+    .faq-item.open .faq-a { opacity: 1; transform: translateY(0); padding-bottom: 1.6rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .faq-panel, .faq-a, .faq-icon { transition: none; }
     }
 </style>
+
+<script>
+    // Acordeón: un solo abierto a la vez; la animación la hace el CSS (grid 0fr→1fr).
+    document.addEventListener('DOMContentLoaded', () => {
+        const items = Array.from(document.querySelectorAll<HTMLElement>('.faq-item'));
+        items.forEach((item) => {
+            const btn = item.querySelector<HTMLButtonElement>('.faq-q');
+            if (!btn) return;
+            btn.addEventListener('click', () => {
+                const willOpen = !item.classList.contains('open');
+                items.forEach((other) => {
+                    other.classList.remove('open');
+                    other.querySelector('.faq-q')?.setAttribute('aria-expanded', 'false');
+                });
+                if (willOpen) {
+                    item.classList.add('open');
+                    btn.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+    });
+</script>

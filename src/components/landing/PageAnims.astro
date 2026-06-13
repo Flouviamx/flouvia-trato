@@ -1,0 +1,133 @@
+---
+// PageAnims — animaciones GSAP compartidas por las subpáginas de la landing
+// (/producto/*, /soluciones). Mismo lenguaje que index.astro:
+// masked line reveals en títulos, reveals genéricos, settle del mockup del hero,
+// count-ups y gate anti-FOUC. NO se usa en el index (ese orquesta lo suyo).
+---
+
+<style is:global>
+    .js-anim .reveal,
+    .js-anim .reveal-mockup { opacity: 0; }
+
+    /* Masked line reveal (Linear): cada línea del título sube desde una máscara. */
+    .m-line { display: block; overflow: hidden; }
+    .m-line-in { display: inline-block; will-change: transform; }
+</style>
+
+<script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (reduced) {
+            gsap.set('.reveal, .reveal-mockup', { opacity: 1, y: 0 });
+            return;
+        }
+
+        // ── Masked line reveals: todo lo marcado con .masked-title ──
+        const wrapLines = (el: HTMLElement): HTMLElement[] => {
+            const parts = el.innerHTML.split(/<br\s*\/?>/i);
+            el.innerHTML = parts
+                .map(p => `<span class="m-line"><span class="m-line-in">${p.trim()}</span></span>`)
+                .join('');
+            return Array.from(el.querySelectorAll<HTMLElement>('.m-line-in'));
+        };
+
+        const maskTargets = gsap.utils.toArray<HTMLElement>('.masked-title');
+        const maskedSet = new Set<HTMLElement>(maskTargets);
+
+        maskTargets.forEach((el) => {
+            const lines = wrapLines(el);
+            gsap.set(lines, { yPercent: 115 });
+            gsap.set(el, { opacity: 1 });
+            if (el.closest('.pp-hero')) return; // el hero lo orquesta su timeline
+            ScrollTrigger.create({
+                trigger: el, start: 'top 86%', once: true,
+                onEnter: () => gsap.to(lines, {
+                    yPercent: 0, duration: 1.0, ease: 'power3.out', stagger: 0.09,
+                }),
+            });
+        });
+
+        // ── HERO en carga ──
+        const heroTitleLines = document.querySelectorAll<HTMLElement>('.pp-hero .masked-title .m-line-in');
+        const heroReveals = gsap.utils.toArray<HTMLElement>('.pp-hero .reveal').filter(el => !maskedSet.has(el));
+        gsap.set(heroReveals, { y: 16 });
+
+        const heroTl = gsap.timeline({ delay: 0.15, defaults: { ease: 'power2.out' } });
+        heroTl
+            .to(heroTitleLines, { yPercent: 0, duration: 1.15, ease: 'power3.out', stagger: 0.11 }, 0.08)
+            .to(heroReveals, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 }, 0.4);
+
+        // Mockup del hero: entra con perspectiva y se asienta con el scroll (Stripe).
+        const heroMockup = document.querySelector<HTMLElement>('.pp-hero .reveal-mockup');
+        const heroMk = document.querySelector<HTMLElement>('.pp-hero .pp-mockup');
+        if (heroMockup && heroMk) {
+            gsap.set(heroMk, { transformPerspective: 1400, transformOrigin: 'center top', rotationX: 9 });
+            gsap.set(heroMockup, { y: 50 });
+            gsap.to(heroMockup, { opacity: 1, y: 0, duration: 1.3, ease: 'power3.out', delay: 0.55 });
+            gsap.to(heroMk, {
+                rotationX: 0, ease: 'none',
+                scrollTrigger: { trigger: heroMockup, start: 'top 88%', end: 'top 32%', scrub: 0.6 },
+            });
+        }
+
+        // ── Reveals genéricos on-scroll (patrón anti-parpadeo del proyecto) ──
+        const scrollReveals = gsap.utils.toArray<HTMLElement>('.reveal')
+            .filter((el) => !el.closest('.pp-hero') && !maskedSet.has(el));
+        scrollReveals.forEach((el) => {
+            gsap.set(el, { y: 18 });
+            ScrollTrigger.create({
+                trigger: el, start: 'top 88%', once: true,
+                onEnter: () => gsap.to(el, { opacity: 1, y: 0, duration: 0.85, ease: 'power2.out', clearProps: 'transform' }),
+            });
+        });
+
+        const otherMockups = gsap.utils.toArray<HTMLElement>('.reveal-mockup').filter((el) => !el.closest('.pp-hero'));
+        otherMockups.forEach((el) => {
+            gsap.set(el, { y: 36, scale: 0.985 });
+            ScrollTrigger.create({
+                trigger: el, start: 'top 85%', once: true,
+                onEnter: () => gsap.to(el, { opacity: 1, y: 0, scale: 1, duration: 1.1, ease: 'power3.out' }),
+            });
+        });
+
+        // ── Count-ups ([data-countup] con data-decimals/data-prefix/data-suffix) ──
+        gsap.utils.toArray<HTMLElement>('[data-countup]').forEach((el) => {
+            const target = parseFloat(el.dataset.countup || '0');
+            const dec = parseInt(el.dataset.decimals || '0', 10);
+            const prefix = el.dataset.prefix || '';
+            const suffix = el.dataset.suffix || '';
+            const fmt = (n: number) =>
+                prefix + new Intl.NumberFormat('es-MX', { minimumFractionDigits: dec, maximumFractionDigits: dec }).format(n) + suffix;
+            ScrollTrigger.create({
+                trigger: el, start: 'top 92%', once: true,
+                onEnter: () => {
+                    const obj = { v: 0 };
+                    gsap.to(obj, {
+                        v: target, duration: 1.3, ease: 'power2.out',
+                        onUpdate: () => { el.textContent = fmt(obj.v); },
+                    });
+                },
+            });
+        });
+
+        // ── Smooth scroll para anclas internas ──
+        document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+            a.addEventListener('click', (e) => {
+                const id = a.getAttribute('href');
+                if (!id || id === '#') return;
+                const target = document.querySelector(id);
+                if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            });
+        });
+
+        Promise.all([
+            new Promise<void>((r) => window.addEventListener('load', () => r(), { once: true })),
+            (document as any).fonts?.ready ?? Promise.resolve(),
+        ]).then(() => setTimeout(() => ScrollTrigger.refresh(), 120));
+    });
+</script>

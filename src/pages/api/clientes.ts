@@ -1,0 +1,71 @@
+// /api/clientes — CRUD del directorio de clientes de la org activa.
+//   POST   { empresa, contacto?, email?, telefono?, rfc?, terminos?, limite? }   → { id }
+//   PATCH  { id, ...mismos campos }                                              → { ok }
+//   DELETE { id }                                                                → { ok }
+export const prerender = false;
+
+import type { APIRoute } from 'astro';
+import { sql, getActiveOrgId } from '../../lib/db';
+
+const TERMINOS = ['contado', 'net30', 'net60'];
+
+function clean(body: any) {
+    return {
+        empresa: String(body.empresa ?? '').trim(),
+        contacto: String(body.contacto ?? '').trim() || null,
+        email: String(body.email ?? '').trim() || null,
+        telefono: String(body.telefono ?? '').trim() || null,
+        rfc: String(body.rfc ?? '').trim().toUpperCase() || null,
+        terminos: TERMINOS.includes(body.terminos) ? body.terminos : 'contado',
+        limite: body.limite === '' || body.limite === null || body.limite === undefined
+            ? null : Math.max(0, Number(body.limite) || 0),
+    };
+}
+
+export const POST: APIRoute = async ({ request }) => {
+    let body: any;
+    try { body = await request.json(); } catch { return json({ error: 'JSON inválido' }, 400); }
+    const c = clean(body);
+    if (!c.empresa) return json({ error: 'El nombre de la empresa es obligatorio' }, 400);
+
+    const orgId = await getActiveOrgId();
+    const [row] = await sql`
+        insert into clientes (org_id, empresa, contacto, email, telefono, rfc, terminos_default, limite_credito)
+        values (${orgId}, ${c.empresa}, ${c.contacto}, ${c.email}, ${c.telefono}, ${c.rfc}, ${c.terminos}, ${c.limite})
+        returning id`;
+    return json({ id: row.id });
+};
+
+export const PATCH: APIRoute = async ({ request }) => {
+    let body: any;
+    try { body = await request.json(); } catch { return json({ error: 'JSON inválido' }, 400); }
+    if (!body.id) return json({ error: 'Falta id' }, 400);
+    const c = clean(body);
+    if (!c.empresa) return json({ error: 'El nombre de la empresa es obligatorio' }, 400);
+
+    const orgId = await getActiveOrgId();
+    const rows = await sql`
+        update clientes set
+            empresa = ${c.empresa}, contacto = ${c.contacto}, email = ${c.email},
+            telefono = ${c.telefono}, rfc = ${c.rfc},
+            terminos_default = ${c.terminos}, limite_credito = ${c.limite}
+        where id = ${body.id} and org_id = ${orgId}
+        returning id`;
+    if (!rows.length) return json({ error: 'Cliente no encontrado' }, 404);
+    return json({ ok: true });
+};
+
+export const DELETE: APIRoute = async ({ request }) => {
+    let body: any;
+    try { body = await request.json(); } catch { return json({ error: 'JSON inválido' }, 400); }
+    if (!body.id) return json({ error: 'Falta id' }, 400);
+
+    const orgId = await getActiveOrgId();
+    const rows = await sql`delete from clientes where id = ${body.id} and org_id = ${orgId} returning id`;
+    if (!rows.length) return json({ error: 'Cliente no encontrado' }, 404);
+    return json({ ok: true });
+};
+
+function json(data: unknown, status = 200) {
+    return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+}

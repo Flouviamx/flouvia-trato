@@ -1,5 +1,5 @@
 ---
-// Productos — catálogo con precios de lista. Datos reales (Neon).
+// Productos — catálogo con precios de lista. CRUD real (Neon).
 import AppLayout from '../../layouts/AppLayout.astro';
 import { getProductos, money } from '../../lib/queries';
 
@@ -7,24 +7,80 @@ const PRODUCTOS = await getProductos();
 ---
 
 <AppLayout title="Productos — Trato" page="productos" heading="Productos">
-    <button slot="topbar-actions" class="btn-new">+ Nuevo producto</button>
+    <button slot="topbar-actions" class="btn-new" id="btnNew">+ Nuevo producto</button>
 
     <section class="card table-card">
         <div class="t-head">
             <span>SKU</span><span>Producto</span><span>Unidad</span><span class="t-right">Precio de lista</span><span>Estado</span>
         </div>
         {PRODUCTOS.map((p) => (
-            <div class="t-row">
+            <button
+                class="t-row"
+                data-id={p.id}
+                data-sku={p.sku}
+                data-nombre={p.nombre}
+                data-unidad={p.unidad}
+                data-precio={String(p.precio)}
+                data-activo={p.activo ? '1' : ''}
+            >
                 <span class="t-sku">{p.sku}</span>
                 <span class="t-name">{p.nombre}</span>
                 <span class="t-muted">{p.unidad}</span>
                 <span class="editorial t-amount t-right">{money(p.precio)}</span>
                 <span class:list={['t-state', p.activo ? 'on' : 'off']}>{p.activo ? '● Activo' : '○ Inactivo'}</span>
-            </div>
+            </button>
         ))}
+        {PRODUCTOS.length === 0 && (
+            <p class="t-empty">Tu catálogo está vacío. Agrega tu primer producto con "+ Nuevo producto".</p>
+        )}
     </section>
 
-    <p class="hint">💡 Con la base de datos conectada podrás importar tu catálogo completo desde CSV.</p>
+    <!-- Modal alta / edición -->
+    <dialog class="modal" id="prodModal">
+        <form method="dialog" class="m-form" id="prodForm">
+            <div class="m-head">
+                <h2 id="mTitle">Nuevo producto</h2>
+                <button type="button" class="m-close" id="mClose" aria-label="Cerrar">✕</button>
+            </div>
+
+            <div class="m-field">
+                <label for="fNombre">Nombre *</label>
+                <input class="m-input" id="fNombre" required placeholder="Cemento gris 50kg" />
+            </div>
+            <div class="m-row">
+                <div class="m-field">
+                    <label for="fSku">SKU</label>
+                    <input class="m-input" id="fSku" placeholder="CEM-50" maxlength="24" />
+                </div>
+                <div class="m-field">
+                    <label for="fUnidad">Unidad</label>
+                    <input class="m-input" id="fUnidad" placeholder="saco, pieza, m³…" />
+                </div>
+            </div>
+            <div class="m-row">
+                <div class="m-field">
+                    <label for="fPrecio">Precio de lista (MXN) *</label>
+                    <input class="m-input" id="fPrecio" type="number" min="0" step="0.01" required placeholder="198.00" />
+                </div>
+                <div class="m-field">
+                    <label>Estado</label>
+                    <div class="m-chips" id="fActivo">
+                        <button type="button" class="chip active" data-v="1">Activo</button>
+                        <button type="button" class="chip" data-v="">Inactivo</button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="m-error" id="mError"></p>
+
+            <div class="m-actions">
+                <button type="button" class="m-delete" id="mDelete">Eliminar</button>
+                <span class="m-spacer"></span>
+                <button type="button" class="m-cancel" id="mCancel">Cancelar</button>
+                <button type="submit" class="m-save" id="mSave">Guardar producto</button>
+            </div>
+        </form>
+    </dialog>
 </AppLayout>
 
 <style>
@@ -50,24 +106,169 @@ const PRODUCTOS = await getProductos();
         color: #99a2af; border-bottom: 1px solid var(--color-border);
         background: var(--color-bg-soft);
     }
-    .t-row { border-bottom: 1px solid var(--color-border); transition: background 0.2s var(--ease-ios); }
+    .t-row {
+        width: 100%; text-align: left;
+        font-family: var(--font-sans); background: none; border: none; cursor: pointer;
+        border-bottom: 1px solid var(--color-border);
+        transition: background 0.2s var(--ease-ios);
+    }
     .t-row:last-of-type { border-bottom: none; }
     .t-row:hover { background: var(--color-bg-soft); }
 
     .t-sku { font-size: 0.74rem; font-weight: 700; color: var(--color-text-muted); letter-spacing: 0.4px; }
-    .t-name { font-size: 0.86rem; font-weight: 600; }
+    .t-name { font-size: 0.86rem; font-weight: 600; color: var(--color-text); }
     .t-muted { font-size: 0.8rem; color: var(--color-text-muted); }
     .t-amount { font-size: 0.95rem; color: var(--color-blue-deep); }
     .t-right { text-align: right; }
     .t-state { font-size: 0.72rem; font-weight: 700; }
     .t-state.on { color: #059669; }
     .t-state.off { color: #99a2af; }
+    .t-empty { padding: 2rem 1.3rem; font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
 
-    .hint { font-size: 0.78rem; color: var(--color-text-muted); margin-top: 1rem; }
+    /* ── Modal (mismo lenguaje que clientes) ── */
+    .modal {
+        border: none; border-radius: 18px; padding: 0;
+        width: min(520px, calc(100vw - 2rem));
+        box-shadow: 0 40px 90px -30px rgba(10,25,47,0.45);
+    }
+    .modal::backdrop { background: rgba(10,25,47,0.38); backdrop-filter: blur(4px); }
+    .m-form { display: flex; flex-direction: column; gap: 0.95rem; padding: 1.5rem 1.6rem 1.4rem; }
+    .m-head { display: flex; align-items: center; justify-content: space-between; }
+    .m-head h2 { font-size: 1.05rem; font-weight: 700; margin: 0; letter-spacing: -0.3px; }
+    .m-close {
+        background: var(--color-bg-soft); border: 1px solid var(--color-border);
+        width: 30px; height: 30px; border-radius: 9px; cursor: pointer;
+        font-size: 0.8rem; color: var(--color-text-muted);
+    }
+    .m-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.95rem; }
+    .m-field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .m-field label { font-size: 0.62rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #99a2af; }
+    .m-input {
+        font-family: var(--font-sans); font-size: 0.88rem; font-weight: 500;
+        color: var(--color-text); background: var(--color-bg-soft);
+        border: 1px solid var(--color-border); border-radius: 9px;
+        padding: 10px 12px; transition: border-color 0.25s;
+    }
+    .m-input:focus { outline: none; border-color: var(--color-blue-deep); }
+
+    .m-chips { display: flex; gap: 0.5rem; }
+    .chip {
+        font-family: var(--font-sans); font-size: 0.78rem; font-weight: 600;
+        color: var(--color-text-muted); background: var(--color-bg-soft);
+        border: 1px solid var(--color-border); border-radius: 100px;
+        padding: 7px 16px; cursor: pointer;
+        transition: all 0.25s var(--ease-ios);
+    }
+    .chip.active { background: var(--color-blue-deep); color: #fff; border-color: var(--color-blue-deep); }
+
+    .m-error { font-size: 0.78rem; color: var(--color-danger); margin: 0; min-height: 1em; }
+
+    .m-actions { display: flex; align-items: center; gap: 0.6rem; }
+    .m-spacer { flex: 1; }
+    .m-delete {
+        font-family: var(--font-sans); font-size: 0.8rem; font-weight: 600;
+        color: var(--color-danger); background: none; border: none; cursor: pointer;
+        padding: 9px 4px;
+    }
+    .m-delete[hidden] { display: none; }
+    .m-cancel {
+        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600;
+        color: var(--color-text); background: var(--color-bg-soft);
+        border: 1px solid var(--color-border); border-radius: 9px;
+        padding: 9px 16px; cursor: pointer;
+    }
+    .m-save {
+        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600;
+        background: var(--color-blue-deep); color: #fff;
+        border: none; border-radius: 9px; padding: 9px 18px; cursor: pointer;
+        box-shadow: 0 6px 18px -8px rgba(10,25,47,0.5);
+    }
+    .m-save:disabled { opacity: 0.6; cursor: wait; }
 
     @media (max-width: 720px) {
         .t-head { display: none; }
         .t-row { grid-template-columns: 1fr auto; gap: 0.3rem 1rem; }
         .t-sku, .t-muted, .t-state { display: none; }
+        .m-row { grid-template-columns: 1fr; }
     }
 </style>
+
+<script>
+    // CRUD de productos contra /api/productos. Click en fila = editar.
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('prodModal') as HTMLDialogElement;
+        const form = document.getElementById('prodForm') as HTMLFormElement;
+        const title = document.getElementById('mTitle')!;
+        const errorEl = document.getElementById('mError')!;
+        const btnDelete = document.getElementById('mDelete') as HTMLButtonElement;
+        const btnSave = document.getElementById('mSave') as HTMLButtonElement;
+        const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('#fActivo .chip'));
+
+        let editId: string | null = null;
+        let activo = true;
+
+        const input = (id: string) => document.getElementById(id) as HTMLInputElement;
+        const setActivo = (v: boolean) => {
+            activo = v;
+            chips.forEach(c => c.classList.toggle('active', Boolean(c.dataset.v) === v));
+        };
+
+        const open = (data?: DOMStringMap) => {
+            errorEl.textContent = '';
+            editId = data?.id ?? null;
+            title.textContent = editId ? 'Editar producto' : 'Nuevo producto';
+            btnDelete.hidden = !editId;
+            input('fNombre').value = data?.nombre ?? '';
+            input('fSku').value = data?.sku ?? '';
+            input('fUnidad').value = data?.unidad ?? '';
+            input('fPrecio').value = data?.precio ?? '';
+            setActivo(data ? Boolean(data.activo) : true);
+            modal.showModal();
+        };
+
+        document.getElementById('btnNew')?.addEventListener('click', () => open());
+        document.querySelectorAll<HTMLElement>('.t-row[data-id]').forEach(row =>
+            row.addEventListener('click', () => open(row.dataset)));
+        document.getElementById('mClose')?.addEventListener('click', () => modal.close());
+        document.getElementById('mCancel')?.addEventListener('click', () => modal.close());
+        chips.forEach(c => c.addEventListener('click', () => setActivo(Boolean(c.dataset.v))));
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btnSave.disabled = true;
+            errorEl.textContent = '';
+            const payload = {
+                id: editId ?? undefined,
+                nombre: input('fNombre').value,
+                sku: input('fSku').value,
+                unidad: input('fUnidad').value,
+                precio: input('fPrecio').value,
+                activo,
+            };
+            try {
+                const res = await fetch('/api/productos', {
+                    method: editId ? 'PATCH' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo guardar');
+                location.reload();
+            } catch (err: any) {
+                errorEl.textContent = err.message;
+                btnSave.disabled = false;
+            }
+        });
+
+        btnDelete.addEventListener('click', async () => {
+            if (!editId || !confirm('¿Eliminar este producto del catálogo?')) return;
+            const res = await fetch('/api/productos', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: editId }),
+            });
+            if (res.ok) location.reload();
+            else errorEl.textContent = (await res.json()).error || 'No se pudo eliminar';
+        });
+    });
+</script>

@@ -3,8 +3,6 @@
 ---
 
 <section class="steps" id="como">
-    <div class="steps-watermark editorial" aria-hidden="true">Trato</div>
-
     <div class="steps-inner">
         <div class="steps-head">
             <p class="steps-eyebrow reveal">EN TRES PASOS</p>
@@ -58,14 +56,6 @@
         padding: 9rem 5%;
         overflow: clip;
     }
-    .steps-watermark {
-        position: absolute;
-        bottom: -8vw; left: -2vw;
-        font-size: 26vw; line-height: 0.85;
-        font-weight: 800; letter-spacing: -0.06em;
-        color: rgba(255,255,255,0.025);
-        pointer-events: none; user-select: none; white-space: nowrap;
-    }
     .steps-inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; }
 
     .steps-head { text-align: center; margin-bottom: 4rem; }
@@ -115,6 +105,5 @@
     @media (max-width: 860px) {
         .steps-grid { flex-direction: column; }
         .step-arrow { transform: rotate(90deg); justify-content: center; padding: 0.3rem 0; }
-        .steps-watermark { font-size: 52vw; }
     }
 </style>

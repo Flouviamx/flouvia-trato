@@ -69,14 +69,40 @@ const dotColor = (tipo: string) =>
 
         <!-- Sidebar: acciones + timeline -->
         <aside class="d-side">
-            <section class="card d-actions">
-                <a href={`/q/${q.token}`} class="act-primary" target="_blank">
+            <section class="card d-actions" data-qid={q.id} data-token={q.token}>
+                {q.status === 'draft' && (
+                    <button class="act-primary act-do" data-action="send">Enviar al cliente</button>
+                )}
+                <a href={`/q/${q.token}`} class:list={[q.status === 'draft' ? 'act-secondary act-link' : 'act-primary']} target="_blank">
                     <span>Ver link público</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 </a>
-                <button class="act-secondary">Descargar PDF</button>
-                <button class="act-secondary">Reenviar al cliente</button>
-                {(q.status === 'approved') && <button class="act-cfdi">Timbrar CFDI 4.0</button>}
+                <button class="act-secondary" id="btnCopy">Copiar link</button>
+                <a href={`/app/cotizaciones/${q.id}/imprimir`} target="_blank" class="act-secondary act-link">Descargar PDF</a>
+
+                {(q.status === 'sent' || q.status === 'viewed') && (
+                    <>
+                        <button class="act-ok act-do" data-action="approve">Marcar aprobada</button>
+                        <button class="act-danger act-do" data-action="reject">Marcar rechazada</button>
+                        <button class="act-secondary act-do" data-action="resend">Reenviar al cliente</button>
+                    </>
+                )}
+                {q.status === 'approved' && (
+                    <>
+                        <button class="act-ok act-do" data-action="paid">Registrar pago</button>
+                        <button class="act-cfdi act-do" data-action="invoiced">Timbrar CFDI 4.0</button>
+                    </>
+                )}
+                {q.status === 'paid' && (
+                    <button class="act-cfdi act-do" data-action="invoiced">Timbrar CFDI 4.0</button>
+                )}
+                {q.status === 'expired' && (
+                    <button class="act-secondary act-do" data-action="resend">Reenviar al cliente</button>
+                )}
+                {q.status === 'draft' && (
+                    <button class="act-delete" id="btnDelete">Eliminar borrador</button>
+                )}
+                <p class="act-error" id="actError"></p>
             </section>
 
             <section class="card d-timeline">
@@ -182,6 +208,36 @@ const dotColor = (tipo: string) =>
     }
     .act-cfdi:hover { background: rgba(16,185,129,0.14); }
 
+    .act-primary.act-do {
+        font-family: var(--font-sans); font-size: 0.86rem; border: none; cursor: pointer;
+    }
+    .act-link { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; text-align: center; }
+    .act-link svg { width: 13px; height: 13px; }
+    .act-ok {
+        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 700;
+        color: #fff; background: var(--color-ok);
+        border: none; border-radius: 10px; padding: 10px; cursor: pointer;
+        box-shadow: 0 8px 22px -10px rgba(16,185,129,0.55);
+        transition: transform 0.4s var(--ease-spring);
+    }
+    .act-ok:hover { transform: translateY(-2px); }
+    .act-danger {
+        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600;
+        color: var(--color-danger); background: rgba(239,68,68,0.07);
+        border: 1px solid rgba(239,68,68,0.22); border-radius: 10px;
+        padding: 10px; cursor: pointer;
+        transition: background 0.25s;
+    }
+    .act-danger:hover { background: rgba(239,68,68,0.13); }
+    .act-delete {
+        font-family: var(--font-sans); font-size: 0.78rem; font-weight: 600;
+        color: var(--color-text-muted); background: none; border: none;
+        padding: 6px; cursor: pointer; transition: color 0.25s;
+    }
+    .act-delete:hover { color: var(--color-danger); }
+    .act-error { font-size: 0.74rem; color: var(--color-danger); margin: 0; min-height: 0; }
+    button:disabled { opacity: 0.55; cursor: wait; }
+
     .d-timeline { padding: 1.2rem 1.3rem; }
     .dt-title { font-size: 0.88rem; font-weight: 700; margin: 0 0 1rem; }
     .tl { display: flex; flex-direction: column; gap: 1rem; position: relative; }
@@ -202,3 +258,56 @@ const dotColor = (tipo: string) =>
         .di-qty, .di-price { display: none; }
     }
 </style>
+
+<script>
+    // Acciones de la cotización contra PATCH/DELETE /api/cotizaciones/[id].
+    document.addEventListener('DOMContentLoaded', () => {
+        const panel = document.querySelector<HTMLElement>('.d-actions');
+        if (!panel) return;
+        const qid = panel.dataset.qid!;
+        const token = panel.dataset.token!;
+        const errorEl = document.getElementById('actError')!;
+
+        const CONFIRM: Record<string, string> = {
+            reject: '¿Marcar esta cotización como rechazada?',
+            invoiced: 'El timbrado real ante el SAT llega con el plan Negocio. Por ahora la cotización se marcará como facturada. ¿Continuar?',
+        };
+
+        panel.querySelectorAll<HTMLButtonElement>('.act-do').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const action = btn.dataset.action!;
+                if (CONFIRM[action] && !confirm(CONFIRM[action])) return;
+                btn.disabled = true;
+                errorEl.textContent = '';
+                try {
+                    const res = await fetch(`/api/cotizaciones/${qid}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'No se pudo aplicar la acción');
+                    location.reload();
+                } catch (err: any) {
+                    errorEl.textContent = err.message;
+                    btn.disabled = false;
+                }
+            });
+        });
+
+        document.getElementById('btnCopy')?.addEventListener('click', async (e) => {
+            const btn = e.currentTarget as HTMLButtonElement;
+            await navigator.clipboard.writeText(`${location.origin}/q/${token}`);
+            const prev = btn.textContent;
+            btn.textContent = '✓ Link copiado';
+            setTimeout(() => { btn.textContent = prev; }, 1800);
+        });
+
+        document.getElementById('btnDelete')?.addEventListener('click', async () => {
+            if (!confirm('¿Eliminar este borrador? Esta acción no se puede deshacer.')) return;
+            const res = await fetch(`/api/cotizaciones/${qid}`, { method: 'DELETE' });
+            if (res.ok) location.href = '/app/cotizaciones';
+            else errorEl.textContent = (await res.json()).error || 'No se pudo eliminar';
+        });
+    });
+</script>
