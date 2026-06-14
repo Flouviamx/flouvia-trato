@@ -49,7 +49,7 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
 
 <AppLayout title="Analítica — Trato" page="analitica" heading="Analítica">
     {!hayDatos && (
-        <section class="card empty">
+        <section class="empty">
             <h2>Aún no hay datos que analizar</h2>
             <p>Cuando envíes y cierres cotizaciones, aquí verás tu conversión, el margen que cedes y tus mejores clientes y productos.</p>
             <a href="/app/cotizaciones/nueva" class="empty-cta">+ Crear una cotización</a>
@@ -60,22 +60,22 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
         <>
         <!-- KPIs -->
         <section class="kpis">
-            <div class="card kpi">
+            <div class="kpi">
                 <span class="kpi-label">CERRADO (TOTAL)</span>
                 <span class="editorial kpi-num kpi-ok">{money(A.kpis.cerradoTotal, 0)}</span>
                 <span class="kpi-sub">aprobadas, pagadas y facturadas</span>
             </div>
-            <div class="card kpi">
+            <div class="kpi">
                 <span class="kpi-label">TASA DE CIERRE</span>
                 <span class="editorial kpi-num">{A.kpis.tasaCierre}<span class="kpi-pct">%</span></span>
                 <span class="kpi-sub">de las enviadas se aprueban</span>
             </div>
-            <div class="card kpi">
+            <div class="kpi">
                 <span class="kpi-label">TICKET PROMEDIO</span>
                 <span class="editorial kpi-num">{money(A.kpis.ticketPromedio, 0)}</span>
                 <span class="kpi-sub">por cotización cerrada</span>
             </div>
-            <div class="card kpi">
+            <div class="kpi">
                 <span class="kpi-label">TIEMPO A CIERRE</span>
                 <span class="editorial kpi-num">{A.kpis.diasCierre}<span class="kpi-pct"> días</span></span>
                 <span class="kpi-sub">promedio de enviada a aprobada</span>
@@ -83,7 +83,7 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
         </section>
 
         <!-- Pronóstico -->
-        <section class="card forecast">
+        <section class="forecast">
             <div class="fc-main">
                 <span class="kpi-label">PRONÓSTICO DE CARTERA ABIERTA</span>
                 <span class="editorial fc-num">{money(A.forecast.ponderado, 0)}</span>
@@ -100,7 +100,7 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
 
         <div class="two-col">
             <!-- Cotizado vs cerrado por mes -->
-            <section class="card chart-card">
+            <section class="chart-card">
                 <div class="section-head">
                     <h2>Cotizado vs. cerrado</h2>
                     <div class="legend">
@@ -122,7 +122,7 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
             </section>
 
             <!-- Embudo de conversión -->
-            <section class="card funnel-card">
+            <section class="funnel-card">
                 <div class="section-head"><h2>Embudo de conversión</h2></div>
                 <div class="funnel">
                     {funnelRows.map((r) => (
@@ -141,26 +141,29 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
         </div>
 
         <!-- Margen cedido -->
-        <section class="card margin-card">
-            <div class="margin-figure">
-                <span class="kpi-label">MARGEN CEDIDO EN DESCUENTOS</span>
-                <span class="editorial margin-num">{money(A.margen.cedido, 0)}</span>
-                <span class="kpi-sub">{A.margen.pct.toFixed(1)}% por debajo del precio de lista en cotizaciones enviadas</span>
-            </div>
-            <div class="margin-bar-wrap">
-                <div class="margin-bar">
-                    <span class="margin-fill" style={`width:${Math.min(100, Math.round((A.margen.negoTotal / Math.max(1, A.margen.listaTotal)) * 100))}%`}></span>
+        <section class="margin-card">
+            <div class="section-head"><h2>Margen cedido</h2></div>
+            <div class="margin-grid">
+                <div class="margin-figure">
+                    <span class="kpi-label">MARGEN CEDIDO EN DESCUENTOS</span>
+                    <span class="editorial margin-num">{money(A.margen.cedido, 0)}</span>
+                    <span class="kpi-sub">{A.margen.pct.toFixed(1)}% por debajo del precio de lista en cotizaciones enviadas</span>
                 </div>
-                <div class="margin-legend">
-                    <span>Negociado <b class="editorial">{money(A.margen.negoTotal, 0)}</b></span>
-                    <span>Lista <b class="editorial">{money(A.margen.listaTotal, 0)}</b></span>
+                <div class="margin-bar-wrap">
+                    <div class="margin-bar">
+                        <span class="margin-fill" style={`width:${Math.min(100, Math.round((A.margen.negoTotal / Math.max(1, A.margen.listaTotal)) * 100))}%`}></span>
+                    </div>
+                    <div class="margin-legend">
+                        <span>Negociado <b class="editorial">{money(A.margen.negoTotal, 0)}</b></span>
+                        <span>Lista <b class="editorial">{money(A.margen.listaTotal, 0)}</b></span>
+                    </div>
                 </div>
             </div>
         </section>
 
         <div class="two-col">
             <!-- Top clientes -->
-            <section class="card rank-card">
+            <section class="rank-card">
                 <div class="section-head"><h2>Top clientes</h2><span class="rank-sub">por monto cerrado</span></div>
                 <div class="rank">
                     {A.clientes.length === 0 && <p class="rank-empty">Sin clientes con cotizaciones todavía.</p>}
@@ -180,7 +183,7 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
             </section>
 
             <!-- Top productos -->
-            <section class="card rank-card">
+            <section class="rank-card">
                 <div class="section-head"><h2>Top productos</h2><span class="rank-sub">por importe cotizado</span></div>
                 <div class="rank">
                     {A.productos.length === 0 && <p class="rank-empty">Sin productos cotizados todavía.</p>}
@@ -204,32 +207,46 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
 </AppLayout>
 
 <style>
-    /* KPIs */
-    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1rem; }
-    .kpi { padding: 1.3rem 1.4rem; display: flex; flex-direction: column; gap: 0.35rem; }
-    .kpi-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 1.4px; color: #99a2af; }
-    .kpi-num { font-size: 1.9rem; color: var(--color-blue-deep); line-height: 1; }
+    /* KPIs — tira plana con hairlines y divisor vertical */
+    .kpis {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+        margin-bottom: 2.6rem;
+        border-top: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--color-border);
+    }
+    .kpi {
+        padding: 1.5rem 1.7rem; display: flex; flex-direction: column; gap: 0.45rem;
+        border-left: 1px solid var(--color-border);
+    }
+    .kpi:first-child { border-left: none; padding-left: 0; }
+    .kpi-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 1.6px; color: #99a2af; }
+    .kpi-num { font-size: 2.1rem; color: var(--color-blue-deep); line-height: 1; font-variant-numeric: tabular-nums; }
     .kpi-ok { color: #059669; }
-    .kpi-pct { font-size: 1rem; }
-    .kpi-sub { font-size: 0.74rem; color: var(--color-text-muted); }
+    .kpi-pct { font-size: 1.1rem; }
+    .kpi-sub { font-size: 0.78rem; color: var(--color-text-muted); }
 
-    /* Pronóstico */
-    .forecast { padding: 1.4rem 1.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
-    .fc-main { display: flex; flex-direction: column; gap: 0.35rem; }
+    /* Pronóstico — tira plana con hairlines */
+    .forecast {
+        margin-bottom: 2.6rem;
+        display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap;
+        padding: 1.5rem 0;
+        border-top: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--color-border);
+    }
+    .fc-main { display: flex; flex-direction: column; gap: 0.4rem; }
     .fc-num { font-size: 2.2rem; color: var(--color-blue-deep); line-height: 1; }
-    .fc-side { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; text-align: right; }
-    .fc-side-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 1.4px; color: #99a2af; }
+    .fc-side { display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem; text-align: right; }
+    .fc-side-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 1.6px; color: #99a2af; }
     .fc-side-num { font-size: 1.5rem; color: #059669; line-height: 1.1; }
     .fc-delta { font-size: 0.76rem; font-weight: 700; }
     .fc-delta.up { color: #059669; }
     .fc-delta.down { color: var(--color-danger); }
 
-    .two-col { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; }
-    .section-head h2 { font-size: 0.95rem; font-weight: 700; margin: 0; }
+    .two-col { display: grid; grid-template-columns: 1.3fr 1fr; gap: 2.6rem; margin-bottom: 2.6rem; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--color-border); }
+    .section-head h2 { font-size: 0.7rem; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: #99a2af; margin: 0; }
 
     /* Chart de barras */
-    .chart-card, .funnel-card, .rank-card { padding: 1.4rem 1.5rem; }
     .legend { display: flex; gap: 0.9rem; }
     .lg { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--color-text-muted); font-weight: 600; }
     .sw { width: 9px; height: 9px; border-radius: 3px; }
@@ -254,7 +271,8 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
     .fn-fill { display: block; height: 100%; border-radius: 100px; min-width: 2px; transition: width 0.7s var(--ease-spring); }
 
     /* Margen */
-    .margin-card { padding: 1.4rem 1.5rem; display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; align-items: center; margin-bottom: 1rem; }
+    .margin-card { margin-bottom: 2.6rem; }
+    .margin-card .margin-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; align-items: center; }
     .margin-figure { display: flex; flex-direction: column; gap: 0.4rem; }
     .margin-num { font-size: 2.1rem; color: var(--color-warn); line-height: 1; }
     .margin-bar-wrap { display: flex; flex-direction: column; gap: 0.6rem; }
@@ -276,19 +294,24 @@ const hayDatos = F.enviadas > 0 || A.productos.length > 0;
     .rank-amount { font-size: 0.92rem; color: var(--color-blue-deep); white-space: nowrap; }
     .rank-empty { font-size: 0.82rem; color: var(--color-text-muted); margin: 0; }
 
-    /* Empty state */
-    .empty { padding: 3rem 2rem; text-align: center; }
+    /* Empty state — plano, centrado con aire */
+    .empty { padding: 4.5rem 2rem; text-align: center; }
     .empty h2 { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.5rem; }
     .empty p { font-size: 0.88rem; color: var(--color-text-muted); max-width: 460px; margin: 0 auto 1.4rem; line-height: 1.6; }
     .empty-cta { display: inline-block; background: var(--color-blue-deep); color: #fff; text-decoration: none; font-size: 0.86rem; font-weight: 600; padding: 11px 20px; border-radius: 10px; }
 
     @media (max-width: 1080px) {
         .kpis { grid-template-columns: repeat(2, 1fr); }
-        .two-col { grid-template-columns: 1fr; }
-        .margin-card { grid-template-columns: 1fr; gap: 1.4rem; }
+        .kpi:nth-child(odd) { border-left: none; padding-left: 0; }
+        .kpi:nth-child(3), .kpi:nth-child(4) { border-top: 1px solid var(--color-border); }
+        .two-col { grid-template-columns: 1fr; gap: 2.2rem; }
+        .margin-grid { grid-template-columns: 1fr; gap: 1.4rem; }
     }
     @media (max-width: 560px) {
         .kpis { grid-template-columns: 1fr; }
+        .kpi { border-left: none; padding-left: 0; border-top: 1px solid var(--color-border); }
+        .kpi:first-child { border-top: none; }
+        .kpi:nth-child(3) { border-top: 1px solid var(--color-border); }
         .rank-row { grid-template-columns: 1fr auto; }
         .rank-barwrap { display: none; }
     }

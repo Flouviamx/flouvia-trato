@@ -47,7 +47,7 @@ const dotColor = (tipo: string) =>
     <div class="detail-grid">
         <div class="d-main">
             <!-- Encabezado -->
-            <section class="card d-head">
+            <section class="d-head">
                 <div class="dh-client">
                     <div class="dh-avatar">{q.clienteInicial}</div>
                     <div>
@@ -62,7 +62,8 @@ const dotColor = (tipo: string) =>
             </section>
 
             <!-- Items -->
-            <section class="card d-items">
+            <section class="d-items">
+                <div class="section-head"><h2>Detalle</h2></div>
                 <div class="di-head"><span>Producto</span><span>Cant.</span><span>Precio</span><span class="di-right">Importe</span></div>
                 {q.items.map((it) => (
                     <div class="di-row">
@@ -83,8 +84,8 @@ const dotColor = (tipo: string) =>
             </section>
 
             {q.notas && (
-                <section class="card d-notes">
-                    <span class="dn-label">NOTAS</span>
+                <section class="d-notes">
+                    <div class="section-head"><h2>Notas</h2></div>
                     <p>{q.notas}</p>
                 </section>
             )}
@@ -92,7 +93,8 @@ const dotColor = (tipo: string) =>
 
         <!-- Sidebar: acciones + timeline -->
         <aside class="d-side">
-            <section class="card d-actions" data-qid={q.id} data-token={q.token} data-folio={q.folio} data-cliente={q.cliente} data-total={money(quoteTotal(q))}>
+            <section class="d-actions" data-qid={q.id} data-token={q.token} data-folio={q.folio} data-cliente={q.cliente} data-total={money(quoteTotal(q))}>
+                <div class="section-head"><h2>Acciones</h2></div>
                 {q.status === 'draft' && (
                     <button class="act-primary act-do" data-action="send">Enviar al cliente</button>
                 )}
@@ -133,8 +135,8 @@ const dotColor = (tipo: string) =>
                 <p class="act-error" id="actError"></p>
             </section>
 
-            <section class="card d-timeline">
-                <h3 class="dt-title">Actividad</h3>
+            <section class="d-timeline">
+                <div class="section-head"><h2>Actividad</h2></div>
                 <div class="tl">
                     {q.eventos.map((e) => (
                         <div class="tl-item">
@@ -187,10 +189,14 @@ const dotColor = (tipo: string) =>
     .ap-reject { font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--color-danger); background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 9px; padding: 9px 14px; }
     .ap-approve:disabled, .ap-reject:disabled { opacity: 0.6; cursor: wait; }
 
-    .detail-grid { display: grid; grid-template-columns: 1fr 300px; gap: 1rem; align-items: start; }
-    .d-main { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+    /* Encabezado de sección (eyebrow + hairline) — idéntico al dashboard */
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--color-border); }
+    .section-head h2 { font-size: 0.7rem; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: #99a2af; margin: 0; }
 
-    .d-head { padding: 1.4rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 300px; gap: 3rem; align-items: start; }
+    .d-main { display: flex; flex-direction: column; min-width: 0; }
+
+    .d-head { display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap; padding-bottom: 1.8rem; margin-bottom: 2.6rem; border-bottom: 1px solid var(--color-border); }
     .dh-client { display: flex; align-items: center; gap: 14px; }
     .dh-avatar {
         width: 46px; height: 46px; border-radius: 12px;
@@ -204,17 +210,19 @@ const dotColor = (tipo: string) =>
     .dh-total-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 1.6px; color: #99a2af; }
     .dh-total-val { font-size: 2rem; color: var(--color-blue-deep); line-height: 1.1; }
 
-    .d-items { overflow: hidden; }
+    .d-items { margin-bottom: 2.6rem; }
     .di-head, .di-row {
         display: grid; grid-template-columns: 1.8fr 80px 150px 1fr;
-        gap: 1rem; align-items: center; padding: 0.75rem 1.4rem;
+        gap: 1rem; align-items: center; padding: 0.8rem 0.6rem;
     }
     .di-head {
-        font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
-        color: #99a2af; background: var(--color-bg-soft);
+        padding-top: 0; padding-bottom: 0.55rem;
+        font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+        color: var(--color-text-muted);
         border-bottom: 1px solid var(--color-border);
     }
-    .di-row { border-bottom: 1px solid var(--color-border); }
+    .di-row { border-bottom: 1px solid var(--color-border); transition: background 0.25s var(--ease-ios); }
+    .di-row:hover { background: var(--color-bg-soft); }
     .di-name { font-size: 0.86rem; font-weight: 600; display: flex; flex-direction: column; }
     .di-name small { font-size: 0.68rem; color: #99a2af; font-weight: 500; }
     .di-qty { font-size: 0.84rem; color: var(--color-text-muted); }
@@ -224,18 +232,19 @@ const dotColor = (tipo: string) =>
     .di-amount { font-size: 0.98rem; color: var(--color-blue-deep); }
     .di-right { text-align: right; }
 
-    .di-totals { padding: 1rem 1.4rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
+    .di-totals { padding: 1.1rem 0.6rem 0; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
     .dt-line { display: flex; justify-content: space-between; gap: 3rem; min-width: 230px; font-size: 0.82rem; color: var(--color-text-muted); }
     .dt-line .editorial { color: var(--color-blue-deep); font-size: 0.95rem; }
     .dt-grand { border-top: 1px solid var(--color-border); padding-top: 0.6rem; font-weight: 700; color: var(--color-text); }
     .dt-grand .editorial { font-size: 1.3rem; }
 
-    .d-notes { padding: 1.1rem 1.4rem; }
-    .dn-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 1.6px; color: #99a2af; }
-    .d-notes p { font-size: 0.86rem; color: var(--color-text); margin: 0.4rem 0 0; line-height: 1.55; }
+    .d-notes { margin-bottom: 2.6rem; }
+    .d-notes p { font-size: 0.86rem; color: var(--color-text); margin: 0; line-height: 1.55; }
 
-    .d-side { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 76px; }
-    .d-actions { padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .d-side { display: flex; flex-direction: column; gap: 2.6rem; position: sticky; top: 76px; }
+    .d-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+    /* el .section-head ocupa el ancho completo de la columna de acciones */
+    .d-actions .section-head, .d-timeline .section-head { margin-bottom: 1rem; }
     .act-primary {
         display: flex; align-items: center; justify-content: center; gap: 8px;
         font-size: 0.86rem; font-weight: 600; text-decoration: none;
@@ -302,8 +311,7 @@ const dotColor = (tipo: string) =>
     .act-error { font-size: 0.74rem; color: var(--color-danger); margin: 0; min-height: 0; }
     button:disabled { opacity: 0.55; cursor: wait; }
 
-    .d-timeline { padding: 1.2rem 1.3rem; }
-    .dt-title { font-size: 0.88rem; font-weight: 700; margin: 0 0 1rem; }
+    .d-timeline { display: flex; flex-direction: column; }
     .tl { display: flex; flex-direction: column; gap: 1rem; position: relative; }
     .tl::before { content: ''; position: absolute; left: 3.5px; top: 8px; bottom: 8px; width: 1px; background: var(--color-border); }
     .tl-item { display: flex; gap: 13px; position: relative; }

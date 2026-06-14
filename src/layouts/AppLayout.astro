@@ -1,9 +1,10 @@
 ---
 // AppLayout — layout de la app de Trato (estilo Linear: compacto, hairlines, sobrio).
 // La app usa CSS animations (NO GSAP) para entradas — regla del proyecto.
-// Datos reales desde Neon (org demo hasta que llegue Clerk — ver src/lib/db.ts).
+// Datos reales desde Neon; la org se resuelve desde la sesión de Clerk (src/lib/db.ts).
 
 import { getOrg } from '../lib/queries';
+import { SignOutButton } from '@clerk/astro/components';
 const ORG = await getOrg();
 
 interface Props {
@@ -60,6 +61,9 @@ const NAV = [
                             <span class="sb-org-name">{ORG.nombre}</span>
                             <span class="sb-org-plan">Plan {ORG.plan}</span>
                         </div>
+                        <SignOutButton redirectUrl="/" class="sb-logout" aria-label="Cerrar sesión">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        </SignOutButton>
                     </div>
                 </div>
             </aside>
@@ -72,7 +76,6 @@ const NAV = [
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                         </button>
                         <h1 class="tb-heading">{heading ?? title}</h1>
-                        <span class="tb-demo">DEMO</span>
                     </div>
 
                     <button class="tb-search" id="cmdkOpen" type="button" aria-label="Buscar — Command K">
@@ -247,9 +250,17 @@ const NAV = [
         display: flex; align-items: center; justify-content: center;
         font-size: 0.72rem; font-weight: 800;
     }
-    .sb-org-info { display: flex; flex-direction: column; min-width: 0; }
+    .sb-org-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
     .sb-org-name { font-size: 0.78rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sb-org-plan { font-size: 0.66rem; color: rgba(255,255,255,0.4); }
+    .sb-logout {
+        flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+        width: 30px; height: 30px; border-radius: 8px;
+        background: none; border: none; cursor: pointer;
+        color: rgba(255,255,255,0.45); transition: color 0.2s, background 0.2s;
+    }
+    .sb-logout svg { width: 16px; height: 16px; }
+    .sb-logout:hover { color: #fff; background: rgba(255,255,255,0.08); }
 
     /* ── MAIN ── */
     .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }

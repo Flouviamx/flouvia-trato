@@ -15,7 +15,11 @@ const PRODUCTOS = await getProductos();
         <button class="btn-new" id="btnNew">+ Nuevo producto</button>
     </div>
 
-    <section class="card table-card">
+    <section class="catalogo">
+        <div class="section-head">
+            <h2>Catálogo</h2>
+            <span class="cat-count">{PRODUCTOS.length} producto{PRODUCTOS.length === 1 ? '' : 's'}</span>
+        </div>
         <div class="t-head">
             <span>SKU</span><span>Producto</span><span>Unidad</span><span class="t-right">Precio de lista</span><span>Estado</span>
         </div>
@@ -199,25 +203,31 @@ const PRODUCTOS = await getProductos();
     .imp-prev td.n { text-align: right; font-variant-numeric: tabular-nums; }
     .imp-prev tr.bad td { background: rgba(239,68,68,0.05); color: var(--color-text-muted); }
 
-    .table-card { overflow: hidden; }
+    /* ── Encabezado de sección (eyebrow + hairline, idéntico al dashboard) ── */
+    .catalogo { margin-bottom: 2.6rem; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--color-border); }
+    .section-head h2 { font-size: 0.7rem; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: #99a2af; margin: 0; }
+    .cat-count { font-size: 0.78rem; font-weight: 600; color: var(--color-text-muted); }
+
+    /* ── Tabla plana: a todo lo ancho, sin caja envolvente ── */
     .t-head, .t-row {
         display: grid;
         grid-template-columns: 100px 1.8fr 0.8fr 1fr 110px;
         gap: 1rem; align-items: center;
-        padding: 0.8rem 1.3rem;
+        padding: 0.8rem 0.6rem;
     }
     .t-head {
-        font-size: 0.62rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
-        color: #99a2af; border-bottom: 1px solid var(--color-border);
-        background: var(--color-bg-soft);
+        font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+        color: var(--color-text-muted); border-bottom: 1px solid var(--color-border);
     }
+    .t-head > span:first-child, .t-row > :first-child { padding-left: 0; }
+    .t-head > span:last-child, .t-row > :last-child { padding-right: 0; }
     .t-row {
         width: 100%; text-align: left;
         font-family: var(--font-sans); background: none; border: none; cursor: pointer;
         border-bottom: 1px solid var(--color-border);
         transition: background 0.2s var(--ease-ios);
     }
-    .t-row:last-of-type { border-bottom: none; }
     .t-row:hover { background: var(--color-bg-soft); }
 
     .t-sku { font-size: 0.74rem; font-weight: 700; color: var(--color-text-muted); letter-spacing: 0.4px; }
@@ -228,7 +238,7 @@ const PRODUCTOS = await getProductos();
     .t-state { font-size: 0.72rem; font-weight: 700; }
     .t-state.on { color: #059669; }
     .t-state.off { color: #99a2af; }
-    .t-empty { padding: 2rem 1.3rem; font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
+    .t-empty { padding: 2rem 0.6rem; font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
 
     /* ── Modal (mismo lenguaje que clientes) ── */
     .modal {

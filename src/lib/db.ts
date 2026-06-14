@@ -7,6 +7,7 @@
 // usar sql.query('... $1 ...', [params]).
 
 import { neon } from '@neondatabase/serverless';
+import { currentUserId } from './context';
 
 const url = import.meta.env.DATABASE_URL || process.env.DATABASE_URL;
 
@@ -19,18 +20,35 @@ if (!url) {
 export const sql = neon(url || 'postgres://invalid');
 
 // ── Tenancy seam ──────────────────────────────────────────────────────────
-// Mientras no exista Clerk, toda la app opera sobre UNA org demo sembrada en la
-// migración (clerk_user_id = 'demo-user'). Cuando se conecte Clerk, este helper
-// pasa a resolver el org_id desde la sesión (locals.auth().userId → orgs).
+// Resuelve el org_id desde la sesión de Clerk (userId → orgs.clerk_user_id). La
+// org se CREA en el primer login (lazy, upsert idempotente). Si no hay sesión
+// (contextos sin auth: cron, o llamadas previas a la migración), cae a la org
+// demo para no romper. Las rutas /app y las APIs internas SIEMPRE traen sesión
+// (protegidas en el middleware).
 export const DEMO_CLERK_USER_ID = 'demo-user';
 
-export async function getActiveOrgId(): Promise<string> {
-    // Sin caché a propósito: la query es mínima e indexada (clerk_user_id unique),
-    // y cachear a nivel módulo se queda stale tras un db:reset en dev. Cuando llegue
-    // Clerk, esto resuelve el org_id desde la sesión (locals.auth().userId).
+async function demoOrgId(): Promise<string> {
     const rows = await sql`select id from orgs where clerk_user_id = ${DEMO_CLERK_USER_ID} limit 1`;
     if (!rows.length) throw new Error('[db] org demo no encontrada — ¿corriste la migración (npm run db:migrate)?');
     return rows[0].id as string;
+}
+
+export async function getActiveOrgId(): Promise<string> {
+    const userId = currentUserId();
+    if (!userId) return demoOrgId(); // sin sesión (cron, etc.) → org demo
+
+    // ¿Ya existe la org del usuario?
+    const rows = await sql`select id from orgs where clerk_user_id = ${userId} limit 1`;
+    if (rows.length) return rows[0].id as string;
+
+    // Primer login: crear la org. El upsert (do update no-op) hace que `returning`
+    // devuelva la fila aunque dos requests concurrentes intenten crearla a la vez.
+    const [created] = await sql`
+        insert into orgs (clerk_user_id, nombre)
+        values (${userId}, ${'Mi negocio'})
+        on conflict (clerk_user_id) do update set clerk_user_id = excluded.clerk_user_id
+        returning id`;
+    return created.id as string;
 }
 
 // ── Audit log inmutable ──────────────────────────────────────────────────────
@@ -40,7 +58,7 @@ interface AuditEvent { accion: string; entidad?: string; entidad_id?: string; de
 export async function logAudit(orgId: string, e: AuditEvent): Promise<void> {
     try {
         await sql`insert into audit_log (org_id, actor, accion, entidad, entidad_id, detalle, ip)
-                  values (${orgId}, ${DEMO_CLERK_USER_ID}, ${e.accion}, ${e.entidad ?? null}, ${e.entidad_id ?? null}, ${e.detalle ?? null}, ${e.ip ?? null})`;
+                  values (${orgId}, ${currentUserId() ?? DEMO_CLERK_USER_ID}, ${e.accion}, ${e.entidad ?? null}, ${e.entidad_id ?? null}, ${e.detalle ?? null}, ${e.ip ?? null})`;
     } catch { /* no-op: no romper la operación por fallo de auditoría */ }
 }
 

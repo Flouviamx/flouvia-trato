@@ -4,6 +4,10 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import { SignUp } from '@clerk/astro/components';
 
+// Si ya hay sesión, directo a /app (evita el flash del formulario de registro).
+const auth = Astro.locals.auth?.();
+if (auth?.userId) return Astro.redirect('/app');
+
 const clerkAppearance = {
     variables: {
         colorPrimary: '#0a192f',

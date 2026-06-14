@@ -19,7 +19,11 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
         <button class="btn-new" id="btnNew">+ Nuevo cliente</button>
     </div>
 
-    <section class="card table-card">
+    <section class="dir">
+        <div class="section-head">
+            <h2>Directorio</h2>
+            <span class="dir-count">{CLIENTES.length} {CLIENTES.length === 1 ? 'cliente' : 'clientes'}</span>
+        </div>
         <div class="t-head">
             <span>Cliente</span><span>Contacto</span><span>RFC</span><span>Términos</span><span class="t-right">Límite de crédito</span><span class="t-right">Cotizaciones</span>
         </div>
@@ -218,26 +222,34 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
     .imp-prev td.n { text-align: right; font-variant-numeric: tabular-nums; }
     .imp-prev tr.bad td { background: rgba(239,68,68,0.05); color: var(--color-text-muted); }
 
-    .table-card { overflow: hidden; }
+    /* ── Directorio (plano editorial, sin caja) ── */
+    .dir { margin-bottom: 2.6rem; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--color-border); }
+    .section-head h2 { font-size: 0.7rem; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: #99a2af; margin: 0; }
+    .dir-count { font-size: 0.78rem; font-weight: 600; color: var(--color-text-muted); }
+
     .t-head, .t-row {
         display: grid;
         grid-template-columns: 1.6fr 1.4fr 1fr 0.7fr 1fr 0.8fr;
         gap: 1rem; align-items: center;
-        padding: 0.85rem 1.3rem;
+        padding: 0.85rem 0.7rem;
     }
     .t-head {
-        font-size: 0.62rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
-        color: #99a2af; border-bottom: 1px solid var(--color-border);
-        background: var(--color-bg-soft);
+        font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+        color: var(--color-text-muted); border-bottom: 1px solid var(--color-border);
+        padding-top: 0; padding-bottom: 0.7rem;
     }
+    .t-head > span:first-child, .t-row > :first-child { padding-left: 0; }
+    .t-head > span:last-child, .t-row > :last-child { padding-right: 0; }
     .t-row {
         width: 100%; text-align: left;
         font-family: var(--font-sans); background: none; border: none; cursor: pointer;
         border-bottom: 1px solid var(--color-border);
+        border-radius: 8px;
         transition: background 0.2s var(--ease-ios);
     }
-    .t-row:last-of-type { border-bottom: none; }
     .t-row:hover { background: var(--color-bg-soft); }
+    .t-row:last-of-type { border-bottom: none; }
 
     .t-client { display: flex; align-items: center; gap: 10px; font-size: 0.86rem; font-weight: 600; color: var(--color-text); }
     .t-avatar {
@@ -257,7 +269,7 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
     .m-hint { font-size: 0.7rem; color: var(--color-text-muted); margin: -0.3rem 0 0; }
     .t-amount { font-size: 0.95rem; color: var(--color-blue-deep); }
     .t-right { text-align: right; }
-    .t-empty { padding: 2rem 1.3rem; font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
+    .t-empty { padding: 2rem 0; font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
 
     /* ── Modal ── */
     .modal {

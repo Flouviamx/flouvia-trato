@@ -50,7 +50,7 @@ const BOARD_COLS = [
         </div>
     </div>
 
-    <section class="card table-card">
+    <section class="table-card">
         <div class="t-head">
             <span>Cotización</span><span>Cliente</span><span>Términos</span><span>Vigencia</span><span class="t-right">Total</span><span>Estado</span>
         </div>
@@ -172,17 +172,16 @@ const BOARD_COLS = [
     }
     .board-toast[hidden] { display: none; }
 
-    .table-card { overflow: hidden; }
+    .table-card { display: block; }
     .t-head, .t-row {
         display: grid;
         grid-template-columns: 95px 1.6fr 0.7fr 0.9fr 1fr 110px;
         gap: 1rem; align-items: center;
-        padding: 0.8rem 1.3rem;
+        padding: 0.85rem 0.6rem;
     }
     .t-head {
-        font-size: 0.62rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
-        color: #99a2af; border-bottom: 1px solid var(--color-border);
-        background: var(--color-bg-soft);
+        font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+        color: var(--color-text-muted); border-bottom: 1px solid var(--color-border);
     }
     .t-row {
         text-decoration: none;

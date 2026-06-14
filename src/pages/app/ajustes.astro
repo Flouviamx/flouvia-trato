@@ -11,11 +11,9 @@ const AUDIT = await getAuditLog();
     <div class="settings-wrap">
     <div class="settings">
         <!-- Marca -->
-        <section class="card s-block">
-            <div class="s-head">
-                <h2>Marca</h2>
-                <p>Tu nombre y color aparecen en el link público y en el PDF de cada cotización.</p>
-            </div>
+        <section class="s-block">
+            <div class="section-head"><h2>Marca</h2></div>
+            <p class="s-desc">Tu nombre y color aparecen en el link público y en el PDF de cada cotización.</p>
             <div class="s-body">
                 <div class="s-row">
                     <div class="s-field">
@@ -48,11 +46,9 @@ const AUDIT = await getAuditLog();
         </section>
 
         <!-- Fiscales -->
-        <section class="card s-block">
-            <div class="s-head">
-                <h2>Datos fiscales</h2>
-                <p>Necesarios para timbrar CFDI 4.0 ante el SAT (plan Negocio).</p>
-            </div>
+        <section class="s-block">
+            <div class="section-head"><h2>Datos fiscales</h2></div>
+            <p class="s-desc">Necesarios para timbrar CFDI 4.0 ante el SAT (plan Negocio).</p>
             <div class="s-body">
                 <div class="s-row">
                     <div class="s-field">
@@ -75,11 +71,9 @@ const AUDIT = await getAuditLog();
         </section>
 
         <!-- Cotizaciones -->
-        <section class="card s-block">
-            <div class="s-head">
-                <h2>Cotizaciones</h2>
-                <p>Folio e impuestos con los que se generan tus cotizaciones.</p>
-            </div>
+        <section class="s-block">
+            <div class="section-head"><h2>Cotizaciones</h2></div>
+            <p class="s-desc">Folio e impuestos con los que se generan tus cotizaciones.</p>
             <div class="s-body">
                 <div class="s-row">
                     <div class="s-field">
@@ -97,11 +91,9 @@ const AUDIT = await getAuditLog();
         </section>
 
         <!-- Reglas comerciales -->
-        <section class="card s-block">
-            <div class="s-head">
-                <h2>Aprobaciones y tesorería</h2>
-                <p>Protege tus márgenes: topes que disparan aprobación de gerencia y la tasa de interés por mora.</p>
-            </div>
+        <section class="s-block">
+            <div class="section-head"><h2>Aprobaciones y tesorería</h2></div>
+            <p class="s-desc">Protege tus márgenes: topes que disparan aprobación de gerencia y la tasa de interés por mora.</p>
             <div class="s-body">
                 <div class="s-row">
                     <div class="s-field">
@@ -124,11 +116,9 @@ const AUDIT = await getAuditLog();
         </section>
 
         <!-- PDF -->
-        <section class="card s-block">
-            <div class="s-head">
-                <h2>Documento PDF</h2>
-                <p>Personaliza el PDF que tus clientes descargan o reciben impreso. Cada cuenta tiene el suyo.</p>
-            </div>
+        <section class="s-block">
+            <div class="section-head"><h2>Documento PDF</h2></div>
+            <p class="s-desc">Personaliza el PDF que tus clientes descargan o reciben impreso. Cada cuenta tiene el suyo.</p>
             <div class="s-body">
                 <div class="s-field">
                     <label>Plantilla</label>
@@ -188,11 +178,9 @@ const AUDIT = await getAuditLog();
         </section>
 
         <!-- Plan -->
-        <section class="card s-block">
-            <div class="s-head">
-                <h2>Plan y facturación</h2>
-                <p>Gestiona tu suscripción de Trato.</p>
-            </div>
+        <section class="s-block">
+            <div class="section-head"><h2>Plan y facturación</h2></div>
+            <p class="s-desc">Gestiona tu suscripción de Trato.</p>
             <div class="s-body">
                 <div class="plan-row">
                     <div>
@@ -205,11 +193,9 @@ const AUDIT = await getAuditLog();
         </section>
 
         <!-- Auditoría -->
-        <section class="card s-block">
-            <div class="s-head">
-                <h2>Auditoría</h2>
-                <p>Registro inmutable de cada cambio: qué, cuándo e IP. Solo lectura — para tus auditores.</p>
-            </div>
+        <section class="s-block">
+            <div class="section-head"><h2>Auditoría</h2></div>
+            <p class="s-desc">Registro inmutable de cada cambio: qué, cuándo e IP. Solo lectura — para tus auditores.</p>
             <div class="audit-list">
                 {AUDIT.length === 0 && <p class="audit-empty">Aún no hay eventos registrados.</p>}
                 {AUDIT.map((a) => (
@@ -274,10 +260,14 @@ const AUDIT = await getAuditLog();
 </AppLayout>
 
 <style>
-    .settings { display: flex; flex-direction: column; gap: 1rem; max-width: 760px; }
-    .s-block { padding: 1.4rem 1.5rem; }
-    .s-head h2 { font-size: 0.95rem; font-weight: 700; margin: 0 0 0.2rem; }
-    .s-head p { font-size: 0.78rem; color: var(--color-text-muted); margin: 0 0 1.2rem; }
+    .settings { display: flex; flex-direction: column; gap: 0; max-width: 760px; }
+    .s-block { margin-bottom: 2.6rem; }
+
+    /* Encabezado de sección plano (eyebrow + hairline) — patrón del dashboard */
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--color-border); }
+    .section-head h2 { font-size: 0.7rem; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: #99a2af; margin: 0; }
+    .s-desc { font-size: 0.78rem; color: var(--color-text-muted); margin: 0 0 1.2rem; line-height: 1.5; }
+
     .s-body { display: flex; flex-direction: column; gap: 1rem; }
     .s-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .s-field { display: flex; flex-direction: column; gap: 0.45rem; }

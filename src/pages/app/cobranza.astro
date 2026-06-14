@@ -12,7 +12,7 @@ const hay = C.items.length > 0;
 
 <AppLayout title="Cobranza — Trato" page="cobranza" heading="Cobranza">
     {!hay && (
-        <section class="card empty">
+        <section class="empty">
             <h2>Estás al corriente 🎉</h2>
             <p>No tienes cuentas por cobrar. Cuando una cotización se apruebe a crédito (Net 30/60) y aún no se pague, aparecerá aquí con su vencimiento.</p>
             <a href="/app/cotizaciones" class="empty-cta">Ver cotizaciones</a>
@@ -23,22 +23,22 @@ const hay = C.items.length > 0;
         <>
         <!-- KPIs de cartera -->
         <section class="kpis">
-            <div class="card kpi">
+            <div class="kpi">
                 <span class="kpi-label">TOTAL POR COBRAR</span>
                 <span class="editorial kpi-num">{money(C.resumen.totalPorCobrar, 0)}</span>
                 <span class="kpi-sub">{C.resumen.nPorCobrar} cuenta{C.resumen.nPorCobrar === 1 ? '' : 's'}</span>
             </div>
-            <div class="card kpi">
+            <div class="kpi">
                 <span class="kpi-label">VENCIDO</span>
                 <span class:list={['editorial', 'kpi-num', { 'kpi-danger': C.resumen.totalVencido > 0 }]}>{money(C.resumen.totalVencido, 0)}</span>
                 <span class="kpi-sub">{C.resumen.nVencidas} vencida{C.resumen.nVencidas === 1 ? '' : 's'}</span>
             </div>
-            <div class="card kpi">
+            <div class="kpi">
                 <span class="kpi-label">POR VENCER</span>
                 <span class="editorial kpi-num">{money(C.resumen.totalVigente, 0)}</span>
                 <span class="kpi-sub">aún dentro de plazo</span>
             </div>
-            <div class="card kpi">
+            <div class="kpi">
                 <span class="kpi-label">CLIENTES CON SALDO</span>
                 <span class="editorial kpi-num">{C.resumen.nClientes}</span>
                 <span class:list={['kpi-sub', { 'kpi-sub-danger': C.resumen.nExcedidos > 0 }]}>
@@ -48,7 +48,7 @@ const hay = C.items.length > 0;
         </section>
 
         <!-- Flujo de caja predictivo -->
-        <section class="card cash-card">
+        <section class="cash-card">
             <div class="cash-main">
                 <span class="kpi-label">FLUJO ESPERADO · PRÓXIMOS 30 DÍAS</span>
                 <span class="editorial cash-num">{money(C.resumen.esperado30, 0)}</span>
@@ -70,7 +70,7 @@ const hay = C.items.length > 0;
 
         <div class="two-col">
             <!-- Aging -->
-            <section class="card aging-card">
+            <section class="aging-card">
                 <div class="section-head"><h2>Antigüedad del saldo</h2></div>
                 <div class="aging">
                     {C.aging.map((a) => (
@@ -86,7 +86,7 @@ const hay = C.items.length > 0;
             </section>
 
             <!-- Exposición por cliente -->
-            <section class="card expo-card">
+            <section class="expo-card">
                 <div class="section-head"><h2>Exposición por cliente</h2><span class="rank-sub">saldo vs. límite</span></div>
                 <div class="expo">
                     {C.clientes.slice(0, 6).map((c) => (
@@ -106,7 +106,8 @@ const hay = C.items.length > 0;
         </div>
 
         <!-- Tabla de cuentas por cobrar -->
-        <section class="card table-card">
+        <section class="table-card">
+            <div class="section-head"><h2>Cuentas por cobrar</h2></div>
             <div class="t-head">
                 <span>Cliente</span><span>Folio</span><span>Términos</span><span>Vence</span><span>Estado</span><span class="t-right">Saldo</span><span class="t-right">Acción</span>
             </div>
@@ -140,33 +141,45 @@ const hay = C.items.length > 0;
 </AppLayout>
 
 <style>
-    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1rem; }
-    .kpi { padding: 1.3rem 1.4rem; display: flex; flex-direction: column; gap: 0.35rem; }
-    .kpi-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 1.4px; color: #99a2af; }
-    .kpi-num { font-size: 1.9rem; color: var(--color-blue-deep); line-height: 1; }
+    .kpis {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+        margin-bottom: 2.6rem;
+        border-top: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--color-border);
+    }
+    .kpi {
+        padding: 1.5rem 1.7rem; display: flex; flex-direction: column; gap: 0.45rem;
+        border-left: 1px solid var(--color-border);
+    }
+    .kpi:first-child { border-left: none; padding-left: 0; }
+    .kpi-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 1.6px; color: #99a2af; }
+    .kpi-num { font-size: 2.1rem; color: var(--color-blue-deep); line-height: 1; font-variant-numeric: tabular-nums; }
     .kpi-danger { color: var(--color-danger); }
-    .kpi-sub { font-size: 0.74rem; color: var(--color-text-muted); }
+    .kpi-sub { font-size: 0.78rem; color: var(--color-text-muted); }
     .kpi-sub-danger { color: var(--color-danger); font-weight: 600; }
 
     /* Flujo de caja predictivo */
-    .cash-card { padding: 1.4rem 1.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
-    .cash-main { display: flex; flex-direction: column; gap: 0.35rem; }
+    .cash-card {
+        margin-bottom: 2.6rem; padding: 1.7rem 0; display: flex;
+        justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap;
+        border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border);
+    }
+    .cash-main { display: flex; flex-direction: column; gap: 0.4rem; }
     .cash-num { font-size: 2.1rem; color: #059669; line-height: 1; }
-    .cash-side { display: flex; gap: 2rem; flex-wrap: wrap; }
-    .cash-side > div { display: flex; flex-direction: column; gap: 3px; }
-    .cash-side span { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: #99a2af; }
+    .cash-side { display: flex; gap: 2.4rem; flex-wrap: wrap; }
+    .cash-side > div { display: flex; flex-direction: column; gap: 4px; }
+    .cash-side span { font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #99a2af; }
     .cash-side b { font-size: 1.2rem; color: var(--color-blue-deep); }
     .cash-interes { color: var(--color-danger) !important; }
 
     .t-saldo { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
     .t-interes { font-size: 0.66rem; color: var(--color-danger); font-weight: 600; }
 
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; }
-    .section-head h2 { font-size: 0.95rem; font-weight: 700; margin: 0; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2.6rem; margin-bottom: 2.6rem; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--color-border); }
+    .section-head h2 { font-size: 0.7rem; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: #99a2af; margin: 0; }
     .rank-sub { font-size: 0.72rem; color: var(--color-text-muted); }
 
-    .aging-card, .expo-card { padding: 1.4rem 1.5rem; }
     .aging { display: flex; flex-direction: column; gap: 1rem; }
     .ag-row { display: flex; flex-direction: column; gap: 6px; }
     .ag-top { display: flex; justify-content: space-between; align-items: baseline; }
@@ -188,17 +201,19 @@ const hay = C.items.length > 0;
     .expo-flag { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.4px; color: var(--color-danger); background: rgba(239,68,68,0.1); padding: 3px 8px; border-radius: 100px; }
 
     /* Tabla */
-    .table-card { overflow: hidden; }
+    .table-card { margin-bottom: 2.6rem; }
     .t-head, .t-row {
         display: grid; grid-template-columns: 1.6fr 0.8fr 0.7fr 0.9fr 1fr 0.9fr 1fr;
-        gap: 1rem; align-items: center; padding: 0.8rem 1.3rem;
+        gap: 1rem; align-items: center; padding: 0.85rem 0.6rem;
     }
     .t-head {
-        font-size: 0.62rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
-        color: #99a2af; border-bottom: 1px solid var(--color-border); background: var(--color-bg-soft);
+        font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+        color: var(--color-text-muted); border-bottom: 1px solid var(--color-border);
+        padding-top: 0; padding-bottom: 0.7rem;
     }
-    .t-row { border-bottom: 1px solid var(--color-border); }
+    .t-row { border-bottom: 1px solid var(--color-border); transition: background 0.25s var(--ease-ios); }
     .t-row:last-of-type { border-bottom: none; }
+    .t-row:hover { background: var(--color-bg-soft); }
     .t-client { display: flex; align-items: center; gap: 10px; font-size: 0.86rem; font-weight: 600; color: var(--color-text); min-width: 0; }
     .t-client { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .t-avatar { width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; background: var(--color-blue-deep); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 800; }
@@ -229,22 +244,29 @@ const hay = C.items.length > 0;
     .cob-err { font-size: 0.78rem; color: var(--color-danger); margin: 0.6rem 0 0; min-height: 1em; }
 
     /* Empty */
-    .empty { padding: 3rem 2rem; text-align: center; }
+    .empty { padding: 4rem 2rem; text-align: center; }
     .empty h2 { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.5rem; }
     .empty p { font-size: 0.88rem; color: var(--color-text-muted); max-width: 460px; margin: 0 auto 1.4rem; line-height: 1.6; }
     .empty-cta { display: inline-block; background: var(--color-blue-deep); color: #fff; text-decoration: none; font-size: 0.86rem; font-weight: 600; padding: 11px 20px; border-radius: 10px; }
 
     @media (max-width: 1080px) {
         .kpis { grid-template-columns: repeat(2, 1fr); }
-        .two-col { grid-template-columns: 1fr; }
+        .kpi:nth-child(odd) { border-left: none; padding-left: 0; }
+        .kpi:nth-child(3), .kpi:nth-child(4) { border-top: 1px solid var(--color-border); }
+        .two-col { grid-template-columns: 1fr; gap: 2.2rem; }
     }
     @media (max-width: 880px) {
         .t-head { display: none; }
         .t-row { grid-template-columns: 1fr auto auto; gap: 0.5rem 0.8rem; }
         .t-muted, .t-folio { display: none; }
     }
-    @media (max-width: 560px) {
+    @media (max-width: 680px) {
         .kpis { grid-template-columns: 1fr; }
+        .kpi { border-left: none; padding-left: 0; border-top: 1px solid var(--color-border); }
+        .kpi:first-child { border-top: none; }
+        .cash-side { gap: 1.6rem; }
+    }
+    @media (max-width: 560px) {
         .t-estado { display: none; }
     }
 </style>
