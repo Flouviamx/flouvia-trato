@@ -3,7 +3,7 @@
 // La app usa CSS animations (NO GSAP) para entradas — regla del proyecto.
 // Datos reales desde Neon; la org se resuelve desde la sesión de Clerk (src/lib/db.ts).
 
-import { getOrg, getSetupProgress } from '../lib/queries';
+import { getOrg, getSetupProgress, getSidebarBadges } from '../lib/queries';
 import { SignOutButton } from '@clerk/astro/components';
 import OnboardingWidget from '../components/app/OnboardingWidget.astro';
 const ORG = await getOrg();
@@ -13,6 +13,9 @@ const ORG = await getOrg();
 const setup = await getSetupProgress();
 const pillDash = `${(setup.pct * 0.9739).toFixed(2)} 100`;
 
+// Contadores en vivo de la sidebar (estilo Linear): seguimiento + cartera vencida.
+const badges = await getSidebarBadges();
+
 interface Props {
     title: string;        // título del documento
     page: string;         // id de la página activa en el sidebar
@@ -21,15 +24,33 @@ interface Props {
 
 const { title, page, heading } = Astro.props;
 
-const NAV = [
-    { id: 'dashboard',    href: '/app',              label: 'Dashboard',    icon: 'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z' },
-    { id: 'cotizaciones', href: '/app/cotizaciones', label: 'Cotizaciones', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 3.5L18.5 8H14V3.5z' },
-    { id: 'cobranza',     href: '/app/cobranza',     label: 'Cobranza',     icon: 'M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z' },
-    { id: 'clientes',     href: '/app/clientes',     label: 'Clientes',     icon: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z' },
-    { id: 'productos',    href: '/app/productos',    label: 'Productos',    icon: 'M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v5c0 .75.4 1.38 1 1.73V19c0 1.11.89 2 2 2h14c1.11 0 2-.89 2-2v-3.28c.59-.35 1-.99 1-1.72V9c0-1.1-.9-2-2-2zM10 5h4v2h-4V5z' },
-    { id: 'analitica',    href: '/app/analitica',    label: 'Analítica',    icon: 'M4 13h3v7H4v-7zm6.5-5h3v12h-3V8zM17 11h3v9h-3v-9z' },
-    // Ajustes ya NO va en el sidebar — vive en el engrane de la topbar (petición de André).
+// Nav agrupada por secciones (estilo Linear/Notion). `badge` = clave de getSidebarBadges();
+// `tone` colorea el contador (neutral / danger). Ajustes vive en el engrane de la topbar.
+const NAV_GROUPS = [
+    {
+        label: 'Principal',
+        items: [
+            { id: 'dashboard',    href: '/app',              label: 'Dashboard',    icon: 'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z' },
+            { id: 'cotizaciones', href: '/app/cotizaciones', label: 'Cotizaciones', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 3.5L18.5 8H14V3.5z', badge: badges.seguimiento, tone: 'neutral' },
+        ],
+    },
+    {
+        label: 'Dinero',
+        items: [
+            { id: 'cobranza',  href: '/app/cobranza',  label: 'Cobranza',  icon: 'M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z', badge: badges.vencidas, tone: 'danger' },
+            { id: 'analitica', href: '/app/analitica', label: 'Analítica', icon: 'M4 13h3v7H4v-7zm6.5-5h3v12h-3V8zM17 11h3v9h-3v-9z' },
+        ],
+    },
+    {
+        label: 'Catálogo',
+        items: [
+            { id: 'clientes',  href: '/app/clientes',  label: 'Clientes',  icon: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z' },
+            { id: 'productos', href: '/app/productos', label: 'Productos', icon: 'M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v5c0 .75.4 1.38 1 1.73V19c0 1.11.89 2 2 2h14c1.11 0 2-.89 2-2v-3.28c.59-.35 1-.99 1-1.72V9c0-1.1-.9-2-2-2zM10 5h4v2h-4V5z' },
+        ],
+    },
 ];
+// Lista plana para la tab bar inferior de móvil.
+const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
 ---
 
 <!doctype html>
@@ -40,37 +61,80 @@ const NAV = [
         <meta name="robots" content="noindex, nofollow" />
         <meta name="theme-color" content="#0a192f" />
         <title>{title}</title>
+        <script is:inline>
+            // Restaura el estado colapsado de la sidebar antes del primer paint (sin flash).
+            try { if (localStorage.getItem('trato.sb.collapsed') === '1') document.documentElement.classList.add('sb-collapsed'); } catch (e) {}
+        </script>
     </head>
     <body>
         <div class="app-shell">
             <div class="sb-backdrop" id="sbBackdrop" aria-hidden="true"></div>
             <!-- ── SIDEBAR ── -->
             <aside class="sidebar">
-                <a href="/app" class="sb-brand">
-                    <img src="/imgs/logo-trato-white.png" alt="Trato" />
-                </a>
+                <!-- Org switcher (estilo Linear/Notion): avatar + nombre + chevron → menú -->
+                <div class="sb-org-switch-wrap">
+                    <button class="sb-org-switch" id="orgSwitch" type="button" aria-haspopup="menu" aria-expanded="false" title={ORG.nombre}>
+                        <span class="sb-org-avatar">{ORG.inicial}</span>
+                        <span class="sb-org-info">
+                            <span class="sb-org-name">{ORG.nombre}</span>
+                            <span class="sb-org-plan">Plan {ORG.plan}</span>
+                        </span>
+                        <svg class="sb-org-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <button class="sb-collapse" id="sbCollapse" type="button" aria-label="Colapsar menú" title="Colapsar menú">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                    </button>
+
+                    <div class="sb-org-menu" id="orgMenu" role="menu" hidden>
+                        <div class="sb-org-menu-head">
+                            <span class="sb-org-avatar">{ORG.inicial}</span>
+                            <div class="sb-org-menu-id">
+                                <strong>{ORG.nombre}</strong>
+                                <span>Plan {ORG.plan}</span>
+                            </div>
+                        </div>
+                        <a href="/app/ajustes" class="sb-menu-item" role="menuitem">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            Ajustes
+                        </a>
+                        <a href="/app/ajustes/equipo" class="sb-menu-item" role="menuitem">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            Equipo y roles
+                        </a>
+                        <a href="/" class="sb-menu-item" role="menuitem">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Ver sitio público
+                        </a>
+                        <div class="sb-menu-sep"></div>
+                        <SignOutButton redirectUrl="/" class="sb-menu-item sb-menu-danger" role="menuitem">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            Cerrar sesión
+                        </SignOutButton>
+                    </div>
+                </div>
 
                 <nav class="sb-nav">
-                    {NAV.map((item) => (
-                        <a href={item.href} class:list={['sb-item', { active: page === item.id }]}>
-                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={item.icon} /></svg>
-                            <span>{item.label}</span>
-                        </a>
+                    {NAV_GROUPS.map((group) => (
+                        <div class="sb-group">
+                            <span class="sb-group-label">{group.label}</span>
+                            {group.items.map((item) => (
+                                <a href={item.href} class:list={['sb-item', { active: page === item.id }]} title={item.label}>
+                                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={item.icon} /></svg>
+                                    <span class="sb-item-label">{item.label}</span>
+                                    {!!item.badge && item.badge > 0 && (
+                                        <span class:list={['sb-badge', { danger: item.tone === 'danger' }]}>{item.badge > 99 ? '99+' : item.badge}</span>
+                                    )}
+                                </a>
+                            ))}
+                        </div>
                     ))}
                 </nav>
 
                 <div class="sb-footer">
-                    <a href="/" class="sb-landing-link">← Ver sitio</a>
-                    <div class="sb-org">
-                        <div class="sb-org-avatar">{ORG.inicial}</div>
-                        <div class="sb-org-info">
-                            <span class="sb-org-name">{ORG.nombre}</span>
-                            <span class="sb-org-plan">Plan {ORG.plan}</span>
-                        </div>
-                        <SignOutButton redirectUrl="/" class="sb-logout" aria-label="Cerrar sesión">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        </SignOutButton>
-                    </div>
+                    <button class="sb-expand" id="sbExpand" type="button" aria-label="Expandir menú" title="Expandir menú">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                    </button>
+                    <img class="sb-foot-logo" src="/imgs/logo-trato-white.png" alt="Trato" />
                 </div>
             </aside>
 
@@ -121,7 +185,7 @@ const NAV = [
 
         <!-- Nav mobile inferior -->
         <nav class="mobile-tabs">
-            {NAV.map((item) => (
+            {NAV_FLAT.map((item) => (
                 <a href={item.href} class:list={['mt-item', { active: page === item.id }]}>
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={item.icon} /></svg>
                     <span>{item.label}</span>
@@ -233,12 +297,76 @@ const NAV = [
         display: flex; flex-direction: column;
         padding: 1.4rem 0.9rem 1.1rem;
         position: sticky; top: 0; height: 100vh;
+        transition: width 0.28s var(--ease-spring), padding 0.28s var(--ease-spring);
     }
-    .sb-brand { display: block; padding: 0.2rem 0.7rem 1.5rem; }
-    .sb-brand img { height: 18px; width: auto; display: block; opacity: 0.96; }
+    /* ── Org switcher (top) ── */
+    .sb-org-switch-wrap { position: relative; display: flex; align-items: center; gap: 6px; padding: 0 0.2rem 0.5rem; margin-bottom: 0.5rem; }
+    .sb-org-switch {
+        flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
+        padding: 7px 8px; border-radius: 11px; cursor: pointer;
+        background: rgba(255,255,255,0.04); border: none;
+        box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.07);
+        font-family: var(--font-sans); text-align: left;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .sb-org-switch:hover { background: rgba(255,255,255,0.08); }
+    .sb-org-switch[aria-expanded="true"] { background: rgba(255,255,255,0.1); box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.14); }
+    .sb-org-avatar {
+        width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.72rem; font-weight: 800;
+    }
+    .sb-org-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .sb-org-name { font-size: 0.8rem; font-weight: 650; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-org-plan { font-size: 0.66rem; color: rgba(255,255,255,0.42); }
+    .sb-org-caret { width: 15px; height: 15px; flex-shrink: 0; color: rgba(255,255,255,0.45); transition: transform 0.25s var(--ease-spring); }
+    .sb-org-switch[aria-expanded="true"] .sb-org-caret { transform: rotate(180deg); }
 
-    .sb-nav { display: flex; flex-direction: column; gap: 2px; }
+    .sb-collapse, .sb-expand {
+        flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+        width: 30px; height: 30px; border-radius: 8px;
+        background: none; border: none; cursor: pointer;
+        color: rgba(255,255,255,0.4); transition: color 0.2s, background 0.2s;
+    }
+    .sb-collapse svg, .sb-expand svg { width: 16px; height: 16px; }
+    .sb-collapse:hover, .sb-expand:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+    /* Dropdown del switcher */
+    .sb-org-menu {
+        position: absolute; top: calc(100% - 2px); left: 0.2rem; right: 0.2rem; z-index: 60;
+        background: #11233f; border-radius: 13px; padding: 6px;
+        box-shadow: 0 24px 60px -18px rgba(0,0,0,0.7), inset 0 0 0 0.5px rgba(255,255,255,0.1);
+        animation: sb-menu-in 0.18s var(--ease-spring);
+    }
+    .sb-org-menu[hidden] { display: none; }
+    @keyframes sb-menu-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
+    .sb-org-menu-head { display: flex; align-items: center; gap: 10px; padding: 8px 9px 9px; }
+    .sb-org-menu-id { display: flex; flex-direction: column; min-width: 0; }
+    .sb-org-menu-id strong { font-size: 0.82rem; font-weight: 650; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-org-menu-id span { font-size: 0.66rem; color: rgba(255,255,255,0.42); }
+    .sb-menu-sep { height: 1px; background: rgba(255,255,255,0.08); margin: 5px 4px; }
+    .sb-menu-item {
+        display: flex; align-items: center; gap: 10px; width: 100%;
+        padding: 9px 10px; border-radius: 9px; cursor: pointer;
+        background: none; border: none; text-align: left; text-decoration: none;
+        font-family: var(--font-sans); font-size: 0.84rem; font-weight: 500;
+        color: rgba(255,255,255,0.78); transition: background 0.18s, color 0.18s;
+    }
+    .sb-menu-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+    .sb-menu-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .sb-menu-danger { color: #fca5a5; }
+    .sb-menu-danger:hover { background: rgba(239,68,68,0.14); color: #fecaca; }
+
+    /* ── Nav agrupada ── */
+    .sb-nav { display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; }
+    .sb-group { display: flex; flex-direction: column; gap: 2px; }
+    .sb-group-label {
+        font-size: 0.6rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+        color: rgba(255,255,255,0.3); padding: 2px 11px 5px;
+    }
     .sb-item {
+        position: relative;
         display: flex; align-items: center; gap: 11px;
         padding: 8px 11px; border-radius: 9px;
         font-size: 0.86rem; font-weight: 500;
@@ -246,42 +374,58 @@ const NAV = [
         transition: color 0.25s var(--ease-ios), background 0.25s var(--ease-ios);
     }
     .sb-item svg { width: 16px; height: 16px; opacity: 0.75; flex-shrink: 0; }
+    .sb-item-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sb-item:hover { color: rgba(255,255,255,0.92); background: rgba(255,255,255,0.05); }
     .sb-item.active {
         color: #fff; background: rgba(255,255,255,0.09);
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
     }
+    /* Barra-acento del item activo (estilo Linear) */
+    .sb-item.active::before {
+        content: ''; position: absolute; left: -0.9rem; top: 50%; transform: translateY(-50%);
+        width: 3px; height: 17px; border-radius: 0 3px 3px 0; background: #fff;
+    }
+    .sb-badge {
+        flex-shrink: 0; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 100px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.64rem; font-weight: 700; letter-spacing: -0.01em;
+        color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.12);
+    }
+    .sb-badge.danger { color: #fff; background: var(--color-danger); }
 
-    .sb-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.9rem; }
-    .sb-landing-link {
-        font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.35);
-        text-decoration: none; padding: 0 0.7rem;
-        transition: color 0.25s;
+    .sb-footer { margin-top: auto; padding-top: 0.9rem; display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+    .sb-foot-logo { height: 15px; width: auto; opacity: 0.5; }
+    .sb-expand { display: none; }
+
+    /* ── Estado COLAPSADO (solo iconos) — solo desktop; en móvil el sidebar es drawer ── */
+    @media (min-width: 881px) {
+    .sb-collapsed .app-shell { --sidebar-w: 68px; }
+    .sb-collapsed .sidebar { padding-left: 0.6rem; padding-right: 0.6rem; align-items: stretch; }
+    .sb-collapsed .sb-org-info, .sb-collapsed .sb-org-caret,
+    .sb-collapsed .sb-collapse, .sb-collapsed .sb-group-label,
+    .sb-collapsed .sb-item-label, .sb-collapsed .sb-foot-logo { display: none; }
+    .sb-collapsed .sb-org-switch-wrap { justify-content: center; padding: 0 0 0.5rem; }
+    .sb-collapsed .sb-org-switch { flex: none; justify-content: center; padding: 7px; }
+    .sb-collapsed .sb-org-menu { left: 0; right: auto; width: 210px; }
+    .sb-collapsed .sb-item { justify-content: center; padding: 9px; }
+    .sb-collapsed .sb-item.active::before { left: -0.6rem; }
+    /* Badge → punto cuando está colapsado */
+    .sb-collapsed .sb-badge {
+        position: absolute; top: 4px; right: 4px; min-width: 0; width: 7px; height: 7px;
+        padding: 0; font-size: 0; border: 1.5px solid #0a192f;
     }
-    .sb-landing-link:hover { color: rgba(255,255,255,0.7); }
-    .sb-org {
-        display: flex; align-items: center; gap: 10px;
-        padding: 10px 11px; border-radius: 11px;
-        background: rgba(255,255,255,0.04);
-        box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.07);
+    .sb-collapsed .sb-expand { display: inline-flex; margin: 0 auto; }
+    .sb-collapsed .sb-footer { justify-content: center; }
+    /* Tooltip al hover en modo colapsado */
+    .sb-collapsed .sb-item::after {
+        content: attr(title); position: absolute; left: calc(100% + 12px); top: 50%; transform: translateY(-50%);
+        background: #11233f; color: #fff; font-size: 0.76rem; font-weight: 600; white-space: nowrap;
+        padding: 6px 10px; border-radius: 8px; pointer-events: none; opacity: 0; z-index: 70;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6), inset 0 0 0 0.5px rgba(255,255,255,0.1);
+        transition: opacity 0.18s var(--ease-ios);
     }
-    .sb-org-avatar {
-        width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
-        background: rgba(255,255,255,0.1); color: #fff;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.72rem; font-weight: 800;
+    .sb-collapsed .sb-item:hover::after { opacity: 1; }
     }
-    .sb-org-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-    .sb-org-name { font-size: 0.78rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sb-org-plan { font-size: 0.66rem; color: rgba(255,255,255,0.4); }
-    .sb-logout {
-        flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
-        width: 30px; height: 30px; border-radius: 8px;
-        background: none; border: none; cursor: pointer;
-        color: rgba(255,255,255,0.45); transition: color 0.2s, background 0.2s;
-    }
-    .sb-logout svg { width: 16px; height: 16px; }
-    .sb-logout:hover { color: #fff; background: rgba(255,255,255,0.08); }
 
     /* ── MAIN ── */
     .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -424,6 +568,8 @@ const NAV = [
         }
         .app-shell.nav-open .sb-backdrop { opacity: 1; visibility: visible; transition: opacity 0.3s var(--ease-ios); }
         .tb-burger { display: inline-flex; }
+        /* En el drawer móvil no aplica colapsar (es ancho fijo) */
+        .sb-collapse { display: none; }
         .app-content { padding: 1.2rem 1rem 6rem; }
         .topbar { padding: 0.9rem 1rem; }
         .tb-demo { display: none; }
@@ -564,7 +710,42 @@ const NAV = [
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
     }
 
-    function initApp() { initCmdk(); initDrawer(); }
+    // ── Org switcher (menú) + colapsar sidebar ──
+    function initSidebar() {
+        const root = document.documentElement;
+        // Menú del switcher
+        const sw = document.getElementById('orgSwitch');
+        const menu = document.getElementById('orgMenu');
+        if (sw && menu) {
+            const closeMenu = () => { (menu as HTMLElement).hidden = true; sw.setAttribute('aria-expanded', 'false'); };
+            sw.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const open = (menu as HTMLElement).hidden;
+                (menu as HTMLElement).hidden = !open;
+                sw.setAttribute('aria-expanded', String(open));
+            });
+            document.addEventListener('click', (e) => {
+                if (!(menu as HTMLElement).hidden && !menu.contains(e.target as Node) && e.target !== sw) closeMenu();
+            });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+        }
+        // Colapsar / expandir (persistente). En colapsado, el switcher expande al hacer click.
+        const setCollapsed = (v: boolean) => {
+            root.classList.toggle('sb-collapsed', v);
+            try { localStorage.setItem('trato.sb.collapsed', v ? '1' : '0'); } catch (e) {}
+        };
+        document.getElementById('sbCollapse')?.addEventListener('click', (e) => { e.stopPropagation(); setCollapsed(true); });
+        document.getElementById('sbExpand')?.addEventListener('click', (e) => { e.stopPropagation(); setCollapsed(false); });
+        // Si está colapsado, click en el switcher expande en vez de abrir el menú.
+        sw?.addEventListener('click', (e) => {
+            if (root.classList.contains('sb-collapsed')) {
+                e.stopImmediatePropagation();
+                setCollapsed(false);
+            }
+        }, true);
+    }
+
+    function initApp() { initCmdk(); initDrawer(); initSidebar(); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp);
     else initApp();
 </script>

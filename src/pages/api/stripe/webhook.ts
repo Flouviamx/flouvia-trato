@@ -7,6 +7,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import crypto from 'node:crypto';
 import { sql, logAudit } from '../../../lib/db';
+import { dispatchQuoteEvent } from '../../../lib/webhooks';
 
 const WH_SECRET = import.meta.env.STRIPE_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -41,6 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
                 await sql`insert into eventos (org_id, cotizacion_id, tipo, detalle)
                           values (${rows[0].org_id}, ${cid}, 'paid', 'Pago recibido vía Stripe')`;
                 await logAudit(rows[0].org_id as string, { accion: 'cotizacion.paid', entidad: 'cotizacion', entidad_id: cid, detalle: 'Pago en línea (Stripe)' });
+                await dispatchQuoteEvent(rows[0].org_id as string, cid, 'quote.paid');
             }
         }
     }

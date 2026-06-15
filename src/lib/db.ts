@@ -86,11 +86,12 @@ export async function getActiveOrgId(): Promise<string> {
 // ── Audit log inmutable ──────────────────────────────────────────────────────
 // Registra un evento en audit_log. Envuelto en try/catch: la auditoría nunca debe
 // romper la operación principal (ni antes de correr la migración).
-interface AuditEvent { accion: string; entidad?: string; entidad_id?: string; detalle?: string; ip?: string | null; }
+interface AuditEvent { accion: string; entidad?: string; entidad_id?: string; detalle?: string; ip?: string | null; actor?: string }
 export async function logAudit(orgId: string, e: AuditEvent): Promise<void> {
     try {
+        const actor = e.actor ?? currentUserId() ?? DEMO_CLERK_USER_ID;
         await sql`insert into audit_log (org_id, actor, accion, entidad, entidad_id, detalle, ip)
-                  values (${orgId}, ${currentUserId() ?? DEMO_CLERK_USER_ID}, ${e.accion}, ${e.entidad ?? null}, ${e.entidad_id ?? null}, ${e.detalle ?? null}, ${e.ip ?? null})`;
+                  values (${orgId}, ${actor}, ${e.accion}, ${e.entidad ?? null}, ${e.entidad_id ?? null}, ${e.detalle ?? null}, ${e.ip ?? null})`;
     } catch { /* no-op: no romper la operación por fallo de auditoría */ }
 }
 

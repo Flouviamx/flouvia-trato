@@ -8,6 +8,13 @@ import type { APIRoute } from 'astro';
 import { sql, getActiveOrgId, logAudit, reqIp } from '../../../lib/db';
 import { notifyQuoteSent } from '../../../lib/email';
 import { requirePerm } from '../../../lib/queries';
+import { dispatchQuoteEvent, type WebhookEvent } from '../../../lib/webhooks';
+
+// Evento interno (eventos.tipo) → evento público de webhook.
+const WH_MAP: Record<string, WebhookEvent> = {
+    sent: 'quote.sent', approved: 'quote.approved', rejected: 'quote.rejected',
+    paid: 'quote.paid', invoiced: 'invoice.stamped',
+};
 
 // Acciones que cambian la decisión de aprobación → requieren permiso 'aprobar';
 // el resto (enviar, marcar pago, facturar, responder) requiere 'cotizar'.
@@ -55,6 +62,7 @@ export const PATCH: APIRoute = async ({ params, request }) => {
             await sql`update cotizaciones set aprob_estado = 'aprobada', status = 'sent', sent_at = coalesce(sent_at, ${now}) where id = ${id}`;
             await sql`insert into eventos (org_id, cotizacion_id, tipo, detalle) values (${orgId}, ${id}, 'sent', 'Aprobada por gerencia y enviada al cliente')`;
             await logAudit(orgId, { accion: 'cotizacion.aprobacion_aprobada', entidad: 'cotizacion', entidad_id: id, detalle: rows[0].folio as string, ip: reqIp(request) });
+            await dispatchQuoteEvent(orgId, id, 'quote.sent');
             return json({ ok: true, status: 'sent' });
         }
         await sql`update cotizaciones set aprob_estado = 'rechazada' where id = ${id}`;
@@ -87,6 +95,10 @@ export const PATCH: APIRoute = async ({ params, request }) => {
     await sql`insert into eventos (org_id, cotizacion_id, tipo, detalle)
               values (${orgId}, ${id}, ${action.evento}, ${action.detalle})`;
     await logAudit(orgId, { accion: `cotizacion.${body.action}`, entidad: 'cotizacion', entidad_id: id, detalle: `${actual} → ${action.to}`, ip: reqIp(request) });
+
+    // Notifica el evento a las webhooks suscritas de la org (best-effort).
+    const whev = WH_MAP[action.evento];
+    if (whev) await dispatchQuoteEvent(orgId, id, whev);
 
     // Al enviar/reenviar, intenta avisar al cliente por correo (si hay Resend).
     let email: { sent: boolean; skipped?: string } | undefined;

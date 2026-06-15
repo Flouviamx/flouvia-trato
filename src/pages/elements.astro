@@ -1,0 +1,605 @@
+---
+// /elements — TRATO Elements: el cotizador embebible (landing estilo Stripe
+// Checkout). El hero monta un <iframe> EN VIVO de /embed/demo: la página se
+// demuestra a sí misma. Mismo lenguaje visual que /producto/* (PageAnims).
+export const prerender = true;
+
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/landing/Nav.astro';
+import Footer from '../components/landing/Footer.astro';
+import PageAnims from '../components/landing/PageAnims.astro';
+
+// Snippets de instalación por framework (tabs estilo Stripe). El embed es el mismo
+// iframe en todos; cambia sólo cómo cargas el script según tu stack.
+const CODES = [
+    {
+        id: 'html', label: 'HTML', file: 'index.html',
+        code: `<!-- En cualquier sitio HTML -->
+<script src="https://trato.flouvia.com/embed.js" async></script>
+<div data-trato-cotizador data-token="abc123"></div>`,
+    },
+    {
+        id: 'react', label: 'React', file: 'Cotizacion.jsx',
+        code: `// npm install @trato/elements
+import { TratoCotizador } from '@trato/elements/react';
+
+export function Cotizacion({ token }) {
+  return (
+    <TratoCotizador
+      token={token}
+      onApproved={(d) => console.log('Aprobada', d.folio)}
+      onPay={() => location.assign('/gracias')}
+    />
+  );
+}`,
+    },
+    {
+        id: 'next', label: 'Next.js', file: 'cotizacion.tsx',
+        code: `'use client';
+// npm install @trato/elements
+import { TratoCotizador } from '@trato/elements/react';
+
+export default function Cotizacion() {
+  return (
+    <TratoCotizador
+      token="abc123"
+      onApproved={(d) => console.log('Aprobada', d.folio)}
+    />
+  );
+}`,
+    },
+    {
+        id: 'astro', label: 'Astro', file: 'Cotizacion.astro',
+        code: `---
+// npm install @trato/elements
+const { token } = Astro.props;
+---
+<trato-cotizador token={token}></trato-cotizador>
+
+<script>
+  import '@trato/elements'; // registra <trato-cotizador>
+</script>`,
+    },
+    {
+        id: 'vue', label: 'Vue', file: 'Cotizacion.vue',
+        code: `<script setup>
+// npm install @trato/elements
+import '@trato/elements'; // registra <trato-cotizador>
+defineProps({ token: String });
+</script>
+
+<template>
+  <trato-cotizador :token="token" @approved="onApproved" />
+</template>`,
+    },
+    {
+        id: 'wordpress', label: 'WordPress', file: 'Bloque HTML',
+        code: `<!-- Pega esto en un bloque "HTML personalizado" -->
+<script src="https://trato.flouvia.com/embed.js" async></script>
+<div data-trato-cotizador data-token="abc123"></div>`,
+    },
+];
+
+const EVENTS = `document.querySelector('[data-trato-cotizador]')
+  .addEventListener('trato:approved', (e) => {
+    // tu cliente aprobó — registra la venta, redirige, etc.
+    analytics.track('cotizacion_aprobada', e.detail);
+  });`;
+---
+
+<Layout
+    title="Trato Elements — tu cotizador, embebido en cualquier sitio"
+    description="Lleva el cotizador de Trato a tu propio portal o al de tus clientes con una línea de código. Tu marca, aprobación y pago en línea, dentro de su ecosistema."
+>
+    <Nav />
+    <main>
+        <!-- ════════ HERO ════════ -->
+        <section class="pp-hero el-hero">
+            <div class="el-hero-mesh" aria-hidden="true"></div>
+            <div class="el-hero-grid">
+                <div class="el-hero-text">
+                    <p class="el-eyebrow reveal">TRATO ELEMENTS</p>
+                    <h1 class="el-title masked-title">Tu cotizador,<br/>en cualquier sitio.</h1>
+                    <p class="el-sub reveal">
+                        Lleva el cotizador de Trato al portal de tus clientes con <b>una línea
+                        de código</b>. Tu marca, tu catálogo, aprobación y pago en línea — todo
+                        dentro de su ecosistema, sin que salgan de su web.
+                    </p>
+                    <div class="el-actions reveal">
+                        <a href="/registro" class="el-btn-primary">
+                            <span>Empezar gratis</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <a href="#instalar" class="el-btn-ghost">Ver el código</a>
+                    </div>
+
+                    <div class="el-cmd reveal" data-install-cmd>
+                        <code><span class="el-cmd-prompt">$</span>npm install @trato/elements</code>
+                        <button class="el-cmd-copy" type="button" aria-label="Copiar comando">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
+                    <p class="el-plan reveal">
+                        <a href="https://www.npmjs.com/package/@trato/elements" target="_blank" rel="noopener" class="el-npm">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"/></svg>
+                            Disponible en npm · @trato/elements
+                        </a>
+                    </p>
+                </div>
+
+                <!-- Demo EN VIVO: un sitio de tercero con el cotizador embebido -->
+                <div class="el-hero-demo reveal">
+                    <div class="el-demo-glow" aria-hidden="true"></div>
+                    <div class="el-browser">
+                        <div class="el-browser-bar">
+                            <span class="el-dots"><i></i><i></i><i></i></span>
+                            <span class="el-url">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                portal.tucliente.com/cotizacion
+                            </span>
+                        </div>
+                        <div class="el-browser-body">
+                            <div class="el-host-chrome" aria-hidden="true">
+                                <span class="el-host-logo">ACME Industrial</span>
+                                <span class="el-host-nav"><i></i><i></i><i></i></span>
+                            </div>
+                            <p class="el-host-line" aria-hidden="true">Tu cotización está lista 👇</p>
+                            <!-- iframe REAL del producto -->
+                            <iframe class="el-demo-frame" src="/embed/demo" title="Cotizador Trato (demo en vivo)" loading="lazy"></iframe>
+                            <span class="el-host-foot" aria-hidden="true">© ACME Industrial · portal de clientes</span>
+                        </div>
+                    </div>
+                    <span class="el-demo-tag">▲ Cotizador de Trato, embebido en vivo</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════ TRUST / VALOR ════════ -->
+        <section class="el-strip">
+            <p class="el-strip-lead reveal">Para empresas B2B que <b>ya tienen su propio portal</b> pero no quieren construir —ni mantener— un cotizador que negocie precios, dé seguimiento y timbre CFDI en México.</p>
+        </section>
+
+        <!-- ════════ INSTALAR (snippet) ════════ -->
+        <section class="el-install" id="instalar">
+            <div class="el-install-head">
+                <p class="el-eyebrow reveal">UNA LÍNEA DE CÓDIGO</p>
+                <h2 class="el-h2 masked-title">Pegar. Listo.<br/>Sin backend.</h2>
+                <p class="el-copy reveal">Un script y un <code>&lt;div&gt;</code>. El cotizador aparece con tu marca, se ajusta solo a la altura del contenido y hereda el estilo de la página anfitriona.</p>
+            </div>
+            <div class="el-code el-tabs reveal-mockup" data-el-tabs>
+                <div class="el-tabbar" role="tablist">
+                    {CODES.map((c, i) => (
+                        <button class:list={['el-tab', { active: i === 0 }]} role="tab" data-tab={c.id}>{c.label}</button>
+                    ))}
+                    <button class="el-copybtn" data-copy type="button" aria-label="Copiar código">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <span>Copiar</span>
+                    </button>
+                </div>
+                {CODES.map((c, i) => (
+                    <pre class:list={['el-panel', { active: i === 0 }]} data-panel={c.id} hidden={i !== 0}><code>{c.code}</code></pre>
+                ))}
+            </div>
+            <div class="el-steps">
+                <div class="el-step reveal">
+                    <span class="el-step-n">01</span>
+                    <b>Pega el snippet</b>
+                    <span>En la página donde quieras el cotizador. Funciona en cualquier stack: WordPress, React, Webflow, HTML plano.</span>
+                </div>
+                <div class="el-step reveal">
+                    <span class="el-step-n">02</span>
+                    <b>Aparece con tu marca</b>
+                    <span>Color, logo y datos fiscales salen de tu cuenta de Trato. Cero configuración extra en el sitio anfitrión.</span>
+                </div>
+                <div class="el-step reveal">
+                    <span class="el-step-n">03</span>
+                    <b>Tu cliente aprueba y paga</b>
+                    <span>Aprobación, contraoferta y pago en línea — sin salir del portal. Tú recibes el evento en tiempo real.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════ CARACTERÍSTICAS (lista, no tarjetas) ════════ -->
+        <section class="el-features">
+            <div class="el-feat-head">
+                <p class="el-eyebrow reveal">POR QUÉ ELEMENTS</p>
+                <h2 class="el-h2 masked-title">El cotizador completo,<br/>no un widget de juguete.</h2>
+            </div>
+            <div class="el-feat-list">
+                <div class="el-feat reveal">
+                    <span class="el-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.012 17.5 2 12 2z"/></svg></span>
+                    <div><b>Tu marca, no la nuestra</b><span>Color, logo y razón social de tu cuenta. El cliente ve TU negocio, no a Trato (salvo el discreto "vía Trato" del plan gratis).</span></div>
+                </div>
+                <div class="el-feat reveal">
+                    <span class="el-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+                    <div><b>Aprobación y contraoferta</b><span>El cliente aprueba, rechaza o negocia el precio sin salir de su portal. El chat de la cotización viaja embebido.</span></div>
+                </div>
+                <div class="el-feat reveal">
+                    <span class="el-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+                    <div><b>Pago en línea integrado</b><span>Stripe Checkout dentro del iframe (atributo <code>allow="payment"</code>). Cobras sin redirigir a otra pestaña.</span></div>
+                </div>
+                <div class="el-feat reveal">
+                    <span class="el-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
+                    <div><b>Altura automática</b><span>El embed mide su contenido y le avisa a tu página vía <code>postMessage</code>. Nada de barras de scroll ni cajas vacías.</span></div>
+                </div>
+                <div class="el-feat reveal">
+                    <span class="el-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                    <div><b>Seguro por diseño</b><span>Allowlist de dominios por cuenta (CSP <code>frame-ancestors</code>). Solo TÚ decides en qué sitios puede embeberse — anti-clickjacking.</span></div>
+                </div>
+                <div class="el-feat reveal">
+                    <span class="el-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+                    <div><b>Eventos en tiempo real</b><span>Tu sitio escucha <code>trato:approved</code>, <code>trato:pay</code> y más — para disparar tu analítica, CRM o lo que sea.</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════ EVENTOS / DEV ════════ -->
+        <section class="el-dev">
+            <div class="el-dev-text">
+                <p class="el-eyebrow reveal">PARA DESARROLLADORES</p>
+                <h2 class="el-h2 masked-title">Reacciona a cada<br/>acción del cliente.</h2>
+                <p class="el-copy reveal">El contenedor emite <code>CustomEvents</code> sobre tu propio <code>&lt;div&gt;</code>. Conéctalos a tu analítica, redirige tras la aprobación o sincroniza tu CRM — el control queda en tu página.</p>
+                <ul class="el-events-list">
+                    <li class="reveal"><code>trato:ready</code><span>el cotizador cargó</span></li>
+                    <li class="reveal"><code>trato:approved</code><span>el cliente aprobó · <i>detail: folio, token</i></span></li>
+                    <li class="reveal"><code>trato:rejected</code><span>el cliente rechazó</span></li>
+                    <li class="reveal"><code>trato:message</code><span>comentario o contraoferta</span></li>
+                    <li class="reveal"><code>trato:pay</code><span>inició el pago en línea</span></li>
+                </ul>
+            </div>
+            <div class="el-code el-code-dev reveal-mockup">
+                <div class="el-code-bar"><span class="el-dots"><i></i><i></i><i></i></span><span>app.js</span></div>
+                <pre><code>{EVENTS}</code></pre>
+            </div>
+        </section>
+
+        <!-- ════════ CTA secundario ════════ -->
+        <section class="el-mid">
+            <h2 class="el-mid-title masked-title">¿Prefieres no embeber?<br/>Comparte el link.</h2>
+            <p class="el-mid-sub reveal">Cada cotización vive también en su propia página pública <code>/q/{'{'}token{'}'}</code> — el mismo cotizador, sin tocar código. El embed es para cuando quieres que viva <i>dentro</i> de tu sitio.</p>
+            <a href="/q/demo" class="el-btn-ghost reveal" target="_blank" rel="noopener">Ver una cotización real ↗</a>
+        </section>
+    </main>
+
+    <Footer
+        ctaTitle="Lleva tu cotizador<br />a donde están tus clientes."
+        ctaSub="Crea tu cuenta gratis y embebe tu primer cotizador hoy mismo."
+    />
+    <PageAnims />
+</Layout>
+
+<style>
+    /* ════════ HERO ════════ */
+    .el-hero {
+        position: relative;
+        padding: 11rem 5% 5rem;
+        overflow: clip;
+        background: var(--color-bg);
+    }
+    .el-hero-mesh {
+        position: absolute; inset: -25% -10% auto;
+        height: 90%;
+        background:
+            radial-gradient(ellipse 50% 60% at 22% 18%, rgba(10,25,47,0.06) 0%, transparent 60%),
+            radial-gradient(ellipse 46% 56% at 80% 8%, rgba(10,25,47,0.045) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .el-hero-grid {
+        position: relative; z-index: 1;
+        max-width: 1200px; margin: 0 auto;
+        display: grid; grid-template-columns: 1fr 1.05fr; gap: 4rem; align-items: center;
+    }
+    .el-hero-text { max-width: 540px; }
+
+    .el-eyebrow {
+        font-size: 0.65rem; font-weight: 800; letter-spacing: 3px;
+        text-transform: uppercase; color: #888; margin: 0 0 1.3rem;
+    }
+    .el-title {
+        font-size: clamp(2.5rem, 4.6vw, 4.2rem);
+        font-weight: 800; line-height: 1.03; letter-spacing: -0.035em;
+        color: var(--color-text); margin: 0 0 1.5rem;
+    }
+    .el-sub {
+        font-size: 1.1rem; line-height: 1.65; color: var(--color-text-muted);
+        margin: 0 0 2.1rem;
+    }
+    .el-sub b { color: var(--color-text); font-weight: 600; }
+    .el-actions { display: flex; gap: 0.9rem; align-items: center; flex-wrap: wrap; }
+    .el-btn-primary {
+        display: inline-flex; align-items: center; gap: 10px;
+        background: var(--color-blue-deep); color: #fff;
+        text-decoration: none; font-size: 0.98rem; font-weight: 600;
+        padding: 14px 28px; border-radius: 13px;
+        box-shadow: 0 18px 44px -16px rgba(10,25,47,0.55);
+        transition: transform 0.5s var(--ease-spring), box-shadow 0.5s var(--ease-spring);
+    }
+    .el-btn-primary svg { width: 15px; height: 15px; transition: transform 0.5s var(--ease-spring); }
+    .el-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 26px 56px -16px rgba(10,25,47,0.6); }
+    .el-btn-primary:hover svg { transform: translateX(4px); }
+    .el-btn-ghost {
+        color: var(--color-text); text-decoration: none; font-weight: 600; font-size: 0.98rem;
+        padding: 14px 10px; transition: color 0.3s;
+    }
+    .el-btn-ghost:hover { color: var(--color-blue-deep); }
+
+    /* Comando de instalación copiable */
+    .el-cmd {
+        display: inline-flex; align-items: center; gap: 10px;
+        margin-top: 1.5rem; padding: 4px 4px 4px 16px;
+        background: var(--color-blue-deep); border-radius: 12px;
+        box-shadow: 0 18px 44px -22px rgba(10,25,47,0.6);
+        max-width: 100%;
+    }
+    .el-cmd code {
+        font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+        font-size: 0.86rem; color: #e6edf3; white-space: nowrap;
+        overflow: hidden; text-overflow: ellipsis;
+    }
+    .el-cmd-prompt { color: #6ee7b7; margin-right: 9px; user-select: none; }
+    .el-cmd-copy {
+        flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+        width: 34px; height: 34px; border-radius: 9px;
+        background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
+        border: 1px solid rgba(255,255,255,0.12); cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+    }
+    .el-cmd-copy svg { width: 15px; height: 15px; }
+    .el-cmd-copy:hover { background: rgba(255,255,255,0.18); color: #fff; }
+    .el-cmd-copy.done { color: #6ee7b7; }
+
+    .el-plan { font-size: 0.78rem; color: #99a2af; margin: 1.1rem 0 0; font-weight: 600; }
+    .el-npm {
+        display: inline-flex; align-items: center; gap: 7px;
+        color: #99a2af; text-decoration: none; transition: color 0.2s;
+    }
+    .el-npm svg { width: 30px; height: 14px; color: #cb3837; }
+    .el-npm:hover { color: var(--color-blue-deep); }
+
+    /* ── Demo en vivo (browser + iframe real) ── */
+    .el-hero-demo { position: relative; }
+    .el-demo-glow {
+        position: absolute; inset: 8% -6% -16%;
+        background: radial-gradient(ellipse at center, rgba(10,25,47,0.18) 0%, transparent 65%);
+        filter: blur(34px); pointer-events: none;
+    }
+    .el-browser {
+        position: relative;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 50px 100px -36px rgba(5,11,20,0.55), inset 0 0 0 0.5px rgba(10,25,47,0.08);
+        overflow: hidden;
+    }
+    .el-browser-bar {
+        display: flex; align-items: center; gap: 14px;
+        padding: 12px 16px;
+        background: #f4f6f9; border-bottom: 1px solid rgba(10,25,47,0.07);
+    }
+    .el-dots { display: inline-flex; gap: 6px; flex-shrink: 0; }
+    .el-dots i { width: 11px; height: 11px; border-radius: 50%; background: rgba(10,25,47,0.13); }
+    .el-url {
+        display: inline-flex; align-items: center; gap: 7px;
+        font-size: 0.76rem; color: var(--color-text-muted); font-weight: 500;
+        background: #fff; border-radius: 8px; padding: 6px 12px; flex: 1;
+        box-shadow: inset 0 0 0 1px rgba(10,25,47,0.06);
+    }
+    .el-url svg { width: 12px; height: 12px; color: #10b981; flex-shrink: 0; }
+    .el-browser-body {
+        background: var(--color-bg-soft);
+        padding: 1.3rem 1.3rem 1rem;
+    }
+    .el-host-chrome { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .el-host-logo { font-size: 0.82rem; font-weight: 800; letter-spacing: -0.2px; color: #334; }
+    .el-host-nav { display: inline-flex; gap: 7px; }
+    .el-host-nav i { width: 20px; height: 5px; border-radius: 100px; background: rgba(10,25,47,0.1); }
+    .el-host-line { font-size: 0.84rem; color: var(--color-text-muted); margin: 0 0 0.8rem; font-weight: 500; }
+    .el-demo-frame {
+        width: 100%; height: 540px; border: 0;
+        border-radius: 14px; background: #fff; display: block;
+        box-shadow: 0 12px 36px -18px rgba(10,25,47,0.2);
+    }
+    .el-host-foot { display: block; text-align: center; font-size: 0.68rem; color: #aab; margin-top: 0.9rem; }
+    .el-demo-tag {
+        display: block; text-align: center;
+        font-size: 0.74rem; font-weight: 600; color: #99a2af;
+        margin-top: 1rem;
+    }
+
+    /* ════════ STRIP ════════ */
+    .el-strip {
+        max-width: 900px; margin: 0 auto;
+        padding: 5.5rem 5%;
+        text-align: center;
+    }
+    .el-strip-lead {
+        font-size: clamp(1.3rem, 2.6vw, 1.85rem);
+        font-weight: 600; line-height: 1.4; letter-spacing: -0.02em;
+        color: var(--color-text-muted);
+    }
+    .el-strip-lead b { color: var(--color-text); font-weight: 700; }
+
+    /* ════════ COMPARTIDOS ════════ */
+    .el-h2 {
+        font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+        font-weight: 800; line-height: 1.08; letter-spacing: -0.032em;
+        color: var(--color-text); margin: 0 0 1.1rem;
+    }
+    .el-copy { font-size: 1.04rem; line-height: 1.7; color: var(--color-text-muted); margin: 0; }
+    .el-copy code, .el-feat code, .el-events-list code, .el-mid-sub code {
+        font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.86em;
+        background: rgba(10,25,47,0.06); padding: 1px 6px; border-radius: 5px; color: var(--color-blue-deep);
+    }
+
+    /* Bloque de código (dark) */
+    .el-code {
+        background: linear-gradient(165deg, #0e2240 0%, #0a192f 60%, #081424 100%);
+        border-radius: 16px; overflow: hidden;
+        box-shadow: 0 40px 90px -40px rgba(5,11,20,0.7), inset 0 0 0 0.5px rgba(255,255,255,0.07);
+    }
+    .el-code-bar {
+        display: flex; align-items: center; gap: 12px;
+        padding: 11px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);
+        font-size: 0.74rem; color: rgba(255,255,255,0.5); font-weight: 500;
+    }
+    .el-code-bar .el-dots i { background: rgba(255,255,255,0.16); width: 10px; height: 10px; }
+    .el-code pre { margin: 0; padding: 1.4rem 1.5rem; overflow-x: auto; }
+    .el-code code {
+        font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+        font-size: 0.86rem; line-height: 1.75; color: #cde3ff; white-space: pre;
+    }
+
+    /* ── Tabs de framework (estilo Stripe) ── */
+    .el-tabbar {
+        display: flex; align-items: center; gap: 2px;
+        padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.08);
+        overflow-x: auto; scrollbar-width: none;
+    }
+    .el-tabbar::-webkit-scrollbar { display: none; }
+    .el-tab {
+        font-family: var(--font-sans); font-size: 0.8rem; font-weight: 600;
+        color: rgba(255,255,255,0.5); background: none; border: 0;
+        padding: 8px 14px; border-radius: 9px; cursor: pointer; white-space: nowrap;
+        transition: color 0.2s, background 0.2s;
+    }
+    .el-tab:hover { color: rgba(255,255,255,0.85); }
+    .el-tab.active { color: #fff; background: rgba(255,255,255,0.1); }
+    .el-copybtn {
+        margin-left: auto; flex-shrink: 0;
+        display: inline-flex; align-items: center; gap: 6px;
+        font-family: var(--font-sans); font-size: 0.74rem; font-weight: 600;
+        color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
+        padding: 6px 11px; cursor: pointer; transition: background 0.2s, color 0.2s;
+    }
+    .el-copybtn svg { width: 13px; height: 13px; }
+    .el-copybtn:hover { background: rgba(255,255,255,0.13); color: #fff; }
+    .el-copybtn.done { color: #6ee7b7; border-color: rgba(110,231,183,0.4); }
+    .el-panel { margin: 0; padding: 1.4rem 1.5rem; overflow-x: auto; }
+    .el-panel[hidden] { display: none; }
+
+    /* ════════ INSTALAR ════════ */
+    .el-install { max-width: 880px; margin: 0 auto; padding: 5rem 5%; text-align: center; }
+    .el-install-head { margin-bottom: 2.6rem; }
+    .el-install .el-copy { max-width: 620px; margin: 0 auto; }
+    .el-install .el-code { text-align: left; max-width: 720px; margin: 0 auto; }
+    .el-steps {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem;
+        margin-top: 3.5rem; text-align: left;
+    }
+    .el-step {
+        display: flex; flex-direction: column; gap: 0.45rem;
+        padding: 1.5rem 0 0; border-top: 2px solid var(--color-blue-deep);
+    }
+    .el-step-n { font-size: 0.74rem; font-weight: 800; letter-spacing: 1px; color: #99a2af; }
+    .el-step b { font-size: 1.02rem; font-weight: 700; letter-spacing: -0.2px; }
+    .el-step span { font-size: 0.88rem; line-height: 1.55; color: var(--color-text-muted); }
+
+    /* ════════ FEATURES (lista, hairline — regla de André) ════════ */
+    .el-features { max-width: 1000px; margin: 0 auto; padding: 5rem 5%; }
+    .el-feat-head { text-align: center; margin-bottom: 3rem; }
+    .el-feat-list {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 0 3.5rem;
+    }
+    .el-feat {
+        display: flex; align-items: flex-start; gap: 16px;
+        padding: 1.5rem 0; border-bottom: 1px solid var(--color-border);
+    }
+    .el-feat-ico {
+        flex-shrink: 0; width: 40px; height: 40px; border-radius: 11px;
+        background: rgba(10,25,47,0.05); color: var(--color-blue-deep);
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .el-feat-ico svg { width: 19px; height: 19px; }
+    .el-feat b { display: block; font-size: 0.98rem; font-weight: 700; letter-spacing: -0.2px; margin-bottom: 4px; }
+    .el-feat span { font-size: 0.87rem; line-height: 1.55; color: var(--color-text-muted); }
+
+    /* ════════ DEV ════════ */
+    .el-dev {
+        max-width: 1080px; margin: 0 auto; padding: 5rem 5%;
+        display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 4rem; align-items: center;
+    }
+    .el-dev-text { max-width: 460px; }
+    .el-dev .el-copy { margin-bottom: 1.8rem; }
+    .el-events-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+    .el-events-list li {
+        display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+        padding: 0.8rem 0; border-bottom: 1px solid var(--color-border);
+    }
+    .el-events-list code {
+        font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.82rem;
+        background: var(--color-blue-deep); color: #fff; padding: 3px 9px; border-radius: 7px;
+    }
+    .el-events-list span { font-size: 0.86rem; color: var(--color-text-muted); }
+    .el-events-list i { font-style: normal; color: #99a2af; }
+    .el-code-dev pre { padding: 1.5rem 1.6rem; }
+
+    /* ════════ MID CTA ════════ */
+    .el-mid { max-width: 720px; margin: 0 auto; padding: 4rem 5% 7rem; text-align: center; }
+    .el-mid-title {
+        font-size: clamp(1.7rem, 3vw, 2.4rem); font-weight: 800; line-height: 1.12;
+        letter-spacing: -0.03em; margin: 0 0 1rem;
+    }
+    .el-mid-sub { font-size: 1rem; line-height: 1.65; color: var(--color-text-muted); margin: 0 0 1.6rem; }
+    .el-mid-sub i { font-style: normal; color: var(--color-text); font-weight: 600; }
+
+    /* ════════ RESPONSIVE ════════ */
+    @media (max-width: 920px) {
+        .el-hero { padding-top: 9rem; }
+        .el-hero-grid { grid-template-columns: 1fr; gap: 3rem; }
+        .el-hero-text { max-width: none; }
+        .el-dev { grid-template-columns: 1fr; gap: 2.5rem; }
+        .el-dev-text { max-width: none; }
+        .el-feat-list { grid-template-columns: 1fr; gap: 0; }
+        .el-steps { grid-template-columns: 1fr; gap: 1.8rem; }
+        .el-demo-frame { height: 480px; }
+    }
+</style>
+
+<script>
+    // Tabs de framework + copiar (sin dependencias).
+    function initElTabs() {
+        const wrap = document.querySelector('[data-el-tabs]');
+        if (!wrap) return;
+        const tabs = Array.from(wrap.querySelectorAll<HTMLElement>('.el-tab'));
+        const panels = Array.from(wrap.querySelectorAll<HTMLElement>('.el-panel'));
+
+        const show = (id: string) => {
+            tabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === id));
+            panels.forEach((p) => {
+                const on = p.dataset.panel === id;
+                p.classList.toggle('active', on);
+                p.hidden = !on;
+            });
+        };
+        tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.tab!)));
+
+        const copyBtn = wrap.querySelector<HTMLButtonElement>('[data-copy]');
+        copyBtn?.addEventListener('click', async () => {
+            const active = wrap.querySelector<HTMLElement>('.el-panel.active code');
+            try {
+                await navigator.clipboard.writeText(active?.textContent || '');
+                const label = copyBtn.querySelector('span');
+                copyBtn.classList.add('done');
+                if (label) label.textContent = '¡Copiado!';
+                setTimeout(() => { copyBtn.classList.remove('done'); if (label) label.textContent = 'Copiar'; }, 2000);
+            } catch {}
+        });
+    }
+    // Copiar el comando `npm install` del hero.
+    function initInstallCmd() {
+        const box = document.querySelector('[data-install-cmd]');
+        if (!box) return;
+        const btn = box.querySelector<HTMLButtonElement>('.el-cmd-copy');
+        btn?.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText('npm install @trato/elements');
+                btn.classList.add('done');
+                setTimeout(() => btn.classList.remove('done'), 2000);
+            } catch {}
+        });
+    }
+
+    function init() { initElTabs(); initInstallCmd(); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+</script>

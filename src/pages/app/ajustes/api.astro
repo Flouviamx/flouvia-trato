@@ -1,19 +1,19 @@
 ---
 // Ajustes › Developers › API y webhooks.
 // API keys: REALES (tabla api_keys, hash sha-256). La clave en claro se muestra
-// UNA vez al crearla. Webhooks: maqueta (se cablea con el motor de eventos).
+// UNA vez al crearla. Webhooks: REALES (tabla webhooks, entrega firmada HMAC).
 import SettingsShell from '../../../components/app/SettingsShell.astro';
-import { getApiKeys, getOrg } from '../../../lib/queries';
+import { getApiKeys, getOrg, getWebhooks } from '../../../lib/queries';
 import { planTieneApi } from '../../../lib/permissions';
+import { WEBHOOK_EVENTS } from '../../../lib/webhooks';
 const ORG = await getOrg();
 const KEYS = await getApiKeys();
+const WEBHOOKS = await getWebhooks();
 const tienePlan = planTieneApi(ORG.plan_raw);
-
-const EVENTOS_WH = ['quote.viewed', 'quote.approved', 'quote.rejected', 'quote.paid', 'invoice.stamped'];
 ---
 
 <SettingsShell title="API y webhooks — Ajustes" tab="api"
-    intro="Conecta Trato con tu propio sistema: crea cotizaciones por API y recibe eventos por webhook. La documentación vive en trato.flouvia.com/docs (próximamente).">
+    intro="Conecta Trato con tu propio sistema (ERP, CRM, scripts): lee y crea cotizaciones, clientes y productos por API. Genera una llave abajo y consulta los endpoints disponibles.">
 
     {!tienePlan && (
         <div class="dev-upsell">
@@ -60,25 +60,116 @@ const EVENTOS_WH = ['quote.viewed', 'quote.approved', 'quote.rejected', 'quote.p
     </div>
 
     <div class="s-block">
-        <h3>Webhooks</h3>
-        <div class="s-body">
-            <div class="s-field">
-                <label for="whUrl">URL de destino</label>
-                <input class="s-input" id="whUrl" placeholder="https://tusistema.mx/webhooks/trato" disabled />
-            </div>
-            <div class="wh-events">
-                <span class="wh-events-label">Eventos a enviar</span>
-                <div class="wh-chips">
-                    {EVENTOS_WH.map((e) => <span class="wh-chip"><code>{e}</code></span>)}
+        <h3>Endpoints disponibles</h3>
+        <p class="dev-note" style="margin-top:0 0 1rem">Base: <code>https://trato.flouvia.com/api/v1</code> · autentícate con <code>Authorization: Bearer &lt;tu_key&gt;</code>.</p>
+        <div class="ep-rows">
+            <div class="ep-row"><span class="ep-m get">GET</span><code class="ep-path">/me</code><span class="ep-d">A qué negocio pertenece la llave</span></div>
+            <div class="ep-row"><span class="ep-m get">GET</span><code class="ep-path">/cotizaciones</code><span class="ep-d">Lista (filtra con <code>?status=</code>, pagina con <code>?limit=&amp;offset=</code>)</span></div>
+            <div class="ep-row"><span class="ep-m post">POST</span><code class="ep-path">/cotizaciones</code><span class="ep-d">Crea una cotización (requiere escritura)</span></div>
+            <div class="ep-row"><span class="ep-m get">GET</span><code class="ep-path">/cotizaciones/:id</code><span class="ep-d">Detalle con líneas y timeline</span></div>
+            <div class="ep-row"><span class="ep-m get">GET</span><code class="ep-path">/clientes</code><span class="ep-d">Directorio de clientes</span></div>
+            <div class="ep-row"><span class="ep-m post">POST</span><code class="ep-path">/clientes</code><span class="ep-d">Alta de cliente (requiere escritura)</span></div>
+            <div class="ep-row"><span class="ep-m get">GET</span><code class="ep-path">/productos</code><span class="ep-d">Catálogo</span></div>
+            <div class="ep-row"><span class="ep-m post">POST</span><code class="ep-path">/productos</code><span class="ep-d">Alta de producto (requiere escritura)</span></div>
+            <div class="ep-row"><span class="ep-m get">GET</span><code class="ep-path">/cobranza</code><span class="ep-d">Cartera, vencidos y aging</span></div>
+        </div>
+        <div class="ep-code">
+            <span class="ep-code-label">Ejemplo</span>
+            <pre><code>curl https://trato.flouvia.com/api/v1/cotizaciones \
+  -H "Authorization: Bearer sk_live_xxxxxxxxxxxx"</code></pre>
+        </div>
+    </div>
+
+    <div class="s-block">
+        <h3>MCP — conecta una IA a tus datos</h3>
+        <p class="dev-note" style="margin-top:0">El servidor <b>MCP</b> deja que asistentes de IA (como Claude) consulten y creen información de tu negocio en lenguaje natural: <i>"¿qué facturas están vencidas?"</i>, <i>"arma una cotización para ACME de 50 sacos de cemento"</i>. Se autentica con la misma API key.</p>
+        <div class="ep-code">
+            <span class="ep-code-label">Configuración del cliente MCP</span>
+            <pre><code>URL:     https://trato.flouvia.com/api/mcp
+Header:  Authorization: Bearer sk_live_xxxxxxxxxxxx</code></pre>
+        </div>
+        <span class="wh-events-label" style="margin-top:1.1rem">Herramientas disponibles</span>
+        <div class="wh-chips">
+            <span class="wh-chip"><code>listar_cotizaciones</code></span>
+            <span class="wh-chip"><code>detalle_cotizacion</code></span>
+            <span class="wh-chip"><code>cartera_vencida</code></span>
+            <span class="wh-chip"><code>resumen_negocio</code></span>
+            <span class="wh-chip"><code>buscar_cliente</code></span>
+            <span class="wh-chip"><code>listar_productos</code></span>
+            <span class="wh-chip"><code>crear_cotizacion_borrador</code></span>
+        </div>
+    </div>
+
+    <div class="s-block">
+        <div class="dev-head">
+            <h3>Webhooks</h3>
+            <button class="dev-new" id="whNew" disabled={!tienePlan}>+ Agregar endpoint</button>
+        </div>
+        <p class="dev-note" style="margin-top:0">Recibe un POST firmado (HMAC-sha256, header <code>X-Trato-Signature</code>) cuando algo pasa con una cotización. Verifica la firma con el secret del endpoint.</p>
+
+        <div class="wh-list" id="whList">
+            {WEBHOOKS.length === 0 && (
+                <p class="dev-empty" id="whEmpty">Aún no tienes endpoints. Agrega uno para recibir eventos en tu sistema.</p>
+            )}
+            {WEBHOOKS.map((w) => (
+                <div class:list={['wh-row', { off: !w.activo }]} data-id={w.id}>
+                    <span class="wh-info">
+                        <span class="wh-url">{w.url}</span>
+                        <span class="wh-sub">
+                            <code>{w.secretMasked}</code>
+                            {w.eventos.length === 0 ? <i>· todos los eventos</i> : <i>· {w.eventos.length} evento{w.eventos.length > 1 ? 's' : ''}</i>}
+                            {w.ultimaEntrega && (
+                                <i class:list={['wh-stat', { ok: w.lastStatus && w.lastStatus < 400, err: !w.lastStatus || w.lastStatus >= 400 }]}>
+                                    · última {w.ultimaEntrega} {w.lastStatus ? `(${w.lastStatus})` : '(falló)'}
+                                </i>
+                            )}
+                        </span>
+                    </span>
+                    <label class="s-toggle wh-toggle" title="Activar/pausar">
+                        <input type="checkbox" data-toggle={w.id} checked={w.activo} />
+                        <span class="s-toggle-track"><span class="s-toggle-thumb"></span></span>
+                    </label>
+                    <button class="key-revoke" data-del={w.id}>Eliminar</button>
                 </div>
-            </div>
-            <div class="dev-soon">
-                <span class="dev-soon-dot"></span>
-                <span>Los webhooks se activan junto con el motor de eventos (en preparación). Mientras tanto, conecta <a href="/app/ajustes/integraciones">Zapier/Make</a> para reaccionar a eventos de Trato.</span>
-            </div>
+            ))}
         </div>
     </div>
 </SettingsShell>
+
+<!-- Modal: agregar webhook -->
+<dialog id="whDialog" class="kdlg">
+    <div class="kdlg-inner" id="whStepForm">
+        <h4>Agregar endpoint</h4>
+        <div class="s-field" style="margin-bottom:1.1rem">
+            <label for="whUrl">URL de destino</label>
+            <input class="s-input" id="whUrl" placeholder="https://tusistema.mx/webhooks/trato" />
+        </div>
+        <div class="wh-events">
+            <span class="wh-events-label">Eventos (ninguno = todos)</span>
+            <div class="wh-checks">
+                {WEBHOOK_EVENTS.map((e) => (
+                    <label class="wh-check">
+                        <input type="checkbox" value={e.id} />
+                        <span><code>{e.id}</code> {e.label}</span>
+                    </label>
+                ))}
+            </div>
+        </div>
+        <div class="wh-dlg-actions">
+            <button type="button" class="api-btn-ghost" id="whCancel">Cancelar</button>
+            <button type="button" class="api-btn-solid" id="whCreate">Crear endpoint</button>
+        </div>
+    </div>
+    <div class="kdlg-inner" id="whStepDone" hidden>
+        <h4>Endpoint creado</h4>
+        <p class="kdlg-warn">Guarda este <b>secret</b> para verificar la firma. Vuelve a verse enmascarado después.</p>
+        <div class="kdlg-key">
+            <code id="whSecret"></code>
+            <button id="whCopy" class="kdlg-copy" type="button">Copiar</button>
+        </div>
+        <button class="kdlg-done" type="button" id="whDone">Listo</button>
+    </div>
+</dialog>
 
 <!-- Modal: clave recién creada (se muestra UNA vez) -->
 <dialog id="kDialog" class="kdlg">
@@ -130,7 +221,22 @@ const EVENTOS_WH = ['quote.viewed', 'quote.approved', 'quote.rejected', 'quote.p
     .key-revoke { font-family: var(--font-sans); font-size: 0.76rem; font-weight: 600; color: var(--color-text-muted); background: none; border: 1px solid var(--color-border); border-radius: 8px; padding: 6px 12px; cursor: pointer; white-space: nowrap; transition: border-color 0.25s, color 0.25s; }
     .key-revoke:hover { border-color: var(--color-danger); color: var(--color-danger); }
     .dev-note { font-size: 0.78rem; color: var(--color-text-muted); line-height: 1.5; margin: 1.1rem 0 0; }
-    .dev-note code, .wh-chip code, .dev-soon code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.74rem; background: rgba(10,25,47,0.06); padding: 1px 5px; border-radius: 4px; }
+    .dev-note code, .wh-chip code, .dev-soon code, .ep-path, .ep-d code, .ep-code code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.74rem; background: rgba(10,25,47,0.06); padding: 1px 5px; border-radius: 4px; }
+
+    .ep-rows { display: flex; flex-direction: column; margin-bottom: 1.2rem; }
+    .ep-row { display: grid; grid-template-columns: 52px 180px 1fr; align-items: center; gap: 0.8rem; padding: 0.7rem 0.2rem; border-bottom: 1px solid var(--color-border); }
+    .ep-m { font-size: 0.58rem; font-weight: 800; letter-spacing: 0.5px; text-align: center; padding: 3px 0; border-radius: 6px; }
+    .ep-m.get { color: #1d4ed8; background: rgba(37,99,235,0.1); }
+    .ep-m.post { color: #b45309; background: rgba(245,158,11,0.14); }
+    .ep-path { background: none !important; padding: 0 !important; color: var(--color-text); font-weight: 600; }
+    .ep-d { font-size: 0.78rem; color: var(--color-text-muted); line-height: 1.4; }
+    .ep-d code { font-size: 0.7rem; }
+    .ep-code { background: #0a192f; border-radius: 12px; padding: 1rem 1.1rem; }
+    .ep-code-label { display: block; font-size: 0.58rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #7fd1c1; margin-bottom: 0.6rem; }
+    .ep-code pre { margin: 0; overflow-x: auto; }
+    .ep-code code { background: none !important; padding: 0 !important; color: #d7e3f4; font-size: 0.76rem; line-height: 1.6; white-space: pre; }
+
+    @media (max-width: 600px) { .ep-row { grid-template-columns: 48px 1fr; } .ep-d { grid-column: 2; } }
 
     .wh-events { margin: 0.4rem 0; }
     .wh-events-label { display: block; font-size: 0.62rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #99a2af; margin-bottom: 0.5rem; }
@@ -139,6 +245,27 @@ const EVENTOS_WH = ['quote.viewed', 'quote.approved', 'quote.rejected', 'quote.p
     .dev-soon { display: flex; align-items: flex-start; gap: 9px; font-size: 0.8rem; color: var(--color-text-muted); background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 9px; padding: 12px 14px; line-height: 1.5; margin-top: 0.4rem; }
     .dev-soon a { color: var(--color-blue-deep); font-weight: 600; }
     .dev-soon-dot { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; margin-top: 5px; }
+
+    /* Webhooks list */
+    .wh-list { display: flex; flex-direction: column; margin-top: 0.6rem; }
+    .wh-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 1rem; padding: 1rem 0.3rem; border-bottom: 1px solid var(--color-border); }
+    .wh-row.off { opacity: 0.55; }
+    .wh-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .wh-url { font-size: 0.88rem; font-weight: 600; color: var(--color-text); word-break: break-all; }
+    .wh-sub { font-size: 0.72rem; color: #99a2af; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .wh-sub code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.7rem; background: rgba(10,25,47,0.06); padding: 1px 5px; border-radius: 4px; }
+    .wh-sub i { font-style: normal; }
+    .wh-stat.ok { color: var(--color-ok); }
+    .wh-stat.err { color: var(--color-danger); }
+    .wh-toggle { margin: 0; }
+    .wh-checks { display: flex; flex-direction: column; gap: 0.6rem; }
+    .wh-check { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 0.82rem; color: var(--color-text); }
+    .wh-check input { width: 16px; height: 16px; accent-color: var(--color-blue-deep); }
+    .wh-check code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.72rem; background: rgba(10,25,47,0.06); padding: 1px 5px; border-radius: 4px; }
+    .wh-dlg-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.4rem; }
+    .api-btn-ghost { font-family: var(--font-sans); font-size: 0.84rem; font-weight: 600; color: var(--color-text-muted); background: none; border: 1px solid var(--color-border); border-radius: 9px; padding: 9px 16px; cursor: pointer; }
+    .api-btn-solid { font-family: var(--font-sans); font-size: 0.84rem; font-weight: 600; color: #fff; background: var(--color-blue-deep); border: none; border-radius: 9px; padding: 9px 18px; cursor: pointer; }
+    .api-btn-solid:disabled { opacity: 0.6; cursor: wait; }
 
     /* Modal clave */
     .kdlg { border: none; border-radius: 16px; padding: 0; max-width: 460px; width: 92vw; box-shadow: 0 40px 90px -30px rgba(10,25,47,0.5); }
@@ -204,6 +331,73 @@ const EVENTOS_WH = ['quote.viewed', 'quote.approved', 'quote.rejected', 'quote.p
             });
         });
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApi);
-    else initApi();
+
+    // ── Webhooks ──
+    function initWebhooks() {
+        const dlg = document.getElementById('whDialog') as HTMLDialogElement | null;
+        const newBtn = document.getElementById('whNew') as HTMLButtonElement | null;
+        if (!dlg || !newBtn) return;
+        const urlIn = document.getElementById('whUrl') as HTMLInputElement;
+        const stepForm = document.getElementById('whStepForm')!;
+        const stepDone = document.getElementById('whStepDone')!;
+        const secretEl = document.getElementById('whSecret')!;
+        const createBtn = document.getElementById('whCreate') as HTMLButtonElement;
+
+        newBtn.addEventListener('click', () => {
+            stepForm.hidden = false; stepDone.hidden = true;
+            urlIn.value = '';
+            dlg.querySelectorAll<HTMLInputElement>('.wh-check input').forEach((c) => (c.checked = false));
+            createBtn.disabled = false;
+            dlg.showModal(); urlIn.focus();
+        });
+        document.getElementById('whCancel')?.addEventListener('click', () => dlg.close());
+        document.getElementById('whDone')?.addEventListener('click', () => { dlg.close(); location.reload(); });
+        document.getElementById('whCopy')?.addEventListener('click', async () => {
+            try { await navigator.clipboard.writeText(secretEl.textContent || ''); const b = document.getElementById('whCopy')!; b.textContent = '✓ Copiado'; setTimeout(() => (b.textContent = 'Copiar'), 1800); } catch {}
+        });
+
+        createBtn.addEventListener('click', async () => {
+            const url = urlIn.value.trim();
+            if (!url) { urlIn.focus(); return; }
+            const eventos = Array.from(dlg.querySelectorAll<HTMLInputElement>('.wh-check input:checked')).map((c) => c.value);
+            createBtn.disabled = true;
+            try {
+                const res = await fetch('/api/webhooks', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, eventos }),
+                });
+                const d = await res.json();
+                if (!res.ok) throw new Error(d.error || 'No se pudo crear');
+                secretEl.textContent = d.secret;
+                stepForm.hidden = true; stepDone.hidden = false;
+            } catch (err: any) { alert(err.message || 'No se pudo crear'); createBtn.disabled = false; }
+        });
+
+        document.querySelectorAll('[data-toggle]').forEach((el) => {
+            el.addEventListener('change', async () => {
+                const id = (el as HTMLElement).dataset.toggle!;
+                const activo = (el as HTMLInputElement).checked;
+                try {
+                    const res = await fetch('/api/webhooks', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, activo }) });
+                    if (!res.ok) throw new Error();
+                    (el.closest('.wh-row') as HTMLElement)?.classList.toggle('off', !activo);
+                } catch { (el as HTMLInputElement).checked = !activo; alert('No se pudo actualizar'); }
+            });
+        });
+
+        document.querySelectorAll('[data-del]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const id = (btn as HTMLElement).dataset.del!;
+                if (!confirm('¿Eliminar este endpoint? Dejará de recibir eventos.')) return;
+                try {
+                    const res = await fetch('/api/webhooks', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+                    if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'No se pudo eliminar'); }
+                    (btn.closest('.wh-row') as HTMLElement)?.remove();
+                } catch (err: any) { alert(err.message || 'No se pudo eliminar'); }
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { initApi(); initWebhooks(); });
+    else { initApi(); initWebhooks(); }
 </script>

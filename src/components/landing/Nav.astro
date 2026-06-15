@@ -28,8 +28,9 @@
                         </a>
                         <a href="/#producto" class="nav-link" data-mega="producto" aria-haspopup="true" aria-expanded="false">PRODUCTO<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
                         <a href="/soluciones" class="nav-link" data-mega="soluciones" aria-haspopup="true" aria-expanded="false">SOLUCIONES<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
-                        <a href="/#precios" class="nav-link" data-path="#precios">PRECIOS</a>
+                        <a href="/desarrolladores/api" class="nav-link" data-mega="desarrolladores" aria-haspopup="true" aria-expanded="false">DESARROLLADORES<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
                         <a href="/#faq" class="nav-link" data-mega="recursos" aria-haspopup="true" aria-expanded="false">RECURSOS<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <a href="/#precios" class="nav-link" data-path="#precios">PRECIOS</a>
                     </div>
 
                     <!-- Megamenús: la píldora se expande verticalmente y revela el panel activo -->
@@ -95,6 +96,29 @@
                         </div>
                     </div>
 
+                    <div class="pill-mega" data-panel="desarrolladores" aria-hidden="true">
+                        <div class="mega-inner">
+                            <div class="mega-grid">
+                                <a href="/desarrolladores/api" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+                                    <span class="mega-copy"><b>API REST</b><i>Conecta tu ERP o sistema a Trato</i></span>
+                                </a>
+                                <a href="/desarrolladores/mcp" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4L12 3z"/><path d="M19 15l.7 1.8L21.5 17.5l-1.8.7L19 20l-.7-1.8L16.5 17.5l1.8-.7L19 15z"/></svg></span>
+                                    <span class="mega-copy"><b>MCP para IA</b><i>Que una IA lea y cotice por ti</i></span>
+                                </a>
+                                <a href="/elements" class="mega-item">
+                                    <span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+                                    <span class="mega-copy"><b>Trato Elements</b><i>Embebe el cotizador en tu sitio</i></span>
+                                </a>
+                            </div>
+                            <a href="/registro" class="mega-foot">
+                                <span>Genera tu API key gratis</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="pill-mega" data-panel="recursos" aria-hidden="true">
                         <div class="mega-inner">
                             <div class="mega-grid">
@@ -133,13 +157,13 @@
             <div class="nav-right desktop-nav" id="nav-right">
                 <a href="/login" class="nav-login-pill" aria-label="Entrar a tu cuenta"
                    data-auth-swap data-out-href="/login" data-out-label="Entrar"
-                   data-in-href="/precios" data-in-label="Ver planes" data-in-aria="Ver planes">
+                   data-in-href="/app" data-in-label="Ir al Dashboard" data-in-aria="Ir al Dashboard">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <span data-auth-label>Entrar</span>
                 </a>
                 <a href="/registro" class="btn-contact"
                    data-auth-swap data-out-href="/registro" data-out-label="Empezar gratis"
-                   data-in-href="/app" data-in-label="Ir al Dashboard">
+                   data-in-href="/precios" data-in-label="Ver planes">
                     <span class="btn-contact-label" data-auth-label>Empezar gratis</span>
                     <svg class="contact-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="19" x2="19" y2="5"/><polyline points="9 5 19 5 19 15"/></svg>
                 </a>
@@ -183,8 +207,9 @@
             <nav class="mobile-links" id="mobile-links">
                 <a href="/#producto" class="m-link">Producto</a>
                 <a href="/soluciones" class="m-link">Soluciones</a>
-                <a href="/#precios" class="m-link">Precios</a>
+                <a href="/desarrolladores/api" class="m-link">Desarrolladores</a>
                 <a href="/#faq" class="m-link">Recursos</a>
+                <a href="/#precios" class="m-link">Precios</a>
             </nav>
 
             <div class="mobile-menu-footer">

@@ -5,6 +5,7 @@
 
 import { sql, getActiveOrgId } from './db';
 import { currentUserId } from './context';
+import { dispatchQuoteEvent } from './webhooks';
 import { memberCan, type Membership, type PermKey, type PermMap } from './permissions';
 import {
     STATUS_META, IVA, money, lineTotal, quoteSubtotal, quoteIva, quoteTotal,
@@ -121,6 +122,27 @@ export async function getApiKeys() {
         creada: fmtDate(k.created_at),
         ultimoUso: k.last_used_at ? fmtRelative(k.last_used_at) : null,
         revocada: !!k.revoked_at,
+    }));
+}
+
+// ── WEBHOOKS (Developers) ─────────────────────────────────────────────────────
+// Endpoints salientes de la org. El secret se muestra enmascarado (se usa para
+// verificar la firma HMAC del lado del receptor; se ve completo al crearlo).
+export async function getWebhooks() {
+    const orgId = await getActiveOrgId();
+    let rows: any[] = [];
+    try {
+        rows = await sql`select * from webhooks where org_id = ${orgId} order by created_at desc`;
+    } catch { return []; } // tabla aún no migrada
+    return rows.map((w) => ({
+        id: w.id as string,
+        url: w.url as string,
+        eventos: (Array.isArray(w.eventos) ? w.eventos : []) as string[],
+        secretMasked: `${String(w.secret).slice(0, 10)}${'•'.repeat(14)}`,
+        activo: !!w.activo,
+        lastStatus: w.last_status as number | null,
+        lastError: (w.last_error as string) ?? null,
+        ultimaEntrega: w.last_delivery_at ? fmtRelative(w.last_delivery_at) : null,
     }));
 }
 
@@ -303,6 +325,7 @@ export async function markViewed(token: string) {
     if (c.status === 'sent') {
         await sql`update cotizaciones set status = 'viewed' where id = ${c.id}`;
     }
+    await dispatchQuoteEvent(c.org_id as string, c.id as string, 'quote.viewed');
 }
 
 // ── ANALÍTICA (/app/analitica) ────────────────────────────────────────────────
@@ -683,4 +706,38 @@ export async function getSetupProgress() {
     ];
     const doneN = tasks.filter((t) => t.done).length;
     return { tasks, doneN, total: tasks.length, pct: Math.round((doneN / tasks.length) * 100), complete: doneN === tasks.length };
+}
+
+// ── BADGES DE LA SIDEBAR ──────────────────────────────────────────────────────
+// Conteos ligeros (COUNT…FILTER, una sola query) para los contadores de la nav.
+// Resiliente: si alguna columna aún no está migrada devuelve ceros, nunca rompe
+// el layout. seguimiento = enviadas/vistas sin responder; vencidas = cartera por
+// cobrar pasada de su fecha de vencimiento según términos.
+export async function getSidebarBadges() {
+    const zero = { seguimiento: 0, vencidas: 0, porAprobar: 0 };
+    try {
+        const orgId = await getActiveOrgId();
+        const [r] = await sql`
+            select
+                count(*) filter (where status in ('sent','viewed'))                       as seguimiento,
+                count(*) filter (where status in ('approved','invoiced')
+                    and (coalesce(approved_at, created_at)
+                        + make_interval(days => case terminos
+                            when 'net30' then 30 when 'net60' then 60 else 0 end)) < now()) as vencidas
+            from cotizaciones where org_id = ${orgId}`;
+        let porAprobar = 0;
+        try {
+            const [a] = await sql`
+                select count(*)::int as n from cotizaciones
+                where org_id = ${orgId} and aprob_estado = 'pendiente'`;
+            porAprobar = Number(a?.n ?? 0);
+        } catch { /* columna aprob_estado aún no migrada */ }
+        return {
+            seguimiento: Number(r?.seguimiento ?? 0),
+            vencidas: Number(r?.vencidas ?? 0),
+            porAprobar,
+        };
+    } catch {
+        return zero;
+    }
 }

@@ -288,3 +288,23 @@ create index if not exists idx_plantillas_org on plantillas_mensaje(org_id, cana
 -- comas o saltos de línea (ej. "cliente-a.com, app.cliente-b.com"). Vacío =
 -- framing abierto (modo "Powered by Trato", útil para demo y plan gratis).
 alter table orgs add column if not exists embed_domains text not null default '';
+
+-- ── Webhooks salientes (Developers, jun 2026) ───────────────────────────────
+-- Cada org puede registrar URLs que reciben eventos de Trato (quote.sent,
+-- quote.viewed, quote.approved, quote.rejected, quote.paid, invoice.stamped).
+-- La entrega es POST JSON firmado con HMAC-sha256 (header X-Trato-Signature).
+-- `eventos` vacío = recibe TODOS. Guardamos el resultado de la última entrega
+-- para diagnóstico (last_status/last_error/last_delivery_at).
+create table if not exists webhooks (
+  id              uuid        default gen_random_uuid() primary key,
+  org_id          uuid        not null references orgs(id) on delete cascade,
+  url             text        not null,
+  eventos         jsonb       not null default '[]'::jsonb,  -- [] = todos
+  secret          text        not null,                       -- whsec_… (firma HMAC)
+  activo          boolean     not null default true,
+  created_at      timestamptz default now(),
+  last_status     int,
+  last_error      text,
+  last_delivery_at timestamptz
+);
+create index if not exists idx_webhooks_org on webhooks(org_id);

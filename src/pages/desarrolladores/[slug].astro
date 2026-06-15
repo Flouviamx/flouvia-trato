@@ -1,0 +1,312 @@
+---
+// Página para desarrolladores — una por tema (api, mcp). Mismo lenguaje visual y
+// de animación que /producto/* (PageAnims, masked-title, reveal, editorial), pero
+// con mockups de CÓDIGO/CHAT en vez de mockups de cotización. Copy en
+// src/lib/desarrolladores.ts.
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/landing/Nav.astro';
+import Footer from '../../components/landing/Footer.astro';
+import PageAnims from '../../components/landing/PageAnims.astro';
+import { DEV_PAGES } from '../../lib/desarrolladores';
+
+export function getStaticPaths() {
+    return DEV_PAGES.map((p) => ({ params: { slug: p.slug }, props: { page: p } }));
+}
+
+const { page } = Astro.props;
+const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
+---
+
+<Layout title={`${page.nav} — Trato`} description={page.sub}>
+    <Nav />
+    <main>
+        <!-- ── HERO ── -->
+        <section class="pp-hero">
+            <div class="pp-hero-mesh" aria-hidden="true"></div>
+            <div class="pp-hero-inner">
+                <p class="pp-eyebrow reveal">{page.eyebrow}</p>
+                <h1 class="pp-title masked-title" set:html={page.titulo} />
+                <p class="pp-sub reveal">{page.sub}</p>
+                <div class="pp-actions reveal">
+                    <a href="/registro" class="pp-btn-primary">
+                        <span>Empezar gratis</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </a>
+                    <a href="/precios" class="pp-btn-ghost">Ver planes</a>
+                </div>
+                <p class="pp-plan reveal">{page.plan}</p>
+
+                <!-- Mockup del hero -->
+                <div class="pp-mockup-wrap reveal-mockup">
+                    <div class="pp-glow" aria-hidden="true"></div>
+                    <div class="pp-mockup">
+                        {page.slug === 'api' && (
+                            <div class="dv-term">
+                                <div class="dv-term-bar">
+                                    <span class="dv-dots"><i></i><i></i><i></i></span>
+                                    <span class="dv-term-title">trato · API v1</span>
+                                    <span class="dv-pill">200 OK</span>
+                                </div>
+                                <pre class="dv-code"><code><span class="c-prompt">$</span> curl https://trato.flouvia.com/api/v1/cotizaciones \
+  -H <span class="c-str">"Authorization: Bearer sk_live_xxxx"</span>
+
+{`{`}
+  <span class="c-key">"data"</span>: [
+    {`{`} <span class="c-key">"folio"</span>: <span class="c-str">"COT-0149"</span>,
+      <span class="c-key">"cliente"</span>: <span class="c-str">"Distribuidora El Zarco"</span>,
+      <span class="c-key">"status"</span>: <span class="c-str">"sent"</span>,
+      <span class="c-key">"total"</span>: <span class="c-num">196469.2</span> {`}`}
+  ],
+  <span class="c-key">"meta"</span>: {`{`} <span class="c-key">"total"</span>: <span class="c-num">1</span> {`}`}
+{`}`}</code></pre>
+                            </div>
+                        )}
+                        {page.slug === 'mcp' && (
+                            <div class="dv-chat">
+                                <div class="dv-msg dv-user">
+                                    <span>¿Qué facturas están vencidas y cuánto suman?</span>
+                                </div>
+                                <div class="dv-tool">
+                                    <span class="dv-tool-dot"></span>
+                                    Trato · <b>cartera_vencida</b>
+                                </div>
+                                <div class="dv-msg dv-ai">
+                                    <span>Tienes <b>3 facturas vencidas</b> que suman <b class="editorial">$412,300</b>. La más crítica es Constructora GAMA (COT-0131), con 47 días de atraso. ¿Les mando recordatorio de cobro?</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── STATS ── -->
+        <section class="pp-stats">
+            {page.stats.map((s) => (
+                <div class="pp-stat reveal">
+                    <span class="pp-stat-num editorial"
+                        data-countup={s.countup !== undefined ? String(s.countup) : undefined}
+                        data-decimals={s.decimals !== undefined ? String(s.decimals) : undefined}
+                        data-prefix={s.prefix} data-suffix={s.suffix}
+                    >{s.prefix ?? ''}{s.valor}{s.suffix ?? ''}</span>
+                    <span class="pp-stat-label">{s.label}</span>
+                </div>
+            ))}
+        </section>
+
+        <!-- ── BLOQUES ── -->
+        <section class="pp-blocks">
+            {page.blocks.map((b, i) => (
+                <article class:list={['pp-block', { 'pp-block-flip': i % 2 === 1 }]}>
+                    <div class="pp-block-text">
+                        <p class="pp-eyebrow reveal">{b.eyebrow}</p>
+                        <h2 class="pp-h2 masked-title" set:html={b.titulo} />
+                        <p class="pp-copy reveal">{b.copy}</p>
+                        <ul class="pp-bullets">
+                            {b.bullets.map((bl) => (
+                                <li class="reveal">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    <span set:html={bl} />
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div class="pp-block-visual reveal-mockup">
+                        {b.code ? (
+                            <div class="dv-snippet">
+                                <span class="dv-snippet-label">{b.code.label}</span>
+                                <pre><code>{b.code.body}</code></pre>
+                            </div>
+                        ) : (
+                            <div class="pp-card-num editorial">/0{i + 1}</div>
+                        )}
+                    </div>
+                </article>
+            ))}
+        </section>
+
+        <!-- ── CÓMO FUNCIONA (pasos) ── -->
+        <section class="dv-steps">
+            <div class="dv-steps-head">
+                <p class="pp-eyebrow reveal">EN TRES PASOS</p>
+                <h2 class="pp-h2 masked-title">Listo en minutos,<br/>no en semanas.</h2>
+            </div>
+            <div class="dv-steps-list">
+                {page.steps.map((s, i) => (
+                    <div class="dv-step reveal">
+                        <span class="dv-step-n editorial">{i + 1}</span>
+                        <div>
+                            <b>{s.titulo}</b>
+                            <span>{s.copy}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+
+        <!-- ── CROSS-LINK (estilo lista, no cards) ── -->
+        <section class="dv-more">
+            <a href={`/desarrolladores/${otra.slug}`} class="dv-more-row reveal">
+                <div>
+                    <span class="dv-more-eyebrow">{otra.eyebrow}</span>
+                    <b>{otra.nav}</b>
+                    <i>{otra.sub.split('.')[0]}.</i>
+                </div>
+                <span class="dv-more-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </span>
+            </a>
+        </section>
+    </main>
+
+    <Footer ctaTitle={page.cta.titulo.replace(/\. /, '.<br />')} ctaSub={page.cta.sub} />
+    <PageAnims />
+</Layout>
+
+<style>
+    /* ════════ HERO (mismo sistema que /producto) ════════ */
+    .pp-hero { position: relative; padding: 11.5rem 5% 5rem; text-align: center; overflow: clip; background: var(--color-bg); }
+    .pp-hero-mesh {
+        position: absolute; inset: -20% -10% auto; height: 80%;
+        background:
+            radial-gradient(ellipse 50% 60% at 28% 20%, rgba(10,25,47,0.05) 0%, transparent 60%),
+            radial-gradient(ellipse 44% 54% at 76% 12%, rgba(10,25,47,0.04) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .pp-hero-inner { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; }
+    .pp-eyebrow { font-size: 0.65rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: #888; margin: 0 0 1.4rem; }
+    .pp-title { font-size: clamp(2.4rem, 5.4vw, 4.4rem); font-weight: 800; line-height: 1.04; letter-spacing: -0.035em; color: var(--color-text); margin: 0 0 1.6rem; }
+    .pp-sub { font-size: 1.12rem; line-height: 1.65; color: var(--color-text-muted); max-width: 660px; margin: 0 auto 2.2rem; }
+    .pp-actions { display: flex; gap: 0.9rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+    .pp-btn-primary {
+        display: inline-flex; align-items: center; gap: 10px;
+        background: var(--color-blue-deep); color: #fff; text-decoration: none;
+        font-size: 0.98rem; font-weight: 600; padding: 14px 28px; border-radius: 13px;
+        box-shadow: 0 18px 44px -16px rgba(10,25,47,0.55);
+        transition: transform 0.5s var(--ease-spring), box-shadow 0.5s var(--ease-spring);
+    }
+    .pp-btn-primary svg { width: 15px; height: 15px; transition: transform 0.5s var(--ease-spring); }
+    .pp-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 26px 56px -16px rgba(10,25,47,0.6); }
+    .pp-btn-primary:hover svg { transform: translateX(4px); }
+    .pp-btn-ghost { color: var(--color-text); text-decoration: none; font-weight: 600; font-size: 0.98rem; padding: 14px 10px; transition: color 0.3s; }
+    .pp-btn-ghost:hover { color: var(--color-blue-deep); }
+    .pp-plan { font-size: 0.78rem; color: #99a2af; margin: 1.3rem 0 0; font-weight: 600; }
+
+    /* ── Mockup del hero ── */
+    .pp-mockup-wrap { position: relative; max-width: 720px; margin: 4.5rem auto 0; }
+    .pp-glow { position: absolute; inset: 12% -8% -18%; background: radial-gradient(ellipse at center, rgba(10,25,47,0.16) 0%, transparent 65%); filter: blur(30px); pointer-events: none; }
+    .pp-mockup {
+        position: relative;
+        background: linear-gradient(165deg, #0e2240 0%, #0a192f 55%, #081424 100%);
+        border-radius: 22px; padding: 1.4rem; text-align: left;
+        box-shadow: 0 50px 100px -36px rgba(5,11,20,0.75), inset 0 0 0 0.5px rgba(255,255,255,0.08);
+        color: #fff;
+    }
+
+    /* terminal (api) */
+    .dv-term-bar { display: flex; align-items: center; gap: 12px; padding: 0 0.3rem 1rem; }
+    .dv-dots { display: inline-flex; gap: 5px; }
+    .dv-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.14); }
+    .dv-term-title { font-size: 0.76rem; font-weight: 600; color: rgba(255,255,255,0.6); flex: 1; }
+    .dv-pill { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.4px; color: #4ade80; background: rgba(16,185,129,0.16); padding: 4px 9px; border-radius: 100px; }
+    .dv-code { margin: 0; overflow-x: auto; }
+    .dv-code code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.76rem; line-height: 1.7; color: rgba(255,255,255,0.8); white-space: pre; }
+    .c-prompt { color: #4ade80; font-weight: 700; }
+    .c-str { color: #7eb3ff; }
+    .c-key { color: #c4b5fd; }
+    .c-num { color: #fbbf24; }
+
+    /* chat (mcp) */
+    .dv-chat { display: flex; flex-direction: column; gap: 0.8rem; max-width: 500px; margin: 0 auto; padding: 0.3rem 0.2rem; }
+    .dv-msg { font-size: 0.86rem; line-height: 1.55; padding: 12px 15px; border-radius: 15px; max-width: 88%; }
+    .dv-msg b { font-weight: 700; }
+    .dv-msg.editorial, .dv-msg b.editorial { color: #fff; }
+    .dv-user { align-self: flex-end; background: #fff; color: var(--color-blue-deep); border-bottom-right-radius: 5px; font-weight: 500; }
+    .dv-ai { align-self: flex-start; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.1); border-bottom-left-radius: 5px; }
+    .dv-tool { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.55); padding: 2px 4px; }
+    .dv-tool b { font-family: ui-monospace, 'SF Mono', Menlo, monospace; color: #c4b5fd; font-weight: 600; }
+    .dv-tool-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 4px rgba(74,222,128,0.16); }
+
+    /* ════════ STATS ════════ */
+    .pp-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; max-width: 1080px; margin: 0 auto; padding: 5.5rem 5%; border-bottom: 1px solid var(--color-border); }
+    .pp-stat { text-align: center; display: flex; flex-direction: column; gap: 0.6rem; }
+    .pp-stat-num { font-size: clamp(2.4rem, 4.6vw, 3.6rem); color: var(--color-blue-deep); line-height: 1; }
+    .pp-stat-label { font-size: 0.88rem; color: var(--color-text-muted); max-width: 240px; margin: 0 auto; line-height: 1.5; }
+
+    /* ════════ BLOQUES ════════ */
+    .pp-blocks { max-width: 1080px; margin: 0 auto; padding: 6rem 5% 3rem; display: flex; flex-direction: column; gap: 7rem; }
+    .pp-block { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 4.5rem; align-items: center; }
+    .pp-block-flip .pp-block-text { order: 2; }
+    .pp-block-flip .pp-block-visual { order: 1; }
+    .pp-h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.03em; color: var(--color-text); margin: 0 0 1.1rem; }
+    .pp-copy { font-size: 1.02rem; line-height: 1.7; color: var(--color-text-muted); margin: 0 0 1.6rem; }
+    .pp-bullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.8rem; }
+    .pp-bullets li { display: flex; align-items: flex-start; gap: 11px; font-size: 0.95rem; color: var(--color-text); font-weight: 500; }
+    .pp-bullets svg { width: 16px; height: 16px; color: var(--color-ok); flex-shrink: 0; margin-top: 3px; }
+
+    .pp-block-visual { position: relative; }
+    /* visual numerado (cuando no hay code) */
+    .pp-card-num {
+        min-height: 240px; border-radius: 24px;
+        background: radial-gradient(ellipse at 30% 20%, rgba(10,25,47,0.045) 0%, transparent 55%), var(--color-bg-soft);
+        border: 1px solid var(--color-border);
+        display: flex; align-items: flex-end; padding: 1.6rem;
+        font-size: 5rem; line-height: 0.9; color: rgba(10,25,47,0.08); font-weight: 600;
+    }
+    /* visual de código */
+    .dv-snippet {
+        background: linear-gradient(165deg, #0e2240 0%, #0a192f 60%, #081424 100%);
+        border-radius: 18px; padding: 1.3rem 1.4rem;
+        box-shadow: 0 40px 80px -36px rgba(5,11,20,0.7), inset 0 0 0 0.5px rgba(255,255,255,0.08);
+        transition: transform 0.5s var(--ease-spring), box-shadow 0.5s var(--ease-spring);
+    }
+    .dv-snippet:hover { transform: translateY(-4px); box-shadow: 0 48px 90px -36px rgba(5,11,20,0.8), inset 0 0 0 0.5px rgba(255,255,255,0.1); }
+    .dv-snippet-label { display: block; font-size: 0.58rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: #7fd1c1; margin-bottom: 0.9rem; }
+    .dv-snippet pre { margin: 0; overflow-x: auto; }
+    .dv-snippet code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.74rem; line-height: 1.65; color: rgba(255,255,255,0.82); white-space: pre; }
+
+    /* ════════ PASOS ════════ */
+    .dv-steps { max-width: 1080px; margin: 0 auto; padding: 5rem 5% 2rem; }
+    .dv-steps-head { text-align: center; margin-bottom: 3rem; }
+    .dv-steps-list { display: flex; flex-direction: column; }
+    .dv-step { display: flex; align-items: flex-start; gap: 1.4rem; padding: 1.6rem 0.4rem; border-bottom: 1px solid var(--color-border); }
+    .dv-step:first-child { border-top: 1px solid var(--color-border); }
+    .dv-step-n { font-size: 1.6rem; color: var(--color-blue-deep); line-height: 1; min-width: 2.2rem; }
+    .dv-step b { display: block; font-size: 1.05rem; font-weight: 700; letter-spacing: -0.2px; color: var(--color-text); margin-bottom: 0.3rem; }
+    .dv-step span { font-size: 0.95rem; line-height: 1.6; color: var(--color-text-muted); }
+
+    /* ════════ CROSS-LINK ════════ */
+    .dv-more { max-width: 1080px; margin: 0 auto; padding: 4rem 5% 8rem; }
+    .dv-more-row {
+        display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+        padding: 1.8rem 2rem; border-radius: 20px;
+        background: var(--color-bg-soft); border: 1px solid var(--color-border);
+        text-decoration: none;
+        transition: transform 0.5s var(--ease-spring), box-shadow 0.5s var(--ease-spring), border-color 0.4s;
+    }
+    .dv-more-row:hover { transform: translateY(-3px); box-shadow: 0 30px 70px -30px rgba(10,25,47,0.18); border-color: rgba(10,25,47,0.12); }
+    .dv-more-eyebrow { display: block; font-size: 0.6rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #99a2af; margin-bottom: 0.5rem; }
+    .dv-more-row b { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.3px; color: var(--color-text); }
+    .dv-more-row i { display: block; font-style: normal; font-size: 0.9rem; color: var(--color-text-muted); margin-top: 0.3rem; }
+    .dv-more-arrow {
+        flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
+        background: rgba(10,25,47,0.05); color: var(--color-blue-deep);
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.35s, color 0.35s, transform 0.5s var(--ease-spring);
+    }
+    .dv-more-arrow svg { width: 16px; height: 16px; }
+    .dv-more-row:hover .dv-more-arrow { background: var(--color-blue-deep); color: #fff; transform: translateX(3px); }
+
+    /* ════════ RESPONSIVE ════════ */
+    @media (max-width: 860px) {
+        .pp-hero { padding-top: 9.5rem; }
+        .pp-stats { grid-template-columns: 1fr; gap: 2.4rem; padding: 4rem 8%; }
+        .pp-blocks { gap: 4.5rem; }
+        .pp-block { grid-template-columns: 1fr; gap: 1.8rem; }
+        .pp-block-flip .pp-block-text { order: 1; }
+        .pp-block-flip .pp-block-visual { order: 2; }
+        .dv-more-row { padding: 1.4rem 1.4rem; }
+    }
+</style>

@@ -62,15 +62,25 @@ const puedePagar = pagoActivo && ['approved', 'invoiced'].includes(q.status);
     };
 
     // 1) Auto-altura: mide el contenido y avisa al padre en cada cambio de tamaño.
-    const reportHeight = () => post('trato:resize', { height: document.body.scrollHeight });
+    //    Usamos el alto del .q-card (no body) para no arrastrar el padding del wrap.
+    const measure = () => {
+        const card = document.querySelector('.embed-wrap');
+        return Math.ceil((card ? card.scrollHeight : document.body.scrollHeight));
+    };
+    const reportHeight = () => post('trato:resize', { height: measure() });
     if ('ResizeObserver' in window) {
         new ResizeObserver(reportHeight).observe(document.body);
     } else {
         window.addEventListener('resize', reportHeight);
     }
     window.addEventListener('load', reportHeight);
+
+    // 'ready' = contenido ya estilado (fuentes cargadas) → el padre revela el iframe.
+    const ready = () => { reportHeight(); post('trato:ready'); };
     reportHeight();
-    post('trato:ready');
+    const fonts = (document as any).fonts?.ready;
+    if (fonts) fonts.then(ready); else ready();
+    window.addEventListener('load', ready);
 
     // 2) Relay: cada evento del QuoteCard → postMessage al padre.
     for (const name of ['trato:approved', 'trato:rejected', 'trato:message', 'trato:pay'] as const) {

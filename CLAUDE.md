@@ -152,8 +152,30 @@ para que el swap a Neon sea cambiar imports por queries.
    • Ajustes › Developers › **Cotizador embebible** (`/app/ajustes/elements`): copia el
      snippet (con token real reciente) + gestiona dominios autorizados (`embed_domains`
      vía save genérico → `/api/org`). Nueva columna `orgs.embed_domains`.
-   FASE 2 pendiente: paquete npm `@trato/elements` (Web Components / React) — repo
-   SEPARADO contra la API pública `/api/q/*`, NO migración de la app.
+   • **Landing `/elements`** (prerender, estilo Stripe Checkout): hero con un `<iframe>`
+     EN VIVO de `/embed/demo` dentro de un mockup de browser ("portal.tucliente.com") —
+     la página se demuestra a sí misma. Snippet, 3 pasos, features en LISTA (hairline,
+     no tarjetas), sección de eventos para devs y CTA. Enlazada en el megamenú Producto
+     del navbar. Usa `PageAnims` (masked-titles/reveals).
+   • **Mejoras al loader (`embed.js`)**: skeleton con shimmer mientras carga + fade-in al
+     `trato:ready` (adiós a la caja vacía), `MutationObserver` auto-monta embeds inyectados
+     después (SPAs/modales), `referrerpolicy`, `data-min-height`, respeta reduced-motion.
+     El embed reporta altura del `.embed-wrap` y emite `ready` tras `fonts.ready`.
+✅ **TRATO Elements — FASE 2: paquete npm `@trato/elements` (jun 2026)** — versión
+   framework-native del embed, en `packages/elements/` (monorepo ligero, NO toca la app
+   Astro; extraíble a su propio repo — solo habla con el iframe `/embed/*`). Arquitectura
+   estilo Stripe: **core agnóstico** (`src/core.ts` = `mountCotizador(el, opts)` → iframe +
+   skeleton + postMessage + relay, con `destroy()`), **Web Component** `<trato-cotizador>`
+   (`src/element.ts`, auto-registrado al importar; re-emite eventos NATIVOS sin prefijo:
+   `approved`/`pay`/… para HTML/Vue/Astro/Svelte), y **wrapper React** (`src/react.tsx`
+   → `@trato/elements/react`, `<TratoCotizador token onApproved … />`, React peer OPCIONAL).
+   Build con **esbuild** (`build.mjs` → ESM+CJS para `.` y `./react`; React externo); tipos
+   `.d.ts` escritos A MANO en `types/` (no hay typescript instalado). `package.json` con
+   exports map dual. Verificado E2E con Playwright: WC registra, `ready` dispara, auto-altura
+   (300→1292px), `q-card` carga, 0 errores. Los tabs de `/elements` ahora muestran el paquete
+   (React/Next usan `@trato/elements/react`; Astro/Vue el WC; HTML/WordPress siguen con
+   `embed.js`). Para publicar: `cd packages/elements && npm publish` (correr `npm i` antes
+   para traer esbuild como devDep). Pendiente real: registrar el scope `@trato` en npm.
 ⬜ Pendiente: aprobación parcial por línea, versiones de cotización, multi-usuario con Clerk
    (proteger `/app`), Stripe Billing de suscripciones (planes).
 
@@ -238,6 +260,15 @@ el valor antes de cada query (igual que `app.email_cliente` en flouvia-web).
 /soluciones/[slug] → página rica por industria (jun 2026, espejo de /producto/[slug]):
                    distribuidoras, construccion, manufactura, servicios. Contenido en
                    src/lib/solucion.ts; mockup propio por industria en [slug].astro.
+/elements        → TRATO Elements (jun 2026, estilo Stripe Checkout): el cotizador
+                   embebible. Hero con <iframe> EN VIVO de /embed/demo en un mockup de
+                   browser; snippet, pasos, features (lista), eventos dev. Enlazada en
+                   el megamenú Producto.
+/embed/[token]   → cotizador embebible (TRATO Elements) para <iframe> de terceros.
+                   Reutiliza components/q/QuoteCard.astro (mismo corazón que /q) con
+                   EmbedLayout (sin chrome). Setea CSP frame-ancestors desde
+                   orgs.embed_domains; postMessage resize + relay de eventos. Loader:
+                   public/embed.js. export const prerender = false.
 
 # App — CONECTADA a Neon (src/lib/queries.ts); usa AppLayout.astro
 /login /registro → Clerk SignIn/SignUp (es-MX)

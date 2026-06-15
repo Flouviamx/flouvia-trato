@@ -20,9 +20,12 @@ const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
 
 export type ApiScope = 'read' | 'write';
 
+export type ApiMode = 'live' | 'test';
+
 export interface ApiAuth {
     orgId: string;
     scope: ApiScope;
+    mode: ApiMode;
     keyId: string;
 }
 
@@ -58,7 +61,7 @@ export async function authApiKey(request: Request, need: ApiScope = 'read'): Pro
     let row: any;
     try {
         [row] = await sql`
-            select k.id, k.org_id, k.scope, k.revoked_at, coalesce(o.plan, 'free') as plan
+            select k.id, k.org_id, k.scope, k.mode, k.revoked_at, coalesce(o.plan, 'free') as plan
             from api_keys k
             join orgs o on o.id = k.org_id
             where k.hash = ${hash}
@@ -71,9 +74,12 @@ export async function authApiKey(request: Request, need: ApiScope = 'read'): Pro
         return jsonError('API key inválida o revocada.', 'invalid_key', 401);
     }
 
-    // Gating por plan: la API pública es una feature de plan alto.
-    if (!planTieneApi(row.plan as string)) {
-        return jsonError('La API requiere el plan Negocio. Actualiza tu plan para usarla.', 'plan_required', 403);
+    const mode: ApiMode = row.mode === 'test' ? 'test' : 'live';
+
+    // Gating por plan: SOLO las llaves en VIVO requieren plan Negocio. Las de
+    // prueba (sk_test_) operan libres para que cualquiera integre antes de pagar.
+    if (mode === 'live' && !planTieneApi(row.plan as string)) {
+        return jsonError('Las llaves en vivo requieren el plan Negocio. Usa una llave de prueba o actualiza tu plan.', 'plan_required', 403);
     }
 
     const scope: ApiScope = row.scope === 'write' ? 'write' : 'read';
@@ -84,7 +90,7 @@ export async function authApiKey(request: Request, need: ApiScope = 'read'): Pro
     // Marca de uso (best-effort: nunca debe romper la request).
     sql`update api_keys set last_used_at = now() where id = ${row.id}`.catch(() => {});
 
-    return { orgId: row.org_id as string, scope, keyId: row.id as string };
+    return { orgId: row.org_id as string, scope, mode, keyId: row.id as string };
 }
 
 /**

@@ -7,6 +7,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { sql } from '../../../lib/db';
+import { dispatchQuoteEvent } from '../../../lib/webhooks';
 
 const money = (n: number) => '$' + new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2 }).format(n);
 
@@ -33,6 +34,7 @@ export const POST: APIRoute = async ({ params, request }) => {
         await sql`update cotizaciones set status = 'approved', approved_at = now() where id = ${c.id}`;
         await sql`insert into eventos (org_id, cotizacion_id, tipo, detalle)
                   values (${c.org_id}, ${c.id}, 'approved', 'El cliente aprobó la cotización desde el link')`;
+        await dispatchQuoteEvent(c.org_id as string, c.id as string, 'quote.approved');
         return json({ ok: true, status: 'approved' });
     }
 
@@ -43,6 +45,7 @@ export const POST: APIRoute = async ({ params, request }) => {
         const comentario = String(body.comentario ?? '').trim().slice(0, 500);
         await sql`insert into eventos (org_id, cotizacion_id, tipo, detalle)
                   values (${c.org_id}, ${c.id}, 'rejected', ${comentario ? `El cliente rechazó: "${comentario}"` : 'El cliente rechazó la cotización desde el link'})`;
+        await dispatchQuoteEvent(c.org_id as string, c.id as string, 'quote.rejected');
         return json({ ok: true, status: 'rejected' });
     }
 

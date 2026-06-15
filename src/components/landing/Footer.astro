@@ -33,10 +33,15 @@ const {
         <div class="footer-top">
             <div class="footer-brand">
                 <img src="/imgs/logo-trato-white.png" alt="Trato" class="footer-logo-img" />
-                <p class="footer-tagline">Cotizaciones B2B que cierran tratos.</p>
+                <p class="footer-tagline">Cotizaciones B2B que cierran tratos. La forma moderna de cotizar para cualquier negocio en México.</p>
                 <a href="https://flouvia.com" target="_blank" rel="noopener" class="footer-byflouvia">
                     Un producto de <b>Flouvia</b> →
                 </a>
+                <div class="footer-trust">
+                    <span class="footer-chip">🇲🇽 Hecho en México</span>
+                    <span class="footer-chip">CFDI 4.0</span>
+                    <span class="footer-chip">Datos cifrados</span>
+                </div>
             </div>
 
             <div class="footer-cols">
@@ -49,16 +54,31 @@ const {
                     <a href="/producto/clientes-credito">Clientes y crédito</a>
                 </div>
                 <div class="footer-col">
-                    <span class="footer-col-title">/02 Empresa</span>
-                    <a href="/soluciones">Soluciones</a>
-                    <a href="/#como">Cómo funciona</a>
-                    <a href="/#precios">Precios</a>
-                    <a href="/#faq">FAQ</a>
-                    <a href="/login">Entrar</a>
-                    <a href="/registro">Crear cuenta</a>
+                    <span class="footer-col-title">/02 Soluciones</span>
+                    <a href="/soluciones/distribuidoras">Distribuidoras</a>
+                    <a href="/soluciones/construccion">Construcción</a>
+                    <a href="/soluciones/manufactura">Manufactura</a>
+                    <a href="/soluciones/servicios">Servicios</a>
+                    <a href="/soluciones">Ver todas →</a>
                 </div>
                 <div class="footer-col">
-                    <span class="footer-col-title">/03 Contacto</span>
+                    <span class="footer-col-title">/03 Desarrolladores</span>
+                    <a href="/desarrolladores/api">API REST</a>
+                    <a href="/desarrolladores/mcp">MCP para IA</a>
+                    <a href="/elements">Trato Elements</a>
+                    <a href="/registro">Generar API key</a>
+                </div>
+                <div class="footer-col">
+                    <span class="footer-col-title">/04 Recursos</span>
+                    <a href="/#como">Cómo funciona</a>
+                    <a href="/q/demo">Cotización de ejemplo</a>
+                    <a href="/#precios">Precios</a>
+                    <a href="/#faq">Preguntas frecuentes</a>
+                </div>
+                <div class="footer-col">
+                    <span class="footer-col-title">/05 Empresa</span>
+                    <a href="/registro">Crear cuenta</a>
+                    <a href="/login">Entrar</a>
                     <a href="mailto:hola@flouvia.com">hola@flouvia.com</a>
                     <a href="https://flouvia.com" target="_blank" rel="noopener">flouvia.com</a>
                 </div>
@@ -123,22 +143,29 @@ const {
     .footer-inner { position: relative; z-index: 2; max-width: 1120px; margin: 0 auto; }
     .footer-top {
         display: grid;
-        grid-template-columns: 1.4fr 2fr;
+        grid-template-columns: 1fr 3fr;
         gap: 3rem;
         padding-bottom: 3rem;
         border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     .footer-logo-img { height: 24px; width: auto; display: block; }
-    .footer-tagline { font-size: 0.95rem; color: #8892b0; margin: 0.8rem 0 1.2rem; max-width: 240px; }
+    .footer-tagline { font-size: 0.92rem; line-height: 1.55; color: #8892b0; margin: 0.8rem 0 1.2rem; max-width: 260px; }
     .footer-byflouvia { font-size: 0.88rem; color: #66728c; text-decoration: none; transition: color 0.3s; }
     .footer-byflouvia b { color: #aab; }
     .footer-byflouvia:hover { color: #cdd5e0; }
     .footer-byflouvia:hover b { color: #fff; }
 
-    .footer-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    .footer-trust { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
+    .footer-chip {
+        font-size: 0.68rem; font-weight: 600; color: #aab4c4;
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+        padding: 5px 11px; border-radius: 100px; white-space: nowrap;
+    }
+
+    .footer-cols { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.8rem; }
     .footer-col { display: flex; flex-direction: column; gap: 0.9rem; }
     .footer-col-title { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.5px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 0.4rem; }
-    .footer-col a { font-size: 0.92rem; color: #8892b0; text-decoration: none; transition: color 0.3s var(--ease-ios); width: max-content; }
+    .footer-col a { font-size: 0.9rem; color: #8892b0; text-decoration: none; transition: color 0.3s var(--ease-ios); width: max-content; }
     .footer-col a:hover { color: #fff; }
 
     .footer-bottom {
@@ -152,8 +179,11 @@ const {
     .footer-legal a { color: #66728c; text-decoration: none; transition: color 0.3s; }
     .footer-legal a:hover { color: #fff; }
 
-    @media (max-width: 760px) {
-        .footer-top { grid-template-columns: 1fr; gap: 2.5rem; }
+    @media (max-width: 1020px) {
+        .footer-top { grid-template-columns: 1fr; gap: 2.8rem; }
+        .footer-cols { grid-template-columns: repeat(3, 1fr); gap: 2rem 1.5rem; }
+    }
+    @media (max-width: 620px) {
         .footer-cols { grid-template-columns: 1fr 1fr; }
         .footer-bottom { flex-direction: column; align-items: flex-start; }
     }

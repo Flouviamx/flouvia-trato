@@ -15,6 +15,7 @@ export const GET = withApiAuth('read', async (_ctx, auth) => {
         JSON.stringify({
             org: { id: org.id, nombre: org.nombre, plan: org.plan_raw },
             scope: auth.scope,
+            mode: auth.mode,
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } },
     );
