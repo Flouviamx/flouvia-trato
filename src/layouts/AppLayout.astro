@@ -878,7 +878,7 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
         };
         const NAV: any[] = [
             ['Dashboard', '/app', I.dashboard, 'Resumen y actividad'], ['Cotizaciones', '/app/cotizaciones', I.doc, 'Lista y pipeline'], ['Cobranza', '/app/cobranza', I.card, 'Cuentas por cobrar'],
-            ['Clientes', '/app/clientes', I.users, 'Directorio de clientes'], ['Productos', '/app/productos', I.box, 'Catálogo'], ['Analítica', '/app/analitica', I.chart, 'Métricas y forecast'], ['Ajustes', '/app/ajustes', I.gear, 'Marca, fiscal, PDF…'],
+            ['Clientes', '/app/clientes', I.users, 'Directorio de clientes'], ['Productos', '/app/productos', I.box, 'Catálogo'], ['Analítica', '/app/analitica', I.chart, 'Métricas y forecast'], ['CFO Dashboard', '/app/cfo', I.chart, 'Proyección de flujo de caja'], ['Ajustes', '/app/ajustes', I.gear, 'Marca, fiscal, PDF…'],
         ].map(([title, href, icon, hint]) => ({ group: 'Ir a', title, href, icon, hint }));
         const ACTIONS: any[] = [
             { group: 'Acciones', title: 'Nueva cotización', href: '/app/cotizaciones/nueva', icon: I.plus, kbd: 'C' },

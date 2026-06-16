@@ -99,3 +99,31 @@ export async function logAudit(orgId: string, e: AuditEvent): Promise<void> {
 export function reqIp(request: Request): string {
     return (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'desconocida';
 }
+
+// ── RLS batch helpers ────────────────────────────────────────────────────────
+// Ejecutan queries en una sola transacción HTTP de Neon con app.org_id seteado.
+// Esto satisface las políticas RLS sin modificar cada query individualmente.
+//
+// Ventaja extra: los N queries de cada función viajan en UNA sola request HTTP
+// (en vez de N roundtrips independientes), reduciendo latencia en producción.
+//
+// Uso:
+//   const [rows] = await withOrgTx(orgId, sql`SELECT ...`);
+//   const [a, b, c] = await withOrgTx(orgId, sql`...`, sql`...`, sql`...`);
+//   const [rows] = await withPublicToken(token, sql`SELECT ... WHERE public_token = ${token}`);
+export async function withOrgTx(orgId: string, ...queries: any[]): Promise<any[][]> {
+    const results = await (sql as any).transaction([
+        sql`select set_config('app.org_id', ${orgId}, true)`,
+        ...queries,
+    ]);
+    return (results as any[][]).slice(1);
+}
+
+// Igual que withOrgTx pero setea app.public_token para las páginas /q/[token].
+export async function withPublicToken(token: string, ...queries: any[]): Promise<any[][]> {
+    const results = await (sql as any).transaction([
+        sql`select set_config('app.public_token', ${token}, true)`,
+        ...queries,
+    ]);
+    return (results as any[][]).slice(1);
+}

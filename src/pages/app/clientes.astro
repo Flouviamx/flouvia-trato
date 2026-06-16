@@ -1,9 +1,11 @@
 ---
 // Clientes — directorio con términos y límite de crédito. CRUD real (Neon).
 import AppLayout from '../../layouts/AppLayout.astro';
-import { getClientes, getCotizaciones, money } from '../../lib/queries';
+import { getClientes, getCotizaciones, getMyMembership, money } from '../../lib/queries';
+import { memberCan } from '../../lib/permissions';
 
-const [CLIENTES, COTIZACIONES] = await Promise.all([getClientes(), getCotizaciones()]);
+const [CLIENTES, COTIZACIONES, ME] = await Promise.all([getClientes(), getCotizaciones(), getMyMembership()]);
+const canEdit = memberCan(ME, 'clientes');
 const countQuotes = (empresa: string) => COTIZACIONES.filter(q => q.cliente === empresa).length;
 
 const TERM_VALUE: Record<string, string> = { 'Contado': 'contado', 'Net 30': 'net30', 'Net 60': 'net60' };
@@ -12,11 +14,11 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
 
 <AppLayout title="Clientes — Cord" page="clientes" heading="Clientes">
     <div slot="topbar-actions" class="topbar-btns">
-        <button class="btn-import" id="btnImport">
+        {canEdit && <button class="btn-import" id="btnImport">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Importar CSV
-        </button>
-        <button class="btn-new" id="btnNew">+ Nuevo cliente</button>
+        </button>}
+        {canEdit && <button class="btn-new" id="btnNew">+ Nuevo cliente</button>}
     </div>
 
     <section class="dir">
@@ -58,8 +60,8 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
         )}
     </section>
 
-    <!-- Modal alta / edición -->
-    <dialog class="modal" id="clientModal">
+    <!-- Modal alta / edición (solo si tiene permiso de edición) -->
+    {canEdit && <dialog class="modal" id="clientModal">
         <form method="dialog" class="m-form" id="clientForm">
             <div class="m-head">
                 <h2 id="mTitle">Nuevo cliente</h2>
@@ -118,16 +120,16 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
             <p class="m-error" id="mError"></p>
 
             <div class="m-actions">
-                <button type="button" class="m-delete" id="mDelete">Eliminar</button>
+                {canEdit && <button type="button" class="m-delete" id="mDelete">Eliminar</button>}
                 <span class="m-spacer"></span>
                 <button type="button" class="m-cancel" id="mCancel">Cancelar</button>
                 <button type="submit" class="m-save" id="mSave">Guardar cliente</button>
             </div>
         </form>
-    </dialog>
+    </dialog>}
 
-    <!-- Modal de importación CSV -->
-    <dialog class="modal modal-lg" id="importModal">
+    <!-- Modal de importación CSV (solo si tiene permiso de edición) -->
+    {canEdit && <dialog class="modal modal-lg" id="importModal">
         <div class="m-form">
             <div class="m-head">
                 <h2>Importar clientes por CSV</h2>
@@ -165,7 +167,7 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
                 <button type="button" class="m-save" id="impNext" disabled>Continuar</button>
             </div>
         </div>
-    </dialog>
+    </dialog>}
 </AppLayout>
 
 <style>
@@ -343,6 +345,7 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
     // CRUD de clientes contra /api/clientes. Click en fila = editar.
     document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('clientModal') as HTMLDialogElement;
+        if (!modal) return; // sin permiso de edición, el modal no existe
         const form = document.getElementById('clientForm') as HTMLFormElement;
         const title = document.getElementById('mTitle')!;
         const errorEl = document.getElementById('mError')!;

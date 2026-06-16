@@ -18,7 +18,7 @@ const ACTIVITY = await getApiActivity();
 const READ_TOOLS = MCP_TOOLS.filter((t) => t.scope === 'read');
 ---
 
-<SettingsShell title="API y webhooks — Ajustes" tab="api"
+<SettingsShell title="API y webhooks — Ajustes" tab="api" perm="ajustes"
     intro="Conecta Cord con tu propio sistema (ERP, CRM, scripts): lee y crea cotizaciones, clientes y productos por API. Genera una llave abajo y consulta los endpoints disponibles.">
 
     {!tienePlan && (

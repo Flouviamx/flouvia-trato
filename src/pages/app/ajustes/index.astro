@@ -2,18 +2,26 @@
 // Ajustes — ÍNDICE. Lista de categorías (estilo Stripe). Cada una abre su primera
 // pestaña; dentro, las sub-páginas son pestañas horizontales (no rail lateral).
 import AppLayout from '../../../layouts/AppLayout.astro';
-import { getOrg, getSetupProgress } from '../../../lib/queries';
+import { getOrg, getSetupProgress, getMyMembership } from '../../../lib/queries';
+import { memberCan } from '../../../lib/permissions';
 import { SETTINGS_CATEGORIES } from '../../../lib/settings';
 
-const ORG = await getOrg();
-const SETUP = await getSetupProgress();
+const [ORG, SETUP, ME] = await Promise.all([getOrg(), getSetupProgress(), getMyMembership()]);
+const hasAccess = memberCan(ME, 'ajustes');
 // Anillo SVG: circunferencia = 2πr (r=26) ≈ 163.36
 const R = 26, C = 2 * Math.PI * R;
 const dash = C * (SETUP.pct / 100);
 ---
 
 <AppLayout title="Configuración — Cord" page="ajustes" heading="Ajustes">
-    <div class="idx">
+    {!hasAccess && (
+        <div class="access-denied-idx">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <h3>Sin acceso</h3>
+            <p>Tu rol actual no tiene permiso para ver la configuración.<br/>Contacta al administrador de tu organización.</p>
+        </div>
+    )}
+    {hasAccess && <div class="idx">
         <header class="idx-head">
             <h2>Configuración</h2>
             <p>Todo lo que se personaliza en Cord para {ORG.nombre}.</p>
@@ -48,10 +56,14 @@ const dash = C * (SETUP.pct / 100);
                 </a>
             ))}
         </div>
-    </div>
+    </div>}
 </AppLayout>
 
 <style>
+    .access-denied-idx { display: flex; flex-direction: column; gap: 0.6rem; padding: 2rem 0; }
+    .access-denied-idx svg { width: 32px; height: 32px; color: #c9d2de; }
+    .access-denied-idx h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+    .access-denied-idx p { font-size: 0.84rem; color: var(--color-text-muted); margin: 0; line-height: 1.55; }
     .idx { max-width: 720px; }
     .idx-head { margin-bottom: 1.8rem; }
     .idx-head h2 { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.6px; margin: 0; }

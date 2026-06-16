@@ -1,13 +1,7 @@
 ---
-// QuoteCard — el corazón del link público de cotización, extraído como componente
-// REUTILIZABLE. Lo montan tanto /q/[token] (página pública con marca Cord) como
-// /embed/[token] (CORD Elements: el cotizador dentro del sitio de un tercero).
-//
-// Es deliberadamente autosuficiente: trae su markup, sus estilos (scoped) y su
-// script de cliente. El script emite eventos en `window` (cord:approved /
-// cord:rejected / cord:message / cord:pay) para que el contenedor —sea /q o un
-// iframe embebido— pueda reaccionar sin acoplarse a la lógica interna. Esta es la
-// semilla del futuro paquete @flouviahq/elements.
+// QuoteCard — Quiet Luxury edition.
+// Flujo de aprobación en 3 pasos: revisar → firmar digitalmente → confirmado/pagar.
+// Reutilizado por /q/[token] (página pública) y /embed/[token] (CORD Elements).
 import { money, lineTotal, quoteSubtotal, quoteIva, quoteTotal } from '../../lib/queries';
 
 interface Props {
@@ -20,212 +14,374 @@ interface Props {
 }
 
 const { quote: q, org: ORG, conversacion, yaAprobada, yaRechazada, puedePagar } = Astro.props;
-const color = ORG.colorMarca;
-// FASE 3 — Portal del cliente: banner, bienvenida y gate del chat/contraoferta.
+const color = ORG.colorMarca || '#0a192f';
 const mostrarChat = ORG.portalMostrarChat !== false;
 const banner = (ORG.portalBanner ?? '').trim();
 const bienvenida = (ORG.portalBienvenida ?? '').trim();
+const logoUrl = (ORG.logoUrl ?? '').trim();
+const folio = q.folio as string;
+const total = money(quoteTotal(q));
 ---
 
-<div class="q-card" data-token={q.token} data-folio={q.folio}>
+<div class="q-card" data-token={q.token} data-folio={folio} data-init={yaAprobada ? 'approved' : yaRechazada ? 'rejected' : 'review'}>
     {banner && <div class="q-banner" style={`background:${color}`}>{banner}</div>}
 
-    <!-- Marca del negocio emisor -->
-    <header class="q-brand">
-        <div class="q-logo" style={`background: ${color}`}>{ORG.inicial}</div>
-        <div class="q-brand-info">
-            <span class="q-company">{ORG.nombre}</span>
-            <span class="q-rfc">RFC {ORG.rfc}</span>
+    <!-- Cabecera: marca del emisor -->
+    <header class="q-header">
+        <div class="q-brand-row">
+            {logoUrl
+                ? <img src={logoUrl} alt={ORG.nombre} class="q-logo-img" />
+                : <div class="q-logo-initial" style={`background:${color}`}>{ORG.inicial}</div>
+            }
+            <div class="q-brand-text">
+                <span class="q-company">{ORG.nombre}</span>
+                {ORG.rfc && <span class="q-rfc">RFC {ORG.rfc}</span>}
+            </div>
         </div>
-        <div class="q-folio-box">
-            <span class="q-folio-label">COTIZACIÓN</span>
-            <span class="q-folio">{q.folio}</span>
+        <div class="q-folio-tag">
+            <span class="q-folio-eyebrow">COTIZACIÓN</span>
+            <span class="q-folio-num">{folio}</span>
         </div>
     </header>
 
-    <div class="q-divider"></div>
+    <div class="q-rule"></div>
 
-    <!-- Para / vigencia -->
+    <!-- Para / vigencia / términos -->
     <div class="q-meta">
         <div class="q-meta-col">
             <span class="q-meta-label">PARA</span>
             <span class="q-meta-val">{q.cliente}</span>
         </div>
-        <div class="q-meta-col">
-            <span class="q-meta-label">TÉRMINOS</span>
-            <span class="q-meta-val">{q.terminos}</span>
-        </div>
-        <div class="q-meta-col">
-            <span class="q-meta-label">VÁLIDA HASTA</span>
-            <span class="q-meta-val">{q.vigencia}</span>
-        </div>
+        {q.vigencia && (
+            <div class="q-meta-col">
+                <span class="q-meta-label">VÁLIDA HASTA</span>
+                <span class="q-meta-val">{q.vigencia}</span>
+            </div>
+        )}
+        {q.terminos && (
+            <div class="q-meta-col">
+                <span class="q-meta-label">TÉRMINOS</span>
+                <span class="q-meta-val">{q.terminos}</span>
+            </div>
+        )}
     </div>
 
     {bienvenida && <p class="q-welcome">{bienvenida}</p>}
 
     <!-- Total protagonista -->
     <div class="q-total-hero">
-        <span class="q-total-label">TOTAL</span>
-        <span class="editorial q-total-val" style={`color: ${color}`}>{money(quoteTotal(q))}</span>
-        <span class="q-total-cur">MXN · IVA incluido</span>
+        <div class="q-total-inner">
+            <span class="q-total-eyebrow">TOTAL A PAGAR</span>
+            <span class="editorial q-total-amount" style={`color:${color}`}>{total}</span>
+            <span class="q-total-note">MXN · IVA incluido</span>
+        </div>
     </div>
 
-    <!-- Items -->
+    <!-- Tabla de conceptos -->
     <div class="q-items">
-        <div class="qi-head"><span>Concepto</span><span>Cant.</span><span class="qi-right">Precio</span><span class="qi-right">Importe</span></div>
+        <div class="qi-head">
+            <span>Concepto</span>
+            <span class="qi-center">Cant.</span>
+            <span class="qi-right">P. Unit.</span>
+            <span class="qi-right">Importe</span>
+        </div>
         {q.items.map((it: any) => (
             <div class="qi-row">
                 <span class="qi-name">{it.descripcion}</span>
-                <span class="qi-qty">{it.cantidad.toLocaleString('es-MX')} {it.unidad}</span>
-                <span class="editorial qi-right">{money(it.precioNegociado ?? it.precioLista)}</span>
-                <span class="editorial qi-right qi-amount">{money(lineTotal(it))}</span>
+                <span class="qi-center qi-qty">{it.cantidad.toLocaleString('es-MX')} {it.unidad}</span>
+                <span class="editorial qi-right qi-price">{money(it.precioNegociado ?? it.precioLista)}</span>
+                <span class="editorial qi-right qi-total">{money(lineTotal(it))}</span>
             </div>
         ))}
-        <div class="qi-totals">
-            <div class="qt-line"><span>Subtotal</span><span class="editorial">{money(quoteSubtotal(q))}</span></div>
-            <div class="qt-line"><span>IVA {ORG.ivaPct}%</span><span class="editorial">{money(quoteIva(q))}</span></div>
-            <div class="qt-line qt-grand"><span>Total</span><span class="editorial">{money(quoteTotal(q))}</span></div>
+        <div class="qi-subtotals">
+            <div class="qt-row"><span>Subtotal</span><span class="editorial">{money(quoteSubtotal(q))}</span></div>
+            <div class="qt-row"><span>IVA {ORG.ivaPct}%</span><span class="editorial">{money(quoteIva(q))}</span></div>
+            <div class="qt-row qt-grand"><span>Total</span><span class="editorial">{money(quoteTotal(q))}</span></div>
         </div>
     </div>
 
     {q.notas && <p class="q-notes">{q.notas}</p>}
 
-    <!-- Acciones del cliente (solo si la cotización sigue viva) -->
-    <div class="q-actions" id="qActions" hidden={yaAprobada || yaRechazada} data-token={q.token}>
-        <button class="q-approve" id="qApprove" style={`background: ${color}`}>Aprobar cotización</button>
-        <div class="q-secondary-row">
-            <button class="q-secondary" id="qPdf">Descargar PDF</button>
-            <button class="q-secondary q-reject" id="qReject">Rechazar</button>
+    <!-- ──────────────────────────────────────────
+         ÁREA DE ACCIÓN — flujo de aprobación en pasos
+    ────────────────────────────────────────── -->
+    <div class="q-actions-area">
+
+        <!-- Paso: review (default si cotización viva) -->
+        <div class="ql-step" id="stepReview">
+            <button class="ql-cta" id="qApproveBtn" style={`background:${color}`}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Aprobar cotización
+            </button>
+            <div class="ql-secondary-row">
+                <button class="ql-ghost" id="qPdfBtn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Descargar PDF
+                </button>
+                <button class="ql-ghost ql-reject-link" id="qRejectOpenBtn">Rechazar</button>
+            </div>
         </div>
-        <p class="q-error" id="qError"></p>
-    </div>
 
-    <!-- Estado de éxito -->
-    <div class="q-done" id="qDone" hidden={!yaAprobada}>
-        <div class="q-done-circle">
-            <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <!-- Paso: firma digital -->
+        <div class="ql-step ql-hidden" id="stepSign">
+            <div class="ql-step-header">
+                <button class="ql-back" id="qSignBack" aria-label="Volver">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <span class="ql-step-title">Firma digital</span>
+            </div>
+            <div class="ql-summary-pill">
+                Aprobando <strong>{folio}</strong> por <strong style={`color:${color}`}>{total} MXN</strong>
+            </div>
+            <div class="ql-field">
+                <label class="ql-label" for="qSignerName">Nombre completo del firmante</label>
+                <input class="ql-input" id="qSignerName" type="text" autocomplete="name" placeholder="Ej. María García López" />
+            </div>
+            <label class="ql-check-row">
+                <input type="checkbox" id="qTermsCheck" class="ql-checkbox" />
+                <span class="ql-check-text">He revisado esta cotización y acepto los términos y condiciones indicados</span>
+            </label>
+            <button class="ql-cta" id="qConfirmSign" style={`background:${color}`} disabled>
+                Confirmar y firmar
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <p class="ql-error" id="qSignError"></p>
+            <p class="ql-legal-note">Tu nombre, la fecha y la IP quedan registrados como evidencia de aceptación.</p>
         </div>
-        <span class="q-done-title">Cotización aprobada</span>
-        <span class="q-done-sub">{ORG.nombre} recibió tu confirmación. Te contactarán en breve.</span>
-        {puedePagar && <button class="q-approve q-pay" id="qPay" style={`background: ${color}`}>Pagar en línea</button>}
-        <button class="q-secondary q-done-pdf" id="qPdfDone">Descargar PDF</button>
-    </div>
 
-    <!-- Estado rechazada -->
-    <div class="q-done" id="qRejected" hidden={!yaRechazada}>
-        <span class="q-done-title">Cotización rechazada</span>
-        <span class="q-done-sub">Le avisamos a {ORG.nombre}. Si cambias de opinión, contáctalos directamente.</span>
-    </div>
+        <!-- Paso: rechazo -->
+        <div class="ql-step ql-hidden" id="stepReject">
+            <div class="ql-step-header">
+                <button class="ql-back" id="qRejectBack" aria-label="Volver">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <span class="ql-step-title">Rechazar cotización</span>
+            </div>
+            <div class="ql-field">
+                <label class="ql-label" for="qRejectMsg">Motivo (opcional — ayuda al vendedor a mejorar)</label>
+                <textarea class="ql-input ql-textarea" id="qRejectMsg" rows="3" placeholder="Ej. El precio está fuera de presupuesto, necesitamos más tiempo…"></textarea>
+            </div>
+            <button class="ql-cta ql-danger" id="qConfirmReject">Confirmar rechazo</button>
+            <p class="ql-error" id="qRejectError"></p>
+        </div>
 
-    <!-- Conversación + negociación (se oculta si el portal lo desactiva) -->
-    <div class="q-chat" hidden={!mostrarChat}>
-        <div class="q-thread" id="qThread" hidden={conversacion.length === 0}>
-            <span class="q-chat-label">CONVERSACIÓN</span>
-            {conversacion.map((m) => (
-                <div class:list={['q-msg', m.mine ? 'mine' : 'theirs', { counter: m.tipo === 'counter' }]}>
-                    <span class="q-msg-text">{m.detalle}</span>
-                    <span class="q-msg-time">{m.cuando}</span>
+        <!-- Estado: aprobada -->
+        <div class="ql-step ql-hidden" id="stepApproved">
+            <div class="ql-success">
+                <div class="ql-check-ring">
+                    <svg class="ql-check-svg" viewBox="0 0 52 52">
+                        <circle class="ql-check-circle" cx="26" cy="26" r="23" fill="none" stroke={color} stroke-width="2"/>
+                        <polyline class="ql-check-mark" points="14,27 22,35 38,18" fill="none" stroke={color} stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
-            ))}
+                <span class="ql-done-title">Cotización aprobada</span>
+                <span class="ql-done-sub" id="qApprovedSub">
+                    {ORG.nombre} recibió tu confirmación y se pondrá en contacto contigo en breve.
+                </span>
+                <div class="ql-done-actions">
+                    {puedePagar && (
+                        <button class="ql-cta" id="qPayBtn" style={`background:${color}`}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                            Pagar en línea
+                        </button>
+                    )}
+                    <button class="ql-ghost" id="qPdfApproved">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Descargar comprobante
+                    </button>
+                </div>
+                <p class="ql-stamp" id="qSignedStamp"></p>
+            </div>
         </div>
 
-        {!yaAprobada && !yaRechazada && (
-            <details class="q-negotiate" data-token={q.token}>
-                <summary>¿Tienes una duda o quieres negociar el precio?</summary>
-                <div class="q-neg-body">
-                    <textarea id="qMsg" rows="2" placeholder="Escribe tu duda o tu propuesta para el vendedor…"></textarea>
-                    <input class="q-prop" type="number" id="qProp" min="0" step="100" placeholder="Tu precio objetivo en MXN (opcional)" />
-                    <div class="q-neg-btns">
-                        <button class="q-secondary" id="qSendMsg">Enviar mensaje</button>
-                        <button class="q-secondary q-counter-btn" id="qSendCounter" style={`border-color:${color}; color:${color}`}>Hacer contraoferta</button>
+        <!-- Estado: rechazada -->
+        <div class="ql-step ql-hidden" id="stepRejected">
+            <div class="ql-success">
+                <div class="ql-check-ring ql-reject-ring">
+                    <svg viewBox="0 0 52 52" width="68" height="68">
+                        <circle cx="26" cy="26" r="23" fill="none" stroke="#d1d5db" stroke-width="2"/>
+                        <line x1="16" y1="16" x2="36" y2="36" stroke="#9ca3af" stroke-width="2.8" stroke-linecap="round"/>
+                        <line x1="36" y1="16" x2="16" y2="36" stroke="#9ca3af" stroke-width="2.8" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="ql-done-title" style="color:#6b7280">Cotización rechazada</span>
+                <span class="ql-done-sub">Le notificamos a {ORG.nombre}. Si cambias de opinión, contáctalos directamente.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversación + negociación -->
+    {mostrarChat && (
+        <div class="q-chat">
+            <div class="q-thread" id="qThread" hidden={conversacion.length === 0}>
+                <span class="q-chat-label">CONVERSACIÓN</span>
+                {conversacion.map((m) => (
+                    <div class:list={['q-msg', m.mine ? 'mine' : 'theirs', { counter: m.tipo === 'counter' }]}>
+                        <span class="q-msg-text">{m.detalle}</span>
+                        <span class="q-msg-time">{m.cuando}</span>
                     </div>
-                    <p class="q-neg-ok" id="qNegOk" hidden>✓ Enviado. {ORG.nombre} lo verá al instante.</p>
-                    <p class="q-error" id="qNegErr"></p>
-                </div>
-            </details>
-        )}
-    </div>
+                ))}
+            </div>
+
+            {!yaAprobada && !yaRechazada && (
+                <details class="q-negotiate" data-token={q.token}>
+                    <summary>¿Tienes una duda o quieres negociar el precio?</summary>
+                    <div class="q-neg-body">
+                        <textarea class="ql-input ql-textarea" id="qMsg" rows="2" placeholder="Escribe tu duda o propuesta al vendedor…"></textarea>
+                        <input class="ql-input" type="number" id="qProp" min="0" step="100" placeholder="Tu precio objetivo en MXN (opcional)" />
+                        <div class="q-neg-btns">
+                            <button class="ql-ghost" id="qSendMsg">Enviar mensaje</button>
+                            <button class="ql-ghost ql-counter-btn" id="qSendCounter" style={`border-color:${color}; color:${color}`}>Hacer contraoferta</button>
+                        </div>
+                        <p class="q-neg-ok" id="qNegOk" hidden>Enviado. {ORG.nombre} lo verá al instante.</p>
+                        <p class="ql-error" id="qNegErr"></p>
+                    </div>
+                </details>
+            )}
+        </div>
+    )}
 </div>
 
 <script>
-    // Decisión real del cliente: POST /api/q/[token] (el token es el secreto).
-    // Además, cada acción emite un CustomEvent en `window` para que el contenedor
-    // (la página /q o el iframe embebido) pueda reaccionar (postMessage al padre).
     const card = document.querySelector('.q-card') as HTMLElement | null;
     const folio = card?.dataset.folio ?? '';
-    const actions = document.getElementById('qActions');
-    const done = document.getElementById('qDone');
-    const rejected = document.getElementById('qRejected');
-    const errorEl = document.getElementById('qError');
-    const token = actions?.dataset.token ?? card?.dataset.token ?? '';
+    const token = card?.dataset.token ?? '';
 
     const emit = (name: string, detail: Record<string, unknown> = {}) =>
         window.dispatchEvent(new CustomEvent(name, { detail: { token, folio, ...detail } }));
 
-    const decide = async (action: 'approve' | 'reject', comentario = '') => {
-        if (errorEl) errorEl.textContent = '';
+    // ── Pasos ──
+    const showStep = (id: string) => {
+        document.querySelectorAll<HTMLElement>('.ql-step').forEach(s => {
+            const active = s.id === id;
+            s.classList.toggle('ql-hidden', !active);
+            if (active) {
+                s.classList.remove('ql-hidden');
+                void s.offsetHeight; // reflow para trigger animation
+                s.classList.add('ql-entering');
+                s.addEventListener('animationend', () => s.classList.remove('ql-entering'), { once: true });
+            }
+        });
+    };
+
+    // Estado inicial
+    const initStep = (() => {
+        // yaAprobada / yaRechazada vienen del SSR en data-init
+        const init = card?.dataset.init;
+        if (init === 'approved') return 'stepApproved';
+        if (init === 'rejected') return 'stepRejected';
+        return 'stepReview';
+    })();
+    showStep(initStep);
+
+    // ── Helper fetch ──
+    const api = async (action: string, extra: Record<string, unknown> = {}) => {
         const res = await fetch(`/api/q/${token}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action, comentario }),
+            body: JSON.stringify({ action, ...extra }),
         });
         const data = await res.json();
-        if (!res.ok) {
-            if (errorEl) errorEl.textContent = data.error || 'Algo salió mal, intenta de nuevo.';
-            return false;
-        }
-        return true;
+        if (!res.ok) throw new Error(data.error || 'Error inesperado');
+        return data;
     };
 
-    document.getElementById('qApprove')?.addEventListener('click', async (e) => {
-        const btn = e.currentTarget as HTMLButtonElement;
-        btn.disabled = true;
-        if (await decide('approve')) {
-            if (actions) actions.hidden = true;
-            if (done) done.hidden = false;
-            emit('cord:approved');
-        } else {
-            btn.disabled = false;
+    // ── Abrir firma ──
+    document.getElementById('qApproveBtn')?.addEventListener('click', () => {
+        showStep('stepSign');
+        (document.getElementById('qSignerName') as HTMLInputElement | null)?.focus();
+    });
+
+    // ── Habilitar botón de firma ──
+    const nameInput = document.getElementById('qSignerName') as HTMLInputElement | null;
+    const termsCheck = document.getElementById('qTermsCheck') as HTMLInputElement | null;
+    const confirmSignBtn = document.getElementById('qConfirmSign') as HTMLButtonElement | null;
+    const updateSignBtn = () => {
+        if (!confirmSignBtn) return;
+        confirmSignBtn.disabled = !((nameInput?.value.trim().length ?? 0) >= 2 && termsCheck?.checked);
+    };
+    nameInput?.addEventListener('input', updateSignBtn);
+    termsCheck?.addEventListener('change', updateSignBtn);
+
+    // ── Confirmar firma ──
+    confirmSignBtn?.addEventListener('click', async () => {
+        const signedBy = nameInput?.value.trim() ?? '';
+        const errEl = document.getElementById('qSignError');
+        if (errEl) errEl.textContent = '';
+        confirmSignBtn.disabled = true;
+        confirmSignBtn.textContent = 'Firmando…';
+        try {
+            await api('approve', { signed_by: signedBy });
+            const stamp = document.getElementById('qSignedStamp');
+            if (stamp && signedBy) {
+                const now = new Date().toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' });
+                stamp.textContent = `Firmado por ${signedBy} · ${now}`;
+            }
+            showStep('stepApproved');
+            emit('cord:approved', { signed_by: signedBy });
+        } catch (err: any) {
+            if (errEl) errEl.textContent = (err as Error).message;
+            confirmSignBtn.disabled = false;
+            confirmSignBtn.textContent = 'Confirmar y firmar';
         }
     });
 
-    document.getElementById('qReject')?.addEventListener('click', async (e) => {
-        const comentario = prompt('¿Quieres dejar un comentario? (opcional — puede ayudar a negociar)') ?? '';
+    document.getElementById('qSignBack')?.addEventListener('click', () => showStep('stepReview'));
+
+    // ── Abrir rechazo ──
+    document.getElementById('qRejectOpenBtn')?.addEventListener('click', () => {
+        showStep('stepReject');
+        (document.getElementById('qRejectMsg') as HTMLTextAreaElement | null)?.focus();
+    });
+    document.getElementById('qRejectBack')?.addEventListener('click', () => showStep('stepReview'));
+
+    // ── Confirmar rechazo ──
+    document.getElementById('qConfirmReject')?.addEventListener('click', async (e) => {
         const btn = e.currentTarget as HTMLButtonElement;
+        const errEl = document.getElementById('qRejectError');
+        const comentario = (document.getElementById('qRejectMsg') as HTMLTextAreaElement | null)?.value.trim() ?? '';
+        if (errEl) errEl.textContent = '';
         btn.disabled = true;
-        if (await decide('reject', comentario)) {
-            if (actions) actions.hidden = true;
-            if (rejected) rejected.hidden = false;
+        btn.textContent = 'Procesando…';
+        try {
+            await api('reject', { comentario });
+            showStep('stepRejected');
             emit('cord:rejected', { comentario });
-        } else {
+        } catch (err: any) {
+            if (errEl) errEl.textContent = (err as Error).message;
             btn.disabled = false;
+            btn.textContent = 'Confirmar rechazo';
         }
     });
 
-    document.getElementById('qPdf')?.addEventListener('click', () => window.print());
-    document.getElementById('qPdfDone')?.addEventListener('click', () => window.print());
+    // ── PDF ──
+    document.getElementById('qPdfBtn')?.addEventListener('click', () => window.print());
+    document.getElementById('qPdfApproved')?.addEventListener('click', () => window.print());
 
-    document.getElementById('qPay')?.addEventListener('click', async (e) => {
+    // ── Pago en línea ──
+    document.getElementById('qPayBtn')?.addEventListener('click', async (e) => {
         const btn = e.currentTarget as HTMLButtonElement;
         btn.disabled = true;
+        btn.textContent = 'Redirigiendo…';
         try {
             const res = await fetch(`/api/q/${token}/checkout`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
             const d = await res.json();
-            if (!res.ok || !d.url) throw new Error(d.error || 'El pago no está disponible.');
+            if (!res.ok || !d.url) throw new Error(d.error || 'El pago no está disponible ahora.');
             emit('cord:pay', { url: d.url });
             window.location.href = d.url;
         } catch (err: any) {
-            alert(err.message);
+            alert((err as Error).message);
             btn.disabled = false;
+            btn.textContent = 'Pagar en línea';
         }
     });
 
-    // ── Conversación / negociación (Link 2.0) ──
+    // ── Conversación / negociación ──
     const thread = document.getElementById('qThread');
-    const msgEl = document.getElementById('qMsg') as HTMLTextAreaElement | null;
-    const propEl = document.getElementById('qProp') as HTMLInputElement | null;
     const negOk = document.getElementById('qNegOk');
     const negErr = document.getElementById('qNegErr');
+    const msgEl = document.getElementById('qMsg') as HTMLTextAreaElement | null;
+    const propEl = document.getElementById('qProp') as HTMLInputElement | null;
 
     const appendMsg = (text: string, kind: 'comment' | 'counter') => {
         if (!thread) return;
@@ -239,19 +395,14 @@ const bienvenida = (ORG.portalBienvenida ?? '').trim();
     };
 
     const sendNeg = async (action: 'comment' | 'counter', btn: HTMLButtonElement) => {
-        const mensaje = (msgEl?.value || '').trim();
+        const mensaje = msgEl?.value.trim() ?? '';
         const propuesta = action === 'counter' ? Number(propEl?.value || 0) : 0;
         if (negErr) negErr.textContent = '';
         if (action === 'comment' && !mensaje) { if (negErr) negErr.textContent = 'Escribe un mensaje.'; return; }
         if (action === 'counter' && !mensaje && !propuesta) { if (negErr) negErr.textContent = 'Indica tu propuesta o escribe un mensaje.'; return; }
         btn.disabled = true;
         try {
-            const res = await fetch(`/api/q/${token}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action, mensaje, propuesta }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'No se pudo enviar');
+            await api(action, { mensaje, propuesta });
             const label = action === 'counter'
                 ? `Contraoferta${propuesta ? ` ($${propuesta.toLocaleString('es-MX')})` : ''}${mensaje ? ': ' + mensaje : ''}`
                 : mensaje;
@@ -261,7 +412,7 @@ const bienvenida = (ORG.portalBienvenida ?? '').trim();
             if (negOk) negOk.hidden = false;
             emit('cord:message', { action, mensaje, propuesta });
         } catch (err: any) {
-            if (negErr) negErr.textContent = err.message;
+            if (negErr) negErr.textContent = (err as Error).message;
         } finally {
             btn.disabled = false;
         }
@@ -270,7 +421,7 @@ const bienvenida = (ORG.portalBienvenida ?? '').trim();
     document.getElementById('qSendMsg')?.addEventListener('click', (e) => sendNeg('comment', e.currentTarget as HTMLButtonElement));
     document.getElementById('qSendCounter')?.addEventListener('click', (e) => sendNeg('counter', e.currentTarget as HTMLButtonElement));
 
-    // ── Heartbeat de presencia: avisa al vendedor que el cliente está viendo AHORA ──
+    // ── Heartbeat de presencia ──
     if (token) {
         const ping = () => {
             if (document.visibilityState !== 'visible') return;
@@ -286,153 +437,247 @@ const bienvenida = (ORG.portalBienvenida ?? '').trim();
 </script>
 
 <style>
-    .q-card {
-        position: relative; z-index: 1;
-        width: 100%; max-width: 660px;
-        background: #fff;
-        border-radius: 24px;
-        padding: 2.4rem 2.6rem;
-        box-shadow: 0 30px 80px -30px rgba(10,25,47,0.18), 0 2px 8px rgba(10,25,47,0.04);
-        display: flex; flex-direction: column; gap: 1.5rem;
-        animation: q-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-    @keyframes q-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-    @media (prefers-reduced-motion: reduce) { .q-card { animation: none; } }
+/* ── Card ──────────────────────────────────────── */
+.q-card {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 680px;
+    background: #fff;
+    border-radius: 28px;
+    padding: 2.8rem 3rem;
+    box-shadow:
+        0 0 0 1px rgba(10,25,47,0.06),
+        0 4px 6px rgba(10,25,47,0.03),
+        0 20px 60px -20px rgba(10,25,47,0.12);
+    display: flex; flex-direction: column; gap: 2rem;
+    animation: qCardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes qCardIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .q-card { animation: none; } }
 
-    /* FASE 3 — Portal del cliente */
-    .q-banner { margin: -0.6rem -0.6rem 0; padding: 0.7rem 1rem; border-radius: 14px; color: #fff; font-size: 0.82rem; font-weight: 600; text-align: center; line-height: 1.4; }
-    .q-welcome { margin: 0; padding: 0.9rem 1.1rem; background: var(--color-bg-soft, #fcfcfc); border-radius: 12px; font-size: 0.88rem; color: #5b6472; line-height: 1.55; }
+/* Banner */
+.q-banner {
+    margin: -0.8rem -1rem 0; padding: 0.7rem 1.2rem;
+    border-radius: 18px 18px 0 0;
+    color: #fff; font-size: 0.83rem; font-weight: 600;
+    text-align: center; line-height: 1.4;
+}
 
-    .q-brand { display: flex; align-items: center; gap: 14px; }
-    .q-logo {
-        width: 50px; height: 50px; border-radius: 13px;
-        background: var(--color-blue-deep); color: #fff;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1rem; font-weight: 800;
-    }
-    .q-brand-info { display: flex; flex-direction: column; }
-    .q-company { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.3px; }
-    .q-rfc { font-size: 0.72rem; color: var(--color-text-muted); }
-    .q-folio-box { margin-left: auto; text-align: right; display: flex; flex-direction: column; }
-    .q-folio-label { font-size: 0.56rem; font-weight: 800; letter-spacing: 1.8px; color: #aab; }
-    .q-folio { font-size: 1rem; font-weight: 800; color: var(--color-blue-deep); }
+/* ── Header ──────────────────────────────────── */
+.q-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.q-brand-row { display: flex; align-items: center; gap: 13px; }
+.q-logo-img { height: 42px; width: auto; max-width: 130px; object-fit: contain; object-position: left center; }
+.q-logo-initial {
+    width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0;
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 800;
+}
+.q-brand-text { display: flex; flex-direction: column; gap: 2px; }
+.q-company { font-size: 1rem; font-weight: 700; letter-spacing: -0.3px; color: #111; }
+.q-rfc { font-size: 0.68rem; color: #9ca3af; font-weight: 500; }
+.q-folio-tag { text-align: right; display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+.q-folio-eyebrow { font-size: 0.5rem; font-weight: 800; letter-spacing: 2px; color: #d1d5db; }
+.q-folio-num { font-size: 0.92rem; font-weight: 800; color: #111; letter-spacing: -0.3px; }
 
-    .q-divider { height: 1px; background: linear-gradient(to right, transparent, var(--color-border) 15%, var(--color-border) 85%, transparent); }
+/* ── Rule ──────────────────────────────────────── */
+.q-rule {
+    height: 1px; margin: -0.5rem 0;
+    background: linear-gradient(to right, transparent, rgba(10,25,47,0.07) 15%, rgba(10,25,47,0.07) 85%, transparent);
+}
 
-    .q-meta { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 1rem; }
-    .q-meta-col { display: flex; flex-direction: column; gap: 3px; }
-    .q-meta-label { font-size: 0.56rem; font-weight: 800; letter-spacing: 1.6px; color: #aab; }
-    .q-meta-val { font-size: 0.88rem; font-weight: 600; }
+/* ── Meta ──────────────────────────────────────── */
+.q-meta { display: flex; gap: 2.2rem; flex-wrap: wrap; }
+.q-meta-col { display: flex; flex-direction: column; gap: 4px; }
+.q-meta-label { font-size: 0.49rem; font-weight: 800; letter-spacing: 2px; color: #d1d5db; }
+.q-meta-val { font-size: 0.875rem; font-weight: 600; color: #111; }
 
-    .q-total-hero {
-        display: flex; flex-direction: column; align-items: center; gap: 5px;
-        background: var(--color-bg-soft);
-        border-radius: 18px; padding: 1.6rem;
-        text-align: center;
-    }
-    .q-total-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 2.2px; color: #aab; }
-    .q-total-val { font-size: clamp(2.4rem, 7vw, 3.2rem); color: var(--color-blue-deep); line-height: 1; }
-    .q-total-cur { font-size: 0.74rem; color: var(--color-text-muted); font-weight: 500; }
+/* ── Bienvenida ───────────────────────────────── */
+.q-welcome {
+    margin: 0; padding: 1rem 1.2rem;
+    background: #fafafa; border-radius: 14px;
+    font-size: 0.875rem; color: #6b7280; line-height: 1.6;
+    border: 1px solid rgba(10,25,47,0.055);
+}
 
-    .qi-head, .qi-row {
-        display: grid; grid-template-columns: 1.8fr 0.9fr 0.8fr 1fr;
-        gap: 0.8rem; align-items: center;
-        padding: 0.6rem 0;
-    }
-    .qi-head {
-        font-size: 0.58rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
-        color: #aab; border-bottom: 1px solid var(--color-border);
-    }
-    .qi-row { border-bottom: 1px solid rgba(10,25,47,0.05); font-size: 0.86rem; }
-    .qi-name { font-weight: 600; }
-    .qi-qty { color: var(--color-text-muted); font-size: 0.8rem; }
-    .qi-right { text-align: right; color: var(--color-blue-deep); }
-    .qi-amount { font-size: 0.95rem; }
+/* ── Total hero ──────────────────────────────── */
+.q-total-hero {
+    background: #fafafa;
+    border: 1px solid rgba(10,25,47,0.055);
+    border-radius: 20px; padding: 2rem 1.5rem;
+    display: flex; justify-content: center;
+}
+.q-total-inner { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.q-total-eyebrow { font-size: 0.5rem; font-weight: 800; letter-spacing: 2.5px; color: #d1d5db; }
+.q-total-amount { font-size: clamp(2.5rem, 8vw, 3.4rem); line-height: 1; letter-spacing: -0.04em; }
+.q-total-note { font-size: 0.7rem; font-weight: 500; color: #9ca3af; }
 
-    .qi-totals { display: flex; flex-direction: column; gap: 0.45rem; align-items: flex-end; padding-top: 0.9rem; }
-    .qt-line { display: flex; justify-content: space-between; gap: 2.6rem; min-width: 215px; font-size: 0.82rem; color: var(--color-text-muted); }
-    .qt-line .editorial { color: var(--color-blue-deep); font-size: 0.92rem; }
-    .qt-grand { font-weight: 700; color: var(--color-text); border-top: 1px solid var(--color-border); padding-top: 0.5rem; }
-    .qt-grand .editorial { font-size: 1.25rem; }
+/* ── Items ────────────────────────────────────── */
+.q-items { display: flex; flex-direction: column; }
+.qi-head {
+    display: grid; grid-template-columns: 1.9fr 0.8fr 0.9fr 1fr;
+    gap: 1rem; padding: 0 0 0.65rem;
+    font-size: 0.5rem; font-weight: 800; letter-spacing: 1.5px;
+    color: #d1d5db; border-bottom: 1px solid rgba(10,25,47,0.07);
+}
+.qi-row {
+    display: grid; grid-template-columns: 1.9fr 0.8fr 0.9fr 1fr;
+    gap: 1rem; align-items: center;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid rgba(10,25,47,0.045);
+    font-size: 0.875rem;
+}
+.qi-name { font-weight: 600; color: #111; }
+.qi-center { text-align: center; }
+.qi-right { text-align: right; }
+.qi-qty { color: #9ca3af; font-size: 0.78rem; }
+.qi-price { color: #9ca3af; font-size: 0.83rem; }
+.qi-total { color: #111; }
+.qi-subtotals { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; padding-top: 1.1rem; }
+.qt-row { display: flex; justify-content: space-between; gap: 3rem; min-width: 200px; font-size: 0.82rem; color: #9ca3af; }
+.qt-row .editorial { color: #6b7280; font-size: 0.87rem; }
+.qt-grand { color: #111; font-weight: 700; border-top: 1px solid rgba(10,25,47,0.07); padding-top: 0.6rem; margin-top: 0.2rem; }
+.qt-grand .editorial { font-size: 1.2rem; color: #111; }
 
-    .q-notes {
-        font-size: 0.84rem; color: var(--color-text-muted); line-height: 1.6;
-        background: var(--color-bg-soft); border-radius: 12px; padding: 0.9rem 1.1rem; margin: 0;
-    }
+/* ── Notas ──────────────────────────────────── */
+.q-notes {
+    margin: 0; padding: 1rem 1.2rem;
+    background: #fafafa; border-radius: 14px;
+    font-size: 0.84rem; color: #6b7280; line-height: 1.6;
+    border: 1px solid rgba(10,25,47,0.055);
+}
 
-    .q-actions { display: flex; flex-direction: column; gap: 0.6rem; }
-    .q-approve {
-        font-family: var(--font-sans); font-size: 1rem; font-weight: 600;
-        background: var(--color-blue-deep); color: #fff;
-        border: none; border-radius: 13px; padding: 16px; cursor: pointer;
-        box-shadow: 0 16px 38px -14px rgba(10,25,47,0.55);
-        transition: transform 0.5s var(--ease-spring), box-shadow 0.5s var(--ease-spring);
-    }
-    .q-approve:hover { transform: translateY(-3px); box-shadow: 0 22px 48px -14px rgba(10,25,47,0.62); }
-    .q-secondary-row { display: flex; gap: 0.6rem; }
-    .q-secondary {
-        flex: 1;
-        font-family: var(--font-sans); font-size: 0.88rem; font-weight: 600;
-        color: var(--color-text-muted); background: none;
-        border: 1px solid var(--color-border); border-radius: 12px;
-        padding: 12px; cursor: pointer;
-        transition: color 0.25s, border-color 0.25s;
-    }
-    .q-secondary:hover { color: var(--color-blue-deep); border-color: rgba(10,25,47,0.25); }
-    .q-reject:hover { color: var(--color-danger); border-color: rgba(239,68,68,0.3); }
+/* ── Área de acción ──────────────────────────── */
+.q-actions-area { display: flex; flex-direction: column; }
+.ql-step { display: flex; flex-direction: column; gap: 0.9rem; }
+.ql-hidden { display: none !important; }
+.ql-entering {
+    animation: qlIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes qlIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ql-entering { animation: none; } }
 
-    .q-done { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem 0 0.4rem; text-align: center; }
-    .q-done-circle {
-        width: 76px; height: 76px; border-radius: 50%;
-        background: rgba(16,185,129,0.1);
-        display: flex; align-items: center; justify-content: center;
-        margin-bottom: 0.4rem;
-    }
-    .q-done-circle svg { width: 38px; height: 38px; }
-    .q-done-title { font-size: 1.15rem; font-weight: 700; }
-    .q-done-sub { font-size: 0.84rem; color: var(--color-text-muted); max-width: 360px; }
+/* CTA principal */
+.ql-cta {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: var(--font-sans); font-size: 0.97rem; font-weight: 600;
+    color: #fff; border: none; border-radius: 14px;
+    padding: 16px 22px; cursor: pointer; width: 100%;
+    box-shadow: 0 10px 28px -10px rgba(10,25,47,0.42);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease, opacity 0.2s;
+}
+.ql-cta:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 16px 36px -10px rgba(10,25,47,0.5); }
+.ql-cta:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+.ql-cta.ql-danger { background: #ef4444 !important; box-shadow: 0 10px 28px -10px rgba(239,68,68,0.4); }
+.ql-cta.ql-danger:hover:not(:disabled) { box-shadow: 0 16px 36px -10px rgba(239,68,68,0.5); }
 
-    .q-error { font-size: 0.78rem; color: var(--color-danger); margin: 0; text-align: center; min-height: 0; }
-    .q-done-pdf { margin-top: 0.7rem; flex: none; padding-inline: 22px; }
-    .q-pay { margin-top: 0.9rem; width: auto; padding-inline: 30px; }
+/* Botones fantasma */
+.ql-secondary-row { display: flex; gap: 0.7rem; }
+.ql-ghost {
+    flex: 1; font-family: var(--font-sans); font-size: 0.855rem; font-weight: 600;
+    color: #6b7280; background: none;
+    border: 1px solid rgba(10,25,47,0.1); border-radius: 12px;
+    padding: 11px 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.ql-ghost:hover { color: #111; border-color: rgba(10,25,47,0.2); background: #f9f9f9; }
+.ql-reject-link { flex: none; padding-inline: 18px; border-color: transparent; color: #9ca3af; }
+.ql-reject-link:hover { color: #ef4444; border-color: rgba(239,68,68,0.18); background: rgba(239,68,68,0.03); }
 
-    /* ── Conversación + negociación (Link 2.0) ── */
-    .q-chat { display: flex; flex-direction: column; gap: 1rem; }
-    .q-chat-label { font-size: 0.56rem; font-weight: 800; letter-spacing: 1.8px; color: #aab; }
-    .q-thread { display: flex; flex-direction: column; gap: 0.6rem; }
-    .q-msg { display: flex; flex-direction: column; gap: 3px; max-width: 86%; padding: 0.7rem 0.95rem; border-radius: 14px; font-size: 0.84rem; }
-    .q-msg.theirs { align-self: flex-start; background: var(--color-bg-soft); border: 1px solid var(--color-border); border-bottom-left-radius: 4px; }
-    .q-msg.mine { align-self: flex-end; background: var(--color-blue-deep); color: #fff; border-bottom-right-radius: 4px; }
-    .q-msg.counter { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.32); color: var(--color-text); }
-    .q-msg-text { line-height: 1.45; }
-    .q-msg-time { font-size: 0.62rem; opacity: 0.6; }
+/* ── Panel firma / rechazo ──────────────────── */
+.ql-step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0.2rem; }
+.ql-back {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid rgba(10,25,47,0.1); background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #9ca3af; flex-shrink: 0;
+    transition: background 0.2s, color 0.2s;
+}
+.ql-back:hover { background: #f4f4f5; color: #111; }
+.ql-step-title { font-size: 0.92rem; font-weight: 700; color: #111; }
 
-    .q-negotiate { border: 1px solid var(--color-border); border-radius: 14px; padding: 0 1.1rem; background: var(--color-bg-soft); }
-    .q-negotiate summary { list-style: none; cursor: pointer; padding: 0.95rem 0; font-size: 0.86rem; font-weight: 600; color: var(--color-text); }
-    .q-negotiate summary::-webkit-details-marker { display: none; }
-    .q-neg-body { display: flex; flex-direction: column; gap: 0.6rem; padding-bottom: 1.1rem; }
-    .q-neg-body textarea, .q-prop {
-        font-family: var(--font-sans); font-size: 0.86rem; color: var(--color-text);
-        background: #fff; border: 1px solid var(--color-border); border-radius: 10px; padding: 10px 12px; resize: vertical; width: 100%;
-    }
-    .q-neg-body textarea:focus, .q-prop:focus { outline: none; border-color: var(--color-blue-deep); }
-    .q-neg-btns { display: flex; gap: 0.6rem; }
-    .q-counter-btn { font-weight: 700; background: #fff; }
-    .q-neg-ok { font-size: 0.8rem; color: #059669; font-weight: 600; margin: 0; }
+.ql-summary-pill {
+    background: #fafafa; border: 1px solid rgba(10,25,47,0.055);
+    border-radius: 12px; padding: 0.85rem 1rem;
+    font-size: 0.84rem; color: #6b7280; line-height: 1.5;
+}
+.ql-field { display: flex; flex-direction: column; gap: 5px; }
+.ql-label { font-size: 0.72rem; font-weight: 600; color: #6b7280; }
+.ql-input {
+    font-family: var(--font-sans); font-size: 0.9rem; color: #111;
+    background: #fff; border: 1.5px solid rgba(10,25,47,0.12);
+    border-radius: 11px; padding: 11px 13px; width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ql-input:focus { outline: none; border-color: rgba(10,25,47,0.35); box-shadow: 0 0 0 3px rgba(10,25,47,0.05); }
+.ql-textarea { resize: vertical; min-height: 78px; }
 
-    @media (max-width: 600px) {
-        .q-card { padding: 1.8rem 1.4rem; }
-        .q-meta { grid-template-columns: 1fr 1fr; }
-        .qi-head { display: none; }
-        .qi-row { grid-template-columns: 1fr auto; }
-        .qi-qty, .qi-right:not(.qi-amount) { display: none; }
-        .q-folio-box { display: none; }
-    }
+.ql-check-row { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+.ql-checkbox { width: 17px; height: 17px; flex-shrink: 0; margin-top: 1px; accent-color: #0a192f; cursor: pointer; border-radius: 4px; }
+.ql-check-text { font-size: 0.81rem; color: #6b7280; line-height: 1.5; }
 
-    /* ── Impresión: el link público ES el PDF del cliente ── */
-    @media print {
-        .q-actions, .q-done-pdf { display: none !important; }
-        .q-card { box-shadow: none; border-radius: 0; max-width: none; padding: 0; animation: none; }
-        @page { margin: 1.4cm 1.6cm; }
-    }
+.ql-error { font-size: 0.77rem; color: #ef4444; margin: 0; text-align: center; }
+.ql-legal-note { font-size: 0.7rem; color: #d1d5db; margin: 0; text-align: center; line-height: 1.5; }
+
+/* ── Estado aprobada / rechazada ─────────────── */
+.ql-success { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; padding: 0.3rem 0; text-align: center; }
+.ql-check-ring { width: 68px; height: 68px; margin-bottom: 0.4rem; }
+.ql-check-svg { width: 68px; height: 68px; }
+.ql-check-circle {
+    stroke-dasharray: 145; stroke-dashoffset: 145;
+    animation: circleIn 0.5s cubic-bezier(0.22,1,0.36,1) 0.1s forwards;
+}
+.ql-check-mark {
+    stroke-dasharray: 36; stroke-dashoffset: 36;
+    animation: checkIn 0.4s cubic-bezier(0.22,1,0.36,1) 0.5s forwards;
+}
+@keyframes circleIn { to { stroke-dashoffset: 0; } }
+@keyframes checkIn  { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    .ql-check-circle, .ql-check-mark { animation: none; stroke-dashoffset: 0; }
+}
+.ql-done-title { font-size: 1.12rem; font-weight: 700; color: #111; }
+.ql-done-sub { font-size: 0.84rem; color: #9ca3af; max-width: 360px; line-height: 1.55; }
+.ql-done-actions { display: flex; flex-direction: column; gap: 0.55rem; width: 100%; margin-top: 0.5rem; }
+.ql-done-actions .ql-cta { flex: 1; }
+.ql-done-actions .ql-ghost { justify-content: center; }
+.ql-stamp { font-size: 0.68rem; color: #d1d5db; margin: 0; font-variant-numeric: tabular-nums; }
+
+/* ── Conversación ─────────────────────────────── */
+.q-chat { display: flex; flex-direction: column; gap: 1rem; }
+.q-chat-label { font-size: 0.5rem; font-weight: 800; letter-spacing: 2px; color: #d1d5db; }
+.q-thread { display: flex; flex-direction: column; gap: 0.6rem; }
+.q-msg { display: flex; flex-direction: column; gap: 3px; max-width: 86%; padding: 0.7rem 0.95rem; border-radius: 14px; font-size: 0.84rem; }
+.q-msg.theirs { align-self: flex-start; background: #fafafa; border: 1px solid rgba(10,25,47,0.07); border-bottom-left-radius: 4px; }
+.q-msg.mine { align-self: flex-end; background: #0a192f; color: #fff; border-bottom-right-radius: 4px; }
+.q-msg.counter { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: #111; }
+.q-msg-text { line-height: 1.5; }
+.q-msg-time { font-size: 0.62rem; opacity: 0.5; }
+.q-negotiate { border: 1px solid rgba(10,25,47,0.08); border-radius: 14px; padding: 0 1.2rem; background: #fafafa; }
+.q-negotiate summary { list-style: none; cursor: pointer; padding: 1rem 0; font-size: 0.86rem; font-weight: 600; color: #6b7280; }
+.q-negotiate summary::-webkit-details-marker { display: none; }
+.q-neg-body { display: flex; flex-direction: column; gap: 0.7rem; padding-bottom: 1.2rem; }
+.q-neg-btns { display: flex; gap: 0.6rem; }
+.ql-counter-btn { font-weight: 700; background: #fff !important; }
+.q-neg-ok { font-size: 0.8rem; color: #059669; font-weight: 600; margin: 0; }
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 600px) {
+    .q-card { padding: 1.8rem 1.5rem; gap: 1.6rem; border-radius: 22px; }
+    .qi-head { display: none; }
+    .qi-row { grid-template-columns: 1fr auto; }
+    .qi-center, .qi-price { display: none; }
+    .q-folio-tag { display: none; }
+    .q-meta { gap: 1.2rem; }
+    .q-total-amount { font-size: 2.4rem; }
+}
+
+/* ── Print ─────────────────────────────────────── */
+@media print {
+    .q-actions-area, .q-chat { display: none !important; }
+    .q-card { box-shadow: none; border-radius: 0; max-width: none; padding: 0; animation: none; }
+    @page { margin: 1.4cm 1.6cm; }
+}
 </style>

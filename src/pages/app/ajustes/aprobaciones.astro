@@ -5,7 +5,7 @@ import { getOrg } from '../../../lib/queries';
 const ORG = await getOrg();
 ---
 
-<SettingsShell title="Aprobaciones y tesorería — Ajustes" tab="aprobaciones"
+<SettingsShell title="Aprobaciones y tesorería — Ajustes" tab="aprobaciones" perm="ajustes"
     intro="Protege tus márgenes: topes que disparan aprobación de gerencia y la tasa de interés por mora." save>
     <div class="s-block">
         <h3>Umbrales de aprobación</h3>
@@ -20,6 +20,13 @@ const ORG = await getOrg();
                     <label for="oAprobMonto">Monto máx. sin aprobación (MXN)</label>
                     <input class="s-input" id="oAprobMonto" data-field="aprob_monto_max" type="number" min="0" step="1000" value={ORG.aprobMontoMax} />
                     <span class="s-hint">0 = sin tope.</span>
+                </div>
+            </div>
+            <div class="s-row">
+                <div class="s-field">
+                    <label for="oAprobMargen">Margen bruto mínimo sin aprobación (%)</label>
+                    <input class="s-input" id="oAprobMargen" data-field="aprob_margen_min" type="number" min="0" max="100" step="1" value={ORG.aprobMargenMin} />
+                    <span class="s-hint">0 = sin tope. Si alguna línea baja de este margen, la cotización se bloquea hasta que gerencia apruebe. Requiere que los productos tengan costo configurado.</span>
                 </div>
             </div>
         </div>

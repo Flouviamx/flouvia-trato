@@ -1,11 +1,14 @@
 ---
 // Detalle de cotización — items, totales, timeline de eventos y acciones. Datos reales (Neon).
 import AppLayout from '../../../layouts/AppLayout.astro';
-import { getCotizacion, STATUS_META, money, lineTotal, quoteSubtotal, quoteIva, quoteTotal } from '../../../lib/queries';
+import { getCotizacion, getMyMembership, STATUS_META, money, lineTotal, quoteSubtotal, quoteIva, quoteTotal } from '../../../lib/queries';
+import { memberCan } from '../../../lib/permissions';
 
 const { id } = Astro.params;
-const q = await getCotizacion(id ?? '');
+const [q, ME] = await Promise.all([getCotizacion(id ?? ''), getMyMembership()]);
 if (!q) return Astro.redirect('/app/cotizaciones');
+const canCotizar = memberCan(ME, 'cotizar');
+const canAprobar = memberCan(ME, 'aprobar');
 
 const meta = STATUS_META[q.status];
 const dotColor = (tipo: string) =>
@@ -95,7 +98,7 @@ const dotColor = (tipo: string) =>
         <aside class="d-side">
             <section class="d-actions" data-qid={q.id} data-token={q.token} data-folio={q.folio} data-cliente={q.cliente} data-total={money(quoteTotal(q))}>
                 <div class="section-head"><h2>Acciones</h2></div>
-                {q.status === 'draft' && (
+                {q.status === 'draft' && canCotizar && (
                     <button class="act-primary act-do" data-action="send">Enviar al cliente</button>
                 )}
                 <a href={`/q/${q.token}`} class:list={[q.status === 'draft' ? 'act-secondary act-link' : 'act-primary']} target="_blank">
@@ -110,26 +113,25 @@ const dotColor = (tipo: string) =>
                 <a href={`/app/cotizaciones/${q.id}/imprimir`} target="_blank" class="act-secondary act-link">Descargar PDF</a>
                 <button class="act-secondary" id="btnDuplicate">Duplicar cotización</button>
 
-                {(q.status === 'sent' || q.status === 'viewed') && (
-                    <>
-                        <button class="act-ok act-do" data-action="approve">Marcar aprobada</button>
-                        <button class="act-danger act-do" data-action="reject">Marcar rechazada</button>
-                        <button class="act-secondary act-do" data-action="resend">Reenviar al cliente</button>
-                    </>
+                {(q.status === 'sent' || q.status === 'viewed') && canAprobar && (
+                    <button class="act-ok act-do" data-action="approve">Marcar aprobada</button>
                 )}
-                {q.status === 'approved' && (
-                    <>
-                        <button class="act-ok act-do" data-action="paid">Registrar pago</button>
-                        <button class="act-cfdi act-do" data-action="invoiced">Timbrar CFDI 4.0</button>
-                    </>
+                {(q.status === 'sent' || q.status === 'viewed') && canAprobar && (
+                    <button class="act-danger act-do" data-action="reject">Marcar rechazada</button>
                 )}
-                {q.status === 'paid' && (
-                    <button class="act-cfdi act-do" data-action="invoiced">Timbrar CFDI 4.0</button>
-                )}
-                {q.status === 'expired' && (
+                {(q.status === 'sent' || q.status === 'viewed') && canCotizar && (
                     <button class="act-secondary act-do" data-action="resend">Reenviar al cliente</button>
                 )}
-                {q.status === 'draft' && (
+                {q.status === 'approved' && canAprobar && (
+                    <button class="act-ok act-do" data-action="paid">Registrar pago</button>
+                )}
+                {(q.status === 'approved' || q.status === 'paid') && canAprobar && (
+                    <button class="act-cfdi act-do" data-action="invoiced">Timbrar CFDI 4.0</button>
+                )}
+                {q.status === 'expired' && canCotizar && (
+                    <button class="act-secondary act-do" data-action="resend">Reenviar al cliente</button>
+                )}
+                {q.status === 'draft' && canCotizar && (
                     <button class="act-delete" id="btnDelete">Eliminar borrador</button>
                 )}
                 <p class="act-error" id="actError"></p>

@@ -31,9 +31,14 @@ export const POST: APIRoute = async ({ params, request }) => {
     // ── Aprobar ──
     if (action === 'approve') {
         if (!alive) return json({ error: 'Esta cotización ya no se puede modificar', status: c.status }, 409);
+        const signedBy = String(body.signed_by ?? '').trim().slice(0, 200);
+        const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'desconocida';
+        const detalle = signedBy
+            ? `Firmado digitalmente por "${signedBy}" (IP ${ip})`
+            : 'El cliente aprobó la cotización desde el link';
         await sql`update cotizaciones set status = 'approved', approved_at = now() where id = ${c.id}`;
         await sql`insert into eventos (org_id, cotizacion_id, tipo, detalle)
-                  values (${c.org_id}, ${c.id}, 'approved', 'El cliente aprobó la cotización desde el link')`;
+                  values (${c.org_id}, ${c.id}, 'approved', ${detalle})`;
         await dispatchQuoteEvent(c.org_id as string, c.id as string, 'quote.approved');
         return json({ ok: true, status: 'approved' });
     }

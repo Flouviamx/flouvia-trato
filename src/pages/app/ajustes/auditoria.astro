@@ -5,7 +5,7 @@ import { getAuditLog } from '../../../lib/queries';
 const AUDIT = await getAuditLog();
 ---
 
-<SettingsShell title="Auditoría — Ajustes" tab="auditoria"
+<SettingsShell title="Auditoría — Ajustes" tab="auditoria" perm="ajustes"
     intro="Registro inmutable de cada cambio: qué, cuándo e IP. Solo lectura — para tus auditores.">
     <div class="s-block">
         <div class="audit-list">

@@ -1,11 +1,5 @@
 ---
-// Link público de cotización — LA página mejor diseñada de Cord.
-// Es lo que ve el cliente final: marca del negocio, items, total y aprobar.
-// Cada cotización enviada es un demo del producto (loop viral con "vía cord").
-//
-// El corazón de la tarjeta vive en components/q/QuoteCard.astro (reutilizado por
-// /embed/[token] para CORD Elements). Aquí solo se añade el "chrome" de la
-// página pública: watermark, loop viral "vía Cord" y el fondo.
+// Link público — Quiet Luxury edition.
 import Layout from '../../layouts/Layout.astro';
 import QuoteCard from '../../components/q/QuoteCard.astro';
 import { getCotizacionByToken, markViewed } from '../../lib/queries';
@@ -15,20 +9,23 @@ const result = await getCotizacionByToken(token ?? '');
 if (!result) return Astro.redirect('/');
 const { quote: q, org: ORG, conversacion } = result;
 
-// Registra la apertura del cliente (y pasa a 'viewed' si estaba 'sent').
 await markViewed(token ?? '');
 
-// Estado actual: si ya se decidió, el cliente ve el resultado, no los botones.
 const yaAprobada = ['approved', 'paid', 'invoiced'].includes(q.status);
 const yaRechazada = q.status === 'rejected';
 const pagoActivo = !!(import.meta.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY);
 const puedePagar = pagoActivo && ['approved', 'invoiced'].includes(q.status);
+
+const color = ORG.colorMarca || '#0a192f';
 ---
 
 <Layout title={`Cotización ${q.folio} — ${ORG.nombre}`} noindex={true}>
-    <main class="q-page">
-        {ORG.portalPowered !== false && <div class="q-watermark editorial" aria-hidden="true">Cord</div>}
+    <div class="qp-bg" aria-hidden="true">
+        <div class="qp-orb qp-orb-top"></div>
+        <div class="qp-orb qp-orb-bot" style={`background: radial-gradient(circle, ${color}14 0%, transparent 70%)`}></div>
+    </div>
 
+    <main class="qp-main">
         <QuoteCard
             quote={q}
             org={ORG}
@@ -39,46 +36,49 @@ const puedePagar = pagoActivo && ['approved', 'invoiced'].includes(q.status);
         />
 
         {ORG.portalPowered !== false && (
-            <!-- Loop viral (oculto si el plan permite quitar la marca) -->
-            <a href="/" class="q-via">
-                Cotización enviada vía <img src="/imgs/logo-cord-navy.png" alt="Cord" /> — crea las tuyas gratis →
+            <a href="/" class="qp-via">
+                Cotización enviada vía
+                <img src="/imgs/logo-cord-navy.png" alt="Cord" />
+                — crea las tuyas gratis →
             </a>
         )}
     </main>
 </Layout>
 
 <style>
-    .q-page {
-        min-height: 100svh;
-        background: var(--color-bg-soft);
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        gap: 1.4rem;
-        padding: 3rem 5%;
-        position: relative;
-        overflow: clip;
+    .qp-bg {
+        position: fixed; inset: 0; z-index: 0;
+        background: #f3f2ef;
+        overflow: hidden; pointer-events: none;
     }
-    .q-watermark {
-        position: fixed; bottom: -8vw; right: -3vw;
-        font-size: 28vw; line-height: 0.85; letter-spacing: -0.04em;
-        color: rgba(0,0,0,0.022);
-        pointer-events: none; user-select: none; white-space: nowrap;
-        z-index: 0;
+    .qp-orb { position: absolute; border-radius: 50%; filter: blur(90px); }
+    .qp-orb-top {
+        width: 70vw; height: 70vw; top: -30%; left: -15%;
+        background: radial-gradient(circle, rgba(10,25,47,0.05) 0%, transparent 70%);
+    }
+    .qp-orb-bot { width: 55vw; height: 55vw; bottom: -20%; right: -10%; opacity: 0.7; }
+
+    .qp-main {
+        position: relative; z-index: 1;
+        min-height: 100svh;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 1.8rem; padding: 3.5rem 5% 4rem;
     }
 
-    .q-via {
-        position: relative; z-index: 1;
-        display: inline-flex; align-items: center; gap: 7px;
-        font-size: 0.8rem; font-weight: 500; color: var(--color-text-muted);
-        text-decoration: none;
+    .qp-via {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 0.76rem; font-weight: 500;
+        color: rgba(10,25,47,0.3); text-decoration: none;
+        letter-spacing: 0.01em;
         transition: color 0.3s;
     }
-    .q-via img { height: 12px; width: auto; opacity: 0.75; transition: opacity 0.3s; }
-    .q-via:hover { color: var(--color-blue-deep); }
-    .q-via:hover img { opacity: 1; }
+    .qp-via img { height: 11px; width: auto; opacity: 0.45; transition: opacity 0.3s; }
+    .qp-via:hover { color: rgba(10,25,47,0.65); }
+    .qp-via:hover img { opacity: 0.8; }
 
-    /* ── Impresión: el link público ES el PDF del cliente ── */
     @media print {
-        .q-page { background: #fff; padding: 0; min-height: 0; display: block; }
-        .q-watermark, .q-via { display: none !important; }
+        .qp-bg, .qp-via { display: none !important; }
+        .qp-main { min-height: 0; padding: 0; display: block; }
     }
 </style>

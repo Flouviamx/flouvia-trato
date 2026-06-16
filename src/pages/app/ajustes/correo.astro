@@ -8,7 +8,7 @@ const ORG = await getOrg();
 const RESEND_ON = !!(import.meta.env.RESEND_API_KEY || process.env.RESEND_API_KEY);
 ---
 
-<SettingsShell title="Correo — Ajustes" tab="correo" save
+<SettingsShell title="Correo — Ajustes" tab="correo" perm="ajustes" save
     intro="Cuando envías una cotización por correo (vía Resend), el cliente recibe este email con el link a su portal. Personaliza el remitente y el texto. Variables: {cliente} {folio} {total} {negocio}.">
 
     {!RESEND_ON && (

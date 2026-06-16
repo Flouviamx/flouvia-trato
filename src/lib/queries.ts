@@ -3,7 +3,7 @@
 // src/lib/mock.ts para que las páginas sólo cambien el import + un `await`.
 // Re-exporta los helpers puros y STATUS_META del mock (no se duplican).
 
-import { sql, getActiveOrgId } from './db';
+import { sql, getActiveOrgId, withOrgTx, withPublicToken } from './db';
 import { currentUserId } from './context';
 import { dispatchQuoteEvent } from './webhooks';
 import { memberCan, type Membership, type PermKey, type PermMap } from './permissions';
@@ -50,6 +50,7 @@ const fmtRelative = (d: string | Date) => {
 // ── ORG ─────────────────────────────────────────────────────────────────────
 const PLAN_LABEL: Record<string, string> = { free: 'Gratis', starter: 'Starter', basico: 'Básico', pro: 'Profesional', scale: 'Scale', developer: 'Developer', negocio: 'Negocio', business: 'Negocio' };
 
+// orgs no tiene FORCE RLS — el rol dueño bypasea. No necesita withOrgTx.
 export async function getOrg() {
     const orgId = await getActiveOrgId();
     const [o] = await sql`select * from orgs where id = ${orgId}`;
@@ -75,7 +76,6 @@ export async function getOrg() {
         aprobDescuentoMax: num(o.aprob_descuento_max),
         aprobMontoMax: num(o.aprob_monto_max),
         interesMoratorioPct: num(o.interes_moratorio_pct),
-        // Superpoderes de configuración (jun 2026)
         plan_raw: (o.plan as string) || 'free',
         vigenciaDefaultDias: num(o.vigencia_default_dias) || 30,
         terminosDefault: (o.terminos_default as string) || 'contado',
@@ -88,7 +88,6 @@ export async function getOrg() {
         usoCfdi: (o.uso_cfdi as string) ?? '',
         cpFiscal: (o.cp_fiscal as string) ?? '',
         serieFolio: (o.serie_folio as string) ?? '',
-        // Centro de mando Enterprise (jun 2026)
         zonaHoraria: (o.zona_horaria as string) || 'America/Mexico_City',
         idioma: (o.idioma as string) || 'es-MX',
         colorSecundario: (o.color_secundario as string) || '',
@@ -102,11 +101,9 @@ export async function getOrg() {
         sessionTimeoutMin: num(o.session_timeout_min),
         inviteDomains: (o.invite_domains as string) ?? '',
         embedDomains: (o.embed_domains as string) ?? '',
-        // FASE 3 — Portal del cliente
         portalBanner: (o.portal_banner as string) ?? '',
         portalMostrarChat: (o.portal_mostrar_chat as boolean) ?? true,
         portalPowered: (o.portal_powered as boolean) ?? true,
-        // FASE 3 — Correo
         emailFromName: (o.email_from_name as string) ?? '',
         emailReplyTo: (o.email_reply_to as string) ?? '',
         emailIntro: (o.email_intro as string) ?? '',
@@ -115,14 +112,12 @@ export async function getOrg() {
 }
 
 // ── API KEYS (Developers) ────────────────────────────────────────────────────
-// Lista enmascarada de llaves de la org. La clave en claro NUNCA se devuelve
-// (sólo prefix + last4); se mostró una vez al crearla.
 export async function getApiKeys() {
     const orgId = await getActiveOrgId();
     let rows: any[] = [];
     try {
-        rows = await sql`select * from api_keys where org_id = ${orgId} order by created_at desc`;
-    } catch { return []; } // tabla aún no migrada
+        [rows] = await withOrgTx(orgId, sql`select * from api_keys where org_id = ${orgId} order by created_at desc`);
+    } catch { return []; }
     return rows.map((k) => ({
         id: k.id as string,
         nombre: k.nombre as string,
@@ -136,14 +131,12 @@ export async function getApiKeys() {
 }
 
 // ── WEBHOOKS (Developers) ─────────────────────────────────────────────────────
-// Endpoints salientes de la org. El secret se muestra enmascarado (se usa para
-// verificar la firma HMAC del lado del receptor; se ve completo al crearlo).
 export async function getWebhooks() {
     const orgId = await getActiveOrgId();
     let rows: any[] = [];
     try {
-        rows = await sql`select * from webhooks where org_id = ${orgId} order by created_at desc`;
-    } catch { return []; } // tabla aún no migrada
+        [rows] = await withOrgTx(orgId, sql`select * from webhooks where org_id = ${orgId} order by created_at desc`);
+    } catch { return []; }
     return rows.map((w) => ({
         id: w.id as string,
         url: w.url as string,
@@ -156,17 +149,16 @@ export async function getWebhooks() {
     }));
 }
 
-// Log de entregas de un webhook (Developers PRO). Las últimas ~50, scopeadas por
-// org. Se usa en el panel expandible y para "reintentar" (replay).
+// Log de entregas de un webhook (Developers PRO).
 export async function getWebhookDeliveries(webhookId: string) {
     const orgId = await getActiveOrgId();
     let rows: any[] = [];
     try {
-        rows = await sql`
+        [rows] = await withOrgTx(orgId, sql`
             select id, evento, status, ok, error, intento, es_prueba, duracion_ms, response_body, created_at
             from webhook_deliveries
             where webhook_id = ${webhookId} and org_id = ${orgId}
-            order by created_at desc limit 50`;
+            order by created_at desc limit 50`);
     } catch { return []; }
     return rows.map((d) => ({
         id: d.id as string,
@@ -183,23 +175,25 @@ export async function getWebhookDeliveries(webhookId: string) {
 }
 
 // Actividad del API pública (Developers PRO): últimas requests + stats 24h.
+// Dos queries en un mismo batch (una sola request HTTP a Neon).
 export async function getApiActivity() {
     const orgId = await getActiveOrgId();
     let recent: any[] = [];
     let stats: any = { total: 0, errores: 0, p_lat: 0 };
     try {
-        recent = await sql`
-            select r.metodo, r.ruta, r.status, r.duracion_ms, r.mode, r.created_at, k.nombre as key_nombre
-            from api_requests r left join api_keys k on k.id = r.key_id
-            where r.org_id = ${orgId}
-            order by r.created_at desc limit 40`;
-        const [agg] = await sql`
-            select count(*)::int as total,
-                   count(*) filter (where status >= 400)::int as errores,
-                   coalesce(round(avg(duracion_ms))::int, 0) as p_lat
-            from api_requests
-            where org_id = ${orgId} and created_at > now() - interval '24 hours'`;
-        stats = agg || stats;
+        let aggRow: any;
+        [recent, [aggRow]] = await withOrgTx(orgId,
+            sql`select r.metodo, r.ruta, r.status, r.duracion_ms, r.mode, r.created_at, k.nombre as key_nombre
+                from api_requests r left join api_keys k on k.id = r.key_id
+                where r.org_id = ${orgId}
+                order by r.created_at desc limit 40`,
+            sql`select count(*)::int as total,
+                       count(*) filter (where status >= 400)::int as errores,
+                       coalesce(round(avg(duracion_ms))::int, 0) as p_lat
+                from api_requests
+                where org_id = ${orgId} and created_at > now() - interval '24 hours'`,
+        );
+        stats = aggRow ?? stats;
     } catch { return { recent: [], total24: 0, errores24: 0, latProm: 0 }; }
     return {
         recent: recent.map((r) => ({
@@ -225,7 +219,7 @@ export async function getImpuestos() {
     const orgId = await getActiveOrgId();
     let rows: any[] = [];
     try {
-        rows = await sql`select * from impuestos where org_id = ${orgId} order by es_default desc, tipo, tasa desc`;
+        [rows] = await withOrgTx(orgId, sql`select * from impuestos where org_id = ${orgId} order by es_default desc, tipo, tasa desc`);
     } catch { return []; }
     return rows.map((i) => ({
         id: i.id as string,
@@ -238,13 +232,13 @@ export async function getImpuestos() {
     }));
 }
 
-// ── PLANTILLAS DE MENSAJE (reutilizables al enviar cotizaciones) ─────────────
+// ── PLANTILLAS DE MENSAJE ─────────────────────────────────────────────────────
 export async function getPlantillas() {
     const orgId = await getActiveOrgId();
     let rows: any[] = [];
     try {
-        rows = await sql`select * from plantillas_mensaje where org_id = ${orgId} order by canal, nombre`;
-    } catch { return []; } // tabla aún no migrada
+        [rows] = await withOrgTx(orgId, sql`select * from plantillas_mensaje where org_id = ${orgId} order by canal, nombre`);
+    } catch { return []; }
     return rows.map((p) => ({
         id: p.id as string,
         nombre: p.nombre as string,
@@ -253,49 +247,39 @@ export async function getPlantillas() {
     }));
 }
 
-// Uso del plan: cotizaciones "activas" (no cerradas) vs límite del plan.
-// El plan Gratis permite 5 activas; los de pago, ilimitadas. Alimenta el medidor
-// de uso de /app/ajustes/plan (100% real, sin columnas nuevas).
+// Uso del plan: cotizaciones "activas" vs límite del plan.
 export async function getPlanUsage() {
     const orgId = await getActiveOrgId();
     const [o] = await sql`select coalesce(plan,'free') as plan from orgs where id = ${orgId}`;
     const plan = (o?.plan as string) || 'free';
-    // "Activas" = todo lo que no está en un estado terminal.
-    const [{ activas }] = await sql`
-        select count(*)::int as activas from cotizaciones
-        where org_id = ${orgId} and status not in ('rejected', 'expired')`;
-    // Límite de cotizaciones activas por tier (null = ilimitado).
+    const [[{ activas }]] = await withOrgTx(orgId,
+        sql`select count(*)::int as activas from cotizaciones
+            where org_id = ${orgId} and status not in ('rejected', 'expired')`,
+    );
     const limite = plan === 'free' ? 5 : plan === 'starter' ? 50 : null;
     const usadas = Number(activas) || 0;
     return {
-        plan,
-        usadas,
-        limite,
-        ilimitado: limite === null,
+        plan, usadas, limite, ilimitado: limite === null,
         pct: limite ? Math.min(100, Math.round((usadas / limite) * 100)) : 0,
         excedido: limite !== null && usadas >= limite,
     };
 }
 
 // Consumo del periodo actual (IA / CFDI / API) vs cuota incluida del plan.
-// Lee uso_periodo (lo alimenta reportUsage en src/lib/billing.ts). El excedente
-// lo cobra Stripe; aquí sólo mostramos el medidor en /app/ajustes/plan.
 export async function getBillingUsage() {
     const orgId = await getActiveOrgId();
     const [o] = await sql`select coalesce(plan,'free') as plan, subscription_status, billing_cycle, current_period_end from orgs where id = ${orgId}`;
     const plan = (o?.plan as string) || 'free';
     const inc = INCLUDED[plan as keyof typeof INCLUDED] ?? INCLUDED.free;
-    const periodo = new Date().toISOString().slice(0, 7); // YYYY-MM (UTC)
+    const periodo = new Date().toISOString().slice(0, 7);
     let row: any = {};
     try {
-        const r = await sql`select * from uso_periodo where org_id = ${orgId} and periodo = ${periodo}`;
-        row = r[0] ?? {};
+        const [[r]] = await withOrgTx(orgId, sql`select * from uso_periodo where org_id = ${orgId} and periodo = ${periodo}`);
+        row = r ?? {};
     } catch { /* tabla aún no migrada */ }
 
     const dim = (usado: number, incl: number | null) => ({
-        usado,
-        incluido: incl,
-        ilimitado: incl === null,
+        usado, incluido: incl, ilimitado: incl === null,
         pct: incl ? Math.min(100, Math.round((usado / incl) * 100)) : 0,
         excedido: incl !== null && usado > incl,
     });
@@ -314,7 +298,7 @@ export async function getBillingUsage() {
 // ── PRODUCTOS ────────────────────────────────────────────────────────────────
 export async function getProductos() {
     const orgId = await getActiveOrgId();
-    const rows = await sql`select * from productos where org_id = ${orgId} order by activo desc, nombre`;
+    const [rows] = await withOrgTx(orgId, sql`select * from productos where org_id = ${orgId} order by activo desc, nombre`);
     return rows.map(p => ({
         id: p.id as string,
         sku: (p.sku as string) ?? '',
@@ -328,7 +312,7 @@ export async function getProductos() {
 // ── CLIENTES ──────────────────────────────────────────────────────────────────
 export async function getClientes() {
     const orgId = await getActiveOrgId();
-    const rows = await sql`select * from clientes where org_id = ${orgId} order by empresa`;
+    const [rows] = await withOrgTx(orgId, sql`select * from clientes where org_id = ${orgId} order by empresa`);
     return rows.map(c => ({
         id: c.id as string,
         empresa: c.empresa as string,
@@ -374,61 +358,64 @@ function rowToQuote(c: any, items: any[], eventos: any[]): MockQuote {
     };
 }
 
-// Lista (sin items/eventos detallados — sólo lo que la tabla necesita).
+// Lista (sin items/eventos detallados).
 export async function getCotizaciones(): Promise<MockQuote[]> {
     const orgId = await getActiveOrgId();
-    const rows = await sql`
+    const [rows] = await withOrgTx(orgId, sql`
         select c.*, cl.empresa, cl.terminos_default,
                coalesce(c.terminos, cl.terminos_default) as terminos
         from cotizaciones c
         left join clientes cl on cl.id = c.cliente_id
         where c.org_id = ${orgId}
-        order by c.created_at desc`;
+        order by c.created_at desc`);
     return rows.map(c => rowToQuote(c, [], []));
 }
 
+// Detalle con items y timeline. Tres queries en un solo batch.
 export async function getCotizacion(id: string): Promise<MockQuote | null> {
     const orgId = await getActiveOrgId();
-    const rows = await sql`
-        select c.*, cl.empresa, coalesce(c.terminos, cl.terminos_default) as terminos
-        from cotizaciones c left join clientes cl on cl.id = c.cliente_id
-        where c.id = ${id} and c.org_id = ${orgId}`;
+    const [rows, items, eventos] = await withOrgTx(orgId,
+        sql`select c.*, cl.empresa, coalesce(c.terminos, cl.terminos_default) as terminos
+            from cotizaciones c left join clientes cl on cl.id = c.cliente_id
+            where c.id = ${id} and c.org_id = ${orgId}`,
+        sql`select * from cotizacion_items where cotizacion_id = ${id} order by orden`,
+        sql`select * from eventos where cotizacion_id = ${id} order by created_at desc`,
+    );
     if (!rows.length) return null;
-    const items = await sql`select * from cotizacion_items where cotizacion_id = ${id} order by orden`;
-    const eventos = await sql`select * from eventos where cotizacion_id = ${id} order by created_at desc`;
     return rowToQuote(rows[0], items, eventos);
 }
 
-// Link público — NO filtra por org (el token es el secreto). Devuelve también
-// el nombre/marca de la org emisora para renderizar /q.
+// Link público — usa withPublicToken para satisfacer la política RLS de cotizaciones/items.
+// Tres queries en un solo batch con el token como contexto de RLS.
 export async function getCotizacionByToken(token: string) {
-    const rows = await sql`
-        select c.*, cl.empresa, coalesce(c.terminos, cl.terminos_default) as terminos,
+    const [rows, items, conv] = await withPublicToken(token,
+        sql`select c.*, cl.empresa, coalesce(c.terminos, cl.terminos_default) as terminos,
                o.nombre as org_nombre, o.rfc as org_rfc, o.color_marca as org_color,
+               o.logo_url as org_logo_url,
                o.pdf_mensaje as org_pdf_mensaje, o.iva_pct as org_iva_pct,
                o.embed_domains as org_embed_domains,
                o.portal_banner as org_portal_banner, o.portal_bienvenida as org_portal_bienvenida,
                o.portal_mostrar_chat as org_portal_chat, o.portal_powered as org_portal_powered
-        from cotizaciones c
-        left join clientes cl on cl.id = c.cliente_id
-        join orgs o on o.id = c.org_id
-        where c.public_token = ${token}`;
+            from cotizaciones c
+            left join clientes cl on cl.id = c.cliente_id
+            join orgs o on o.id = c.org_id
+            where c.public_token = ${token}`,
+        sql`select ci.* from cotizacion_items ci
+            join cotizaciones c on c.id = ci.cotizacion_id
+            where c.public_token = ${token} order by ci.orden`,
+        sql`select e.tipo, e.detalle, e.created_at from eventos e
+            join cotizaciones c on c.id = e.cotizacion_id
+            where c.public_token = ${token} and e.tipo in ('comment', 'counter', 'reply')
+            order by e.created_at asc`,
+    );
     if (!rows.length) return null;
-    const items = await sql`select * from cotizacion_items where cotizacion_id = ${rows[0].id} order by orden`;
     const quote = rowToQuote(rows[0], items, []);
-    // Conversación: comentarios del cliente, contraofertas y respuestas del vendedor
-    const conv = await sql`
-        select tipo, detalle, created_at from eventos
-        where cotizacion_id = ${rows[0].id} and tipo in ('comment', 'counter', 'reply')
-        order by created_at asc`;
     return {
         quote,
         conversacion: conv.map((e) => ({
             tipo: e.tipo as string,
             detalle: (e.detalle as string) ?? '',
             cuando: fmtRelative(e.created_at as string),
-            // En /q el que mira es el CLIENTE: sus mensajes (comment/counter) van a
-            // la derecha; las respuestas del vendedor (reply) a la izquierda.
             mine: e.tipo === 'comment' || e.tipo === 'counter',
         })),
         org: {
@@ -436,107 +423,91 @@ export async function getCotizacionByToken(token: string) {
             inicial: initials(rows[0].org_nombre),
             rfc: (rows[0].org_rfc as string) ?? '',
             colorMarca: (rows[0].org_color as string) || '#0a192f',
+            logoUrl: (rows[0].org_logo_url as string) ?? '',
             pdfMensaje: (rows[0].org_pdf_mensaje as string) ?? '',
             ivaPct: num(rows[0].org_iva_pct) || 16,
-            // Dominios autorizados a embeber esta cotización (CORD Elements).
             embedDomains: (rows[0].org_embed_domains as string) ?? '',
-            // FASE 3 — Portal del cliente
             portalBanner: (rows[0].org_portal_banner as string) ?? '',
+            portalBienvenida: (rows[0].org_portal_bienvenida as string) ?? '',
             portalMostrarChat: (rows[0].org_portal_chat as boolean) ?? true,
             portalPowered: (rows[0].org_portal_powered as boolean) ?? true,
         },
     };
 }
 
-// Marca un evento 'viewed' la primera vez que el cliente abre el link.
+// Marca 'viewed' la primera vez que el cliente abre el link.
+// Fase 1: lee por token (contexto público). Fase 2: escribe por org_id (contexto tenant).
 export async function markViewed(token: string) {
-    const rows = await sql`select id, org_id, status from cotizaciones where public_token = ${token}`;
-    if (!rows.length) return;
-    const c = rows[0];
-    await sql`insert into eventos (org_id, cotizacion_id, tipo, detalle)
-              values (${c.org_id}, ${c.id}, 'viewed', 'El cliente abrió el link')`;
-    if (c.status === 'sent') {
-        await sql`update cotizaciones set status = 'viewed' where id = ${c.id}`;
-    }
+    const [[c]] = await withPublicToken(token,
+        sql`select id, org_id, status from cotizaciones where public_token = ${token}`,
+    );
+    if (!c) return;
+    await withOrgTx(c.org_id as string,
+        sql`insert into eventos (org_id, cotizacion_id, tipo, detalle)
+            values (${c.org_id}, ${c.id}, 'viewed', 'El cliente abrió el link')`,
+        sql`update cotizaciones set status = 'viewed'
+            where id = ${c.id} and status = 'sent'`,
+    );
     await dispatchQuoteEvent(c.org_id as string, c.id as string, 'quote.viewed');
 }
 
 // ── ANALÍTICA (/app/analitica) ────────────────────────────────────────────────
-// Agregados reales sobre cotizaciones + items. Aprovecha precio_unitario (lista)
-// vs precio_negociado para el análisis de margen cedido.
+// Seis queries en un solo batch HTTP — mejora significativa de latencia.
 export async function getAnalytics() {
     const orgId = await getActiveOrgId();
 
-    // 1) Embudo + KPIs globales
-    const [k] = await sql`
-        select
-            count(*) filter (where status in ('sent','viewed','approved','paid','invoiced')) as enviadas,
-            count(*) filter (where status in ('viewed','approved','paid','invoiced')) as vistas,
-            count(*) filter (where status in ('approved','paid','invoiced')) as aprobadas,
-            count(*) filter (where status in ('paid','invoiced')) as pagadas,
-            coalesce(sum(total) filter (where status in ('approved','paid','invoiced')),0) as cerrado_total,
-            coalesce(avg(extract(epoch from (approved_at - created_at))/86400)
-                     filter (where status in ('approved','paid','invoiced') and approved_at is not null),0) as dias_cierre
-        from cotizaciones where org_id = ${orgId}`;
+    const [kRows, meses, margRows, clientes, productos, plRows] = await withOrgTx(orgId,
+        sql`select
+                count(*) filter (where status in ('sent','viewed','approved','paid','invoiced')) as enviadas,
+                count(*) filter (where status in ('viewed','approved','paid','invoiced')) as vistas,
+                count(*) filter (where status in ('approved','paid','invoiced')) as aprobadas,
+                count(*) filter (where status in ('paid','invoiced')) as pagadas,
+                coalesce(sum(total) filter (where status in ('approved','paid','invoiced')),0) as cerrado_total,
+                coalesce(avg(extract(epoch from (approved_at - created_at))/86400)
+                         filter (where status in ('approved','paid','invoiced') and approved_at is not null),0) as dias_cierre
+            from cotizaciones where org_id = ${orgId}`,
+        sql`select to_char(date_trunc('month', created_at),'YYYY-MM') as ym,
+                   coalesce(sum(total),0) as cotizado,
+                   coalesce(sum(total) filter (where status in ('approved','paid','invoiced')),0) as cerrado
+            from cotizaciones
+            where org_id = ${orgId} and created_at >= date_trunc('month', now()) - interval '5 months'
+            group by 1 order by 1`,
+        sql`select coalesce(sum(it.precio_unitario * it.cantidad),0) as lista_total,
+                   coalesce(sum(coalesce(it.precio_negociado, it.precio_unitario) * it.cantidad),0) as nego_total
+            from cotizacion_items it
+            join cotizaciones c on c.id = it.cotizacion_id
+            where c.org_id = ${orgId} and c.status <> 'draft'`,
+        sql`select cl.empresa,
+                   coalesce(sum(c.total) filter (where c.status in ('approved','paid','invoiced')),0) as cerrado,
+                   count(*) as cotizaciones,
+                   count(*) filter (where c.status in ('approved','paid','invoiced')) as aprobadas
+            from cotizaciones c join clientes cl on cl.id = c.cliente_id
+            where c.org_id = ${orgId}
+            group by cl.empresa
+            order by cerrado desc, cotizaciones desc limit 6`,
+        sql`select coalesce(p.nombre, it.descripcion) as nombre,
+                   coalesce(sum(it.cantidad),0) as cantidad,
+                   coalesce(sum(coalesce(it.precio_negociado, it.precio_unitario) * it.cantidad),0) as importe,
+                   count(distinct c.id) as cotizaciones
+            from cotizacion_items it
+            join cotizaciones c on c.id = it.cotizacion_id
+            left join productos p on p.id = it.producto_id
+            where c.org_id = ${orgId} and c.status <> 'draft'
+            group by coalesce(p.nombre, it.descripcion)
+            order by importe desc limit 6`,
+        sql`select coalesce(sum(total) filter (where status = 'sent'),0)   as sent_total,
+                   coalesce(sum(total) filter (where status = 'viewed'),0) as viewed_total
+            from cotizaciones where org_id = ${orgId}`,
+    );
 
-    // 2) Cotizado vs cerrado por mes (últimos 6)
-    const meses = await sql`
-        select to_char(date_trunc('month', created_at),'YYYY-MM') as ym,
-               coalesce(sum(total),0) as cotizado,
-               coalesce(sum(total) filter (where status in ('approved','paid','invoiced')),0) as cerrado
-        from cotizaciones
-        where org_id = ${orgId} and created_at >= date_trunc('month', now()) - interval '5 months'
-        group by 1 order by 1`;
-
-    // 3) Margen: precio de lista vs negociado (cotizaciones no-borrador)
-    const [marg] = await sql`
-        select coalesce(sum(it.precio_unitario * it.cantidad),0) as lista_total,
-               coalesce(sum(coalesce(it.precio_negociado, it.precio_unitario) * it.cantidad),0) as nego_total
-        from cotizacion_items it
-        join cotizaciones c on c.id = it.cotizacion_id
-        where c.org_id = ${orgId} and c.status <> 'draft'`;
-
-    // 4) Top clientes por monto cerrado
-    const clientes = await sql`
-        select cl.empresa,
-               coalesce(sum(c.total) filter (where c.status in ('approved','paid','invoiced')),0) as cerrado,
-               count(*) as cotizaciones,
-               count(*) filter (where c.status in ('approved','paid','invoiced')) as aprobadas
-        from cotizaciones c join clientes cl on cl.id = c.cliente_id
-        where c.org_id = ${orgId}
-        group by cl.empresa
-        order by cerrado desc, cotizaciones desc
-        limit 6`;
-
-    // 5) Top productos por importe cotizado
-    const productos = await sql`
-        select coalesce(p.nombre, it.descripcion) as nombre,
-               coalesce(sum(it.cantidad),0) as cantidad,
-               coalesce(sum(coalesce(it.precio_negociado, it.precio_unitario) * it.cantidad),0) as importe,
-               count(distinct c.id) as cotizaciones
-        from cotizacion_items it
-        join cotizaciones c on c.id = it.cotizacion_id
-        left join productos p on p.id = it.producto_id
-        where c.org_id = ${orgId} and c.status <> 'draft'
-        group by coalesce(p.nombre, it.descripcion)
-        order by importe desc
-        limit 6`;
-
-    // 6) Pipeline abierto para pronóstico (ponderado por probabilidad de cierre)
-    const [pl] = await sql`
-        select coalesce(sum(total) filter (where status = 'sent'),0)   as sent_total,
-               coalesce(sum(total) filter (where status = 'viewed'),0) as viewed_total
-        from cotizaciones where org_id = ${orgId}`;
-
+    const k = kRows[0]; const marg = margRows[0]; const pl = plRows[0];
     const enviadas = num(k.enviadas), aprobadas = num(k.aprobadas);
     const listaTotal = num(marg.lista_total), negoTotal = num(marg.nego_total);
     const cerradoN = aprobadas;
     const sentTotal = num(pl.sent_total), viewedTotal = num(pl.viewed_total);
 
     return {
-        funnel: {
-            enviadas, vistas: num(k.vistas), aprobadas, pagadas: num(k.pagadas),
-        },
+        funnel: { enviadas, vistas: num(k.vistas), aprobadas, pagadas: num(k.pagadas) },
         kpis: {
             cerradoTotal: num(k.cerrado_total),
             tasaCierre: enviadas ? Math.round((aprobadas / enviadas) * 100) : 0,
@@ -549,11 +520,7 @@ export async function getAnalytics() {
             cedido: Math.max(0, listaTotal - negoTotal),
             pct: listaTotal > 0 ? ((listaTotal - negoTotal) / listaTotal) * 100 : 0,
         },
-        // Pronóstico: enviadas ~30% y vistas ~50% de probabilidad de cierre
-        forecast: {
-            sentTotal, viewedTotal,
-            ponderado: sentTotal * 0.3 + viewedTotal * 0.5,
-        },
+        forecast: { sentTotal, viewedTotal, ponderado: sentTotal * 0.3 + viewedTotal * 0.5 },
         clientes: clientes.map(c => ({
             empresa: c.empresa as string,
             cerrado: num(c.cerrado),
@@ -571,34 +538,31 @@ export async function getAnalytics() {
 }
 
 // ── COBRANZA / CUENTAS POR COBRAR (/app/cobranza) ──────────────────────────────
-// Por cobrar = cotizaciones aprobadas o facturadas que aún no se pagan. El
-// vencimiento sale de los términos (Contado=0, Net 30=30, Net 60=60) sobre la
-// fecha de aprobación (o creación). Calcula aging y exposición por cliente.
 export async function getCobranza() {
     const orgId = await getActiveOrgId();
 
-    // Tasa de interés moratorio + retraso de pago promedio (histórico real).
-    // select * → resiliente si la columna aún no se migra (undefined → 0).
+    // orgs no tiene FORCE RLS.
     const [org] = await sql`select * from orgs where id = ${orgId}`;
     const rate = num(org?.interes_moratorio_pct);
-    const [dl] = await sql`
-        select coalesce(avg(extract(epoch from (e.paid_at - (coalesce(c.approved_at, c.created_at)
-            + make_interval(days => case c.terminos when 'net30' then 30 when 'net60' then 60 else 0 end)))) / 86400), 0) as avg_delay
-        from cotizaciones c
-        join (select cotizacion_id, max(created_at) as paid_at from eventos where org_id = ${orgId} and tipo = 'paid' group by cotizacion_id) e
-          on e.cotizacion_id = c.id
-        where c.org_id = ${orgId} and c.status = 'paid'`;
-    const avgDelay = Math.round(num(dl?.avg_delay));
 
-    const rows = await sql`
-        select c.id, c.folio, c.total, c.terminos, c.status, c.public_token,
-               coalesce(c.approved_at, c.created_at) as base_date,
-               cl.empresa, cl.limite_credito, cl.telefono
-        from cotizaciones c
-        left join clientes cl on cl.id = c.cliente_id
-        where c.org_id = ${orgId} and c.status in ('approved','invoiced')
-        order by coalesce(c.approved_at, c.created_at) asc`;
+    // Dos queries de datos en un solo batch.
+    const [dlRows, rows] = await withOrgTx(orgId,
+        sql`select coalesce(avg(extract(epoch from (e.paid_at - (coalesce(c.approved_at, c.created_at)
+                + make_interval(days => case c.terminos when 'net30' then 30 when 'net60' then 60 else 0 end)))) / 86400), 0) as avg_delay
+            from cotizaciones c
+            join (select cotizacion_id, max(created_at) as paid_at from eventos where org_id = ${orgId} and tipo = 'paid' group by cotizacion_id) e
+              on e.cotizacion_id = c.id
+            where c.org_id = ${orgId} and c.status = 'paid'`,
+        sql`select c.id, c.folio, c.total, c.terminos, c.status, c.public_token,
+                   coalesce(c.approved_at, c.created_at) as base_date,
+                   cl.empresa, cl.limite_credito, cl.telefono
+            from cotizaciones c
+            left join clientes cl on cl.id = c.cliente_id
+            where c.org_id = ${orgId} and c.status in ('approved','invoiced')
+            order by coalesce(c.approved_at, c.created_at) asc`,
+    );
 
+    const avgDelay = Math.round(num(dlRows[0]?.avg_delay));
     const DAYS: Record<string, number> = { contado: 0, net30: 30, net60: 60 };
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const MS = 86400000;
@@ -607,32 +571,23 @@ export async function getCobranza() {
         const tot = num(r.total);
         const base = new Date(r.base_date as string);
         const due = new Date(base); due.setDate(due.getDate() + (DAYS[r.terminos as string] ?? 0));
-        const diff = Math.floor((today.getTime() - due.getTime()) / MS); // >0 = vencido
+        const diff = Math.floor((today.getTime() - due.getTime()) / MS);
         const overdue = diff > 0;
         const bucket = !overdue ? 'vigente' : diff <= 30 ? 'd30' : diff <= 60 ? 'd60' : 'd60p';
-        // Interés moratorio compuesto mensual sobre los días de atraso.
         const interes = overdue && rate > 0 ? tot * (Math.pow(1 + rate / 100, diff / 30) - 1) : 0;
-        // Pago esperado = vencimiento + retraso histórico promedio del negocio.
         const expected = new Date(due); expected.setDate(expected.getDate() + avgDelay);
         const expDias = Math.round((expected.getTime() - today.getTime()) / MS);
         return {
-            id: r.id as string,
-            folio: r.folio as string,
+            id: r.id as string, folio: r.folio as string,
             empresa: (r.empresa as string) ?? 'Sin cliente',
             inicial: initials((r.empresa as string) ?? '—'),
-            total: tot,
-            terminos: termLabel(r.terminos as string),
-            status: r.status as string,
-            token: r.public_token as string,
+            total: tot, terminos: termLabel(r.terminos as string),
+            status: r.status as string, token: r.public_token as string,
             telefono: (r.telefono as string) ?? '',
-            vence: fmtDate(due),
-            overdue,
-            diasVencido: overdue ? diff : 0,
-            diasParaVencer: overdue ? 0 : -diff,
-            bucket,
-            interes: Math.round(interes),
-            expectedFecha: fmtDate(expected),
-            expectedDias: expDias,
+            vence: fmtDate(due), overdue,
+            diasVencido: overdue ? diff : 0, diasParaVencer: overdue ? 0 : -diff,
+            bucket, interes: Math.round(interes),
+            expectedFecha: fmtDate(expected), expectedDias: expDias,
         };
     });
 
@@ -641,7 +596,6 @@ export async function getCobranza() {
 
     const totalPorCobrar = sumBy(() => true);
     const totalVencido = sumBy((i) => i.overdue);
-    const totalVigente = totalPorCobrar - totalVencido;
 
     const aging = [
         { key: 'vigente', label: 'Por vencer', monto: sumBy((i) => !i.overdue), n: items.filter(i => !i.overdue).length, color: '#3b82f6' },
@@ -650,13 +604,11 @@ export async function getCobranza() {
         { key: 'd60p', label: '+60 días', monto: sumBy((i) => i.bucket === 'd60p'), n: items.filter(i => i.bucket === 'd60p').length, color: '#ef4444' },
     ];
 
-    // Exposición por cliente (saldo por cobrar vs límite de crédito)
     const byCliente = new Map<string, { empresa: string; saldo: number; limite: number; n: number }>();
     for (const r of rows) {
         const empresa = (r.empresa as string) ?? 'Sin cliente';
         const cur = byCliente.get(empresa) ?? { empresa, saldo: 0, limite: num(r.limite_credito), n: 0 };
-        cur.saldo += num(r.total);
-        cur.n += 1;
+        cur.saldo += num(r.total); cur.n += 1;
         byCliente.set(empresa, cur);
     }
     const clientes = [...byCliente.values()]
@@ -666,35 +618,32 @@ export async function getCobranza() {
     return {
         items: items.sort((a, b) => b.diasVencido - a.diasVencido || a.diasParaVencer - b.diasParaVencer),
         resumen: {
-            totalPorCobrar, totalVencido, totalVigente,
+            totalPorCobrar, totalVencido, totalVigente: totalPorCobrar - totalVencido,
             nPorCobrar: items.length,
             nVencidas: items.filter(i => i.overdue).length,
             nClientes: clientes.length,
             nExcedidos: clientes.filter(c => c.excede).length,
             interesTotal: items.reduce((s, i) => s + i.interes, 0),
-            interesPct: rate,
-            avgDelay,
+            interesPct: rate, avgDelay,
             esperado7: items.filter(i => i.expectedDias <= 7).reduce((s, i) => s + i.total, 0),
             esperado30: items.filter(i => i.expectedDias <= 30).reduce((s, i) => s + i.total, 0),
         },
-        aging,
-        clientes,
+        aging, clientes,
     };
 }
 
 // ── TAREAS / RECORDATORIOS (CRM ligero) ───────────────────────────────────────
 export async function getTareas() {
     const orgId = await getActiveOrgId();
-    const rows = await sql`
+    const [rows] = await withOrgTx(orgId, sql`
         select t.id, t.titulo, t.due_date, t.cotizacion_id, c.folio
         from tareas t left join cotizaciones c on c.id = t.cotizacion_id
         where t.org_id = ${orgId} and t.done = false
         order by t.due_date asc nulls last, t.created_at asc
-        limit 12`;
+        limit 12`);
     const hoy = new Date(new Date().toDateString());
     return rows.map((t) => ({
-        id: t.id as string,
-        titulo: t.titulo as string,
+        id: t.id as string, titulo: t.titulo as string,
         folio: (t.folio as string) ?? '',
         due: t.due_date ? fmtDate(t.due_date as string) : '',
         vencida: t.due_date ? new Date(t.due_date as string) < hoy : false,
@@ -705,10 +654,10 @@ export async function getTareas() {
 export async function getAuditLog() {
     const orgId = await getActiveOrgId();
     try {
-        const rows = await sql`
+        const [rows] = await withOrgTx(orgId, sql`
             select actor, accion, entidad, detalle, ip, created_at
             from audit_log where org_id = ${orgId}
-            order by created_at desc limit 50`;
+            order by created_at desc limit 50`);
         return rows.map((r) => ({
             actor: (r.actor as string) || '—',
             accion: r.accion as string,
@@ -717,45 +666,38 @@ export async function getAuditLog() {
             ip: (r.ip as string) || '',
             cuando: fmtRelative(r.created_at as string),
         }));
-    } catch {
-        return []; // tabla aún no migrada
-    }
+    } catch { return []; }
 }
 
 // ── DASHBOARD KPIs ────────────────────────────────────────────────────────────
 export async function getDashboard() {
+    const orgId = await getActiveOrgId();
     const quotes = await getCotizaciones();
-    const porCerrar = quotes
-        .filter(q => ['sent', 'viewed'].includes(q.status))
-        .reduce((s, q) => s + (q.total ?? 0), 0);
-    const cerradoMes = quotes
-        .filter(q => ['approved', 'paid', 'invoiced'].includes(q.status))
-        .reduce((s, q) => s + (q.total ?? 0), 0);
+    const porCerrar = quotes.filter(q => ['sent', 'viewed'].includes(q.status)).reduce((s, q) => s + (q.total ?? 0), 0);
+    const cerradoMes = quotes.filter(q => ['approved', 'paid', 'invoiced'].includes(q.status)).reduce((s, q) => s + (q.total ?? 0), 0);
     const aprobadas = quotes.filter(q => ['approved', 'paid', 'invoiced'].includes(q.status)).length;
     const cerrables = quotes.filter(q => !['draft'].includes(q.status)).length;
     const tasaCierre = cerrables ? Math.round((aprobadas / cerrables) * 100) : 0;
 
-    const eventos = await sql`
+    const [eventos] = await withOrgTx(orgId, sql`
         select e.tipo, e.detalle, e.created_at, c.folio, c.id as cotizacion_id
         from eventos e join cotizaciones c on c.id = e.cotizacion_id
-        where e.org_id = ${await getActiveOrgId()}
-        order by e.created_at desc limit 7`;
+        where e.org_id = ${orgId}
+        order by e.created_at desc limit 7`);
 
     return {
-        quotes,
-        porCerrar, cerradoMes, tasaCierre,
+        quotes, porCerrar, cerradoMes, tasaCierre,
         abiertas: quotes.filter(q => ['sent', 'viewed'].includes(q.status)).length,
         feed: eventos.map(e => ({
-            tipo: e.tipo as string,
-            detalle: e.detalle as string,
+            tipo: e.tipo as string, detalle: e.detalle as string,
             cuando: fmtRelative(e.created_at as string),
-            folio: e.folio as string,
-            id: e.cotizacion_id as string,
+            folio: e.folio as string, id: e.cotizacion_id as string,
         })),
     };
 }
 
 // ── EQUIPO Y ROLES ────────────────────────────────────────────────────────────
+// org_members no tiene FORCE RLS — queries directas OK para bootstrap.
 const fmtFecha = (d: unknown) => d ? new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d as string)) : '';
 
 export interface MemberRow {
@@ -765,14 +707,13 @@ export interface MemberRow {
     nombre: string;
     rol: string;
     permisos: PermMap;
-    estado: string;      // invitado | activo | revocado
+    estado: string;
     token: string | null;
     inicial: string;
     desde: string;
     esYo: boolean;
 }
 
-/** Lista de miembros de la org activa (owner primero, luego por fecha). */
 export async function getMembers(): Promise<MemberRow[]> {
     const orgId = await getActiveOrgId();
     const me = currentUserId();
@@ -786,8 +727,7 @@ export async function getMembers(): Promise<MemberRow[]> {
             id: m.id as string,
             clerkUserId: (m.clerk_user_id as string) ?? null,
             email: (m.email as string) ?? '',
-            nombre,
-            rol: m.rol as string,
+            nombre, rol: m.rol as string,
             permisos: (m.permisos as PermMap) ?? {},
             estado: m.estado as string,
             token: (m.token as string) ?? null,
@@ -798,22 +738,18 @@ export async function getMembers(): Promise<MemberRow[]> {
     });
 }
 
-/** Membresía del usuario actual en la org activa (para permisos). */
 export async function getMyMembership(): Promise<Membership> {
     const userId = currentUserId();
     const orgId = await getActiveOrgId();
-    if (!userId) return { rol: 'owner', permisos: {}, esOwner: true }; // sin sesión → no restringir (cron)
+    if (!userId) return { rol: 'owner', permisos: {}, esOwner: true };
     try {
         const rows = await sql`select rol, permisos from org_members where org_id = ${orgId} and clerk_user_id = ${userId} and estado = 'activo' limit 1`;
-        if (!rows.length) return { rol: 'owner', permisos: {}, esOwner: true }; // fallback: owner sin row
+        if (!rows.length) return { rol: 'owner', permisos: {}, esOwner: true };
         const m = rows[0];
         return { rol: m.rol as string, permisos: (m.permisos as PermMap) ?? {}, esOwner: m.rol === 'owner' };
-    } catch {
-        return { rol: 'owner', permisos: {}, esOwner: true };
-    }
+    } catch { return { rol: 'owner', permisos: {}, esOwner: true }; }
 }
 
-/** Guard para APIs: devuelve una Response 403 si el usuario NO puede `key`, o null si sí. */
 export async function requirePerm(key: PermKey): Promise<Response | null> {
     const m = await getMyMembership();
     if (memberCan(m, key)) return null;
@@ -822,55 +758,47 @@ export async function requirePerm(key: PermKey): Promise<Response | null> {
     });
 }
 
-// ── GUÍA DE CONFIGURACIÓN (onboarding por checklist, estilo Stripe) ───────────
-// Tareas con "done" calculado de datos REALES. Alimenta la guía del dashboard.
+// ── GUÍA DE CONFIGURACIÓN ─────────────────────────────────────────────────────
 export async function getSetupProgress() {
     const orgId = await getActiveOrgId();
     const [o] = await sql`select logo_url, email_contacto, telefono, rfc from orgs where id = ${orgId}`;
-    const [{ np }] = await sql`select count(*)::int as np from productos where org_id = ${orgId}`;
-    const [{ nc }] = await sql`select count(*)::int as nc from clientes where org_id = ${orgId}`;
-    const [{ nq }] = await sql`select count(*)::int as nq from cotizaciones where org_id = ${orgId}`;
+    // Tres conteos en un solo batch.
+    const [[{ np }], [{ nc }], [{ nq }]] = await withOrgTx(orgId,
+        sql`select count(*)::int as np from productos where org_id = ${orgId}`,
+        sql`select count(*)::int as nc from clientes where org_id = ${orgId}`,
+        sql`select count(*)::int as nq from cotizaciones where org_id = ${orgId}`,
+    );
     const tasks = [
-        { id: 'marca',      label: 'Personaliza tu marca',        desc: 'Logo, color y datos de contacto en tus documentos.', href: '/app/ajustes/branding',         done: !!(o?.logo_url || o?.email_contacto || o?.telefono) },
-        { id: 'productos',  label: 'Crea tu catálogo',            desc: 'Agrega los productos o servicios que vendes.',       href: '/app/productos',               done: Number(np) > 0 },
-        { id: 'clientes',   label: 'Agrega tus clientes',         desc: 'A quién le cotizas, con sus términos de pago.',      href: '/app/clientes',                done: Number(nc) > 0 },
-        { id: 'cotizacion', label: 'Crea tu primera cotización',  desc: 'El corazón de Cord — pruébalo en 2 minutos.',       href: '/app/cotizaciones/nueva',      done: Number(nq) > 0 },
-        { id: 'fiscal',     label: 'Completa tus datos fiscales', desc: 'RFC y régimen para timbrar CFDI 4.0.',               href: '/app/ajustes/fiscal',          done: !!o?.rfc },
+        { id: 'marca',      label: 'Personaliza tu marca',        desc: 'Logo, color y datos de contacto en tus documentos.', href: '/app/ajustes/branding',    done: !!(o?.logo_url || o?.email_contacto || o?.telefono) },
+        { id: 'productos',  label: 'Crea tu catálogo',            desc: 'Agrega los productos o servicios que vendes.',       href: '/app/productos',          done: Number(np) > 0 },
+        { id: 'clientes',   label: 'Agrega tus clientes',         desc: 'A quién le cotizas, con sus términos de pago.',      href: '/app/clientes',           done: Number(nc) > 0 },
+        { id: 'cotizacion', label: 'Crea tu primera cotización',  desc: 'El corazón de Cord — pruébalo en 2 minutos.',       href: '/app/cotizaciones/nueva', done: Number(nq) > 0 },
+        { id: 'fiscal',     label: 'Completa tus datos fiscales', desc: 'RFC y régimen para timbrar CFDI 4.0.',               href: '/app/ajustes/fiscal',     done: !!o?.rfc },
     ];
     const doneN = tasks.filter((t) => t.done).length;
     return { tasks, doneN, total: tasks.length, pct: Math.round((doneN / tasks.length) * 100), complete: doneN === tasks.length };
 }
 
 // ── BADGES DE LA SIDEBAR ──────────────────────────────────────────────────────
-// Conteos ligeros (COUNT…FILTER, una sola query) para los contadores de la nav.
-// Resiliente: si alguna columna aún no está migrada devuelve ceros, nunca rompe
-// el layout. seguimiento = enviadas/vistas sin responder; vencidas = cartera por
-// cobrar pasada de su fecha de vencimiento según términos.
 export async function getSidebarBadges() {
     const zero = { seguimiento: 0, vencidas: 0, porAprobar: 0 };
     try {
         const orgId = await getActiveOrgId();
-        const [r] = await sql`
-            select
-                count(*) filter (where status in ('sent','viewed'))                       as seguimiento,
-                count(*) filter (where status in ('approved','invoiced')
-                    and (coalesce(approved_at, created_at)
-                        + make_interval(days => case terminos
-                            when 'net30' then 30 when 'net60' then 60 else 0 end)) < now()) as vencidas
-            from cotizaciones where org_id = ${orgId}`;
-        let porAprobar = 0;
-        try {
-            const [a] = await sql`
-                select count(*)::int as n from cotizaciones
-                where org_id = ${orgId} and aprob_estado = 'pendiente'`;
-            porAprobar = Number(a?.n ?? 0);
-        } catch { /* columna aprob_estado aún no migrada */ }
+        const [[r], [a]] = await withOrgTx(orgId,
+            sql`select
+                    count(*) filter (where status in ('sent','viewed')) as seguimiento,
+                    count(*) filter (where status in ('approved','invoiced')
+                        and (coalesce(approved_at, created_at)
+                            + make_interval(days => case terminos
+                                when 'net30' then 30 when 'net60' then 60 else 0 end)) < now()) as vencidas
+                from cotizaciones where org_id = ${orgId}`,
+            sql`select count(*)::int as n from cotizaciones
+                where org_id = ${orgId} and aprob_estado = 'pendiente'`,
+        );
         return {
             seguimiento: Number(r?.seguimiento ?? 0),
             vencidas: Number(r?.vencidas ?? 0),
-            porAprobar,
+            porAprobar: Number(a?.n ?? 0),
         };
-    } catch {
-        return zero;
-    }
+    } catch { return zero; }
 }

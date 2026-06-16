@@ -1,18 +1,20 @@
 ---
 // Productos — catálogo con precios de lista. CRUD real (Neon).
 import AppLayout from '../../layouts/AppLayout.astro';
-import { getProductos, money } from '../../lib/queries';
+import { getProductos, getMyMembership, money } from '../../lib/queries';
+import { memberCan } from '../../lib/permissions';
 
-const PRODUCTOS = await getProductos();
+const [PRODUCTOS, ME] = await Promise.all([getProductos(), getMyMembership()]);
+const canEdit = memberCan(ME, 'productos');
 ---
 
 <AppLayout title="Productos — Cord" page="productos" heading="Productos">
     <div slot="topbar-actions" class="topbar-btns">
-        <button class="btn-import" id="btnImport">
+        {canEdit && <button class="btn-import" id="btnImport">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Importar CSV
-        </button>
-        <button class="btn-new" id="btnNew">+ Nuevo producto</button>
+        </button>}
+        {canEdit && <button class="btn-new" id="btnNew">+ Nuevo producto</button>}
     </div>
 
     <section class="catalogo">
@@ -31,6 +33,7 @@ const PRODUCTOS = await getProductos();
                 data-nombre={p.nombre}
                 data-unidad={p.unidad}
                 data-precio={String(p.precio)}
+                data-costo={String(p.costo)}
                 data-activo={p.activo ? '1' : ''}
             >
                 <span class="t-sku">{p.sku}</span>
@@ -45,8 +48,8 @@ const PRODUCTOS = await getProductos();
         )}
     </section>
 
-    <!-- Modal alta / edición -->
-    <dialog class="modal" id="prodModal">
+    <!-- Modal alta / edición (solo si tiene permiso de edición) -->
+    {canEdit && <dialog class="modal" id="prodModal">
         <form method="dialog" class="m-form" id="prodForm">
             <div class="m-head">
                 <h2 id="mTitle">Nuevo producto</h2>
@@ -73,6 +76,13 @@ const PRODUCTOS = await getProductos();
                     <input class="m-input" id="fPrecio" type="number" min="0" step="0.01" required placeholder="198.00" />
                 </div>
                 <div class="m-field">
+                    <label for="fCosto">Costo unitario (MXN)</label>
+                    <input class="m-input" id="fCosto" type="number" min="0" step="0.01" placeholder="0.00" />
+                    <span class="m-hint">Opcional. Permite auditar márgenes en el editor.</span>
+                </div>
+            </div>
+            <div class="m-row">
+                <div class="m-field" style="flex:0 0 auto">
                     <label>Estado</label>
                     <div class="m-chips" id="fActivo">
                         <button type="button" class="chip active" data-v="1">Activo</button>
@@ -84,16 +94,16 @@ const PRODUCTOS = await getProductos();
             <p class="m-error" id="mError"></p>
 
             <div class="m-actions">
-                <button type="button" class="m-delete" id="mDelete">Eliminar</button>
+                {canEdit && <button type="button" class="m-delete" id="mDelete">Eliminar</button>}
                 <span class="m-spacer"></span>
                 <button type="button" class="m-cancel" id="mCancel">Cancelar</button>
                 <button type="submit" class="m-save" id="mSave">Guardar producto</button>
             </div>
         </form>
-    </dialog>
+    </dialog>}
 
-    <!-- Modal de importación CSV -->
-    <dialog class="modal modal-lg" id="importModal">
+    <!-- Modal de importación CSV (solo si tiene permiso de edición) -->
+    {canEdit && <dialog class="modal modal-lg" id="importModal">
         <div class="m-form">
             <div class="m-head">
                 <h2 id="impTitle">Importar productos por CSV</h2>
@@ -134,7 +144,7 @@ const PRODUCTOS = await getProductos();
                 <button type="button" class="m-save" id="impNext" disabled>Continuar</button>
             </div>
         </div>
-    </dialog>
+    </dialog>}
 </AppLayout>
 
 <style>
@@ -312,6 +322,7 @@ const PRODUCTOS = await getProductos();
     // CRUD de productos contra /api/productos. Click en fila = editar.
     document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('prodModal') as HTMLDialogElement;
+        if (!modal) return; // sin permiso de edición, el modal no existe
         const form = document.getElementById('prodForm') as HTMLFormElement;
         const title = document.getElementById('mTitle')!;
         const errorEl = document.getElementById('mError')!;
@@ -337,6 +348,7 @@ const PRODUCTOS = await getProductos();
             input('fSku').value = data?.sku ?? '';
             input('fUnidad').value = data?.unidad ?? '';
             input('fPrecio').value = data?.precio ?? '';
+            input('fCosto').value = data?.costo && data.costo !== '0' ? data.costo : '';
             setActivo(data ? Boolean(data.activo) : true);
             modal.showModal();
         };
@@ -358,6 +370,7 @@ const PRODUCTOS = await getProductos();
                 sku: input('fSku').value,
                 unidad: input('fUnidad').value,
                 precio: input('fPrecio').value,
+                costo: input('fCosto').value || '0',
                 activo,
             };
             try {

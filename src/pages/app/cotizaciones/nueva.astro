@@ -68,7 +68,7 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
                 </div>
 
                 <div class="lines-head">
-                    <span>Producto</span><span>Cant.</span><span>Lista</span><span>Negociado</span><span class="lh-right">Importe</span><span></span>
+                    <span>Producto</span><span>Cant.</span><span>Lista</span><span>Negociado</span><span class="lh-right">Importe</span><span class="lh-margen">Margen</span><span></span>
                 </div>
                 <div id="lines"></div>
                 <p class="lines-empty" id="linesEmpty">Agrega productos del catálogo para empezar.</p>
@@ -115,12 +115,14 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
     </div>
 </AppLayout>
 
-<script is:inline define:vars={{ catalogo }}>
+<script is:inline define:vars={{ catalogo, aprobMargenMin: ORG.aprobMargenMin }}>
     const lines = [];
     const $lines = document.getElementById('lines');
     const $empty = document.getElementById('linesEmpty');
     const $select = document.getElementById('productSelect');
     const fmt = (n) => '$' + new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+    const fmtPct = (n) => Number.isFinite(n) ? Math.round(n) + '%' : '—';
+    const margenPct = (costo, precio) => (costo > 0 && precio > 0) ? (precio - costo) / precio * 100 : null;
 
     // ── Descuento por nivel de cliente (price tiers) ──
     const $client = document.getElementById('clientSelect');
@@ -140,19 +142,28 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
         document.getElementById('sumTotal').textContent = fmt(subtotal * (1 + ivaPct));
     }
 
+    function margenBadge(costo, precio) {
+        const m = margenPct(costo, precio);
+        if (m === null) return '<span class="lr-margen lr-margen-na">—</span>';
+        const low = aprobMargenMin > 0 && m < aprobMargenMin;
+        return `<span class="lr-margen ${low ? 'lr-margen-low' : ''}" title="Margen bruto">${fmtPct(m)}</span>`;
+    }
+
     function render() {
         $empty.hidden = lines.length > 0;
         $lines.innerHTML = '';
         lines.forEach((l, idx) => {
-            const importe = (l.negociado ?? l.lista) * l.cantidad;
+            const precioFinal = l.negociado ?? l.lista;
+            const importe = precioFinal * l.cantidad;
             const row = document.createElement('div');
             row.className = 'line-row';
             row.innerHTML = `
                 <span class="lr-name">${l.nombre}<small>${l.unidad}</small></span>
                 <input type="number" min="1" value="${l.cantidad}" class="lr-input" data-idx="${idx}" data-field="cantidad" />
                 <span class="lr-lista">${fmt(l.lista)}</span>
-                <input type="number" min="0" step="0.01" value="${(l.negociado ?? l.lista).toFixed(2)}" class="lr-input lr-nego ${l.negociado !== null && l.negociado < l.lista ? 'is-deal' : ''}" data-idx="${idx}" data-field="negociado" />
+                <input type="number" min="0" step="0.01" value="${precioFinal.toFixed(2)}" class="lr-input lr-nego ${l.negociado !== null && l.negociado < l.lista ? 'is-deal' : ''}" data-idx="${idx}" data-field="negociado" />
                 <span class="editorial lr-importe">${fmt(importe)}</span>
+                ${margenBadge(l.costo, precioFinal)}
                 <button class="lr-del" data-del="${idx}" aria-label="Quitar">×</button>
             `;
             $lines.appendChild(row);
@@ -163,7 +174,7 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
     $select.addEventListener('change', () => {
         const p = catalogo[parseInt($select.value, 10)];
         if (!p) return;
-        lines.push({ id: p.id, nombre: p.nombre, unidad: p.unidad, lista: p.precio, negociado: applyDesc(p.precio), cantidad: 1 });
+        lines.push({ id: p.id, nombre: p.nombre, unidad: p.unidad, lista: p.precio, costo: p.costo || 0, negociado: applyDesc(p.precio), cantidad: 1 });
         $select.selectedIndex = 0;
         render();
     });
@@ -189,7 +200,11 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
         // recalcula sin re-render (no perder el foco del input)
         const row = t.closest('.line-row');
         const l = lines[idx];
-        row.querySelector('.lr-importe').textContent = fmt((l.negociado ?? l.lista) * l.cantidad);
+        const precioFinal = l.negociado ?? l.lista;
+        row.querySelector('.lr-importe').textContent = fmt(precioFinal * l.cantidad);
+        // actualiza badge de margen en vivo
+        const badge = row.querySelector('.lr-margen');
+        if (badge) badge.outerHTML = margenBadge(l.costo, precioFinal);
         recalc();
     });
 
@@ -234,6 +249,7 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
                 cantidad: l.cantidad,
                 precio_unitario: l.lista,
                 precio_negociado: l.negociado,
+                costo_unitario: l.costo || 0,
             })),
         };
     }
@@ -307,7 +323,7 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
     /* Filas del editor — inyectadas por JS, por eso van en is:global */
     .line-row {
         display: grid;
-        grid-template-columns: 1.7fr 70px 90px 110px 1fr 30px;
+        grid-template-columns: 1.7fr 70px 90px 110px 1fr 58px 30px;
         gap: 0.8rem; align-items: center;
         padding: 0.65rem 0;
         border-bottom: 1px solid rgba(10,25,47,0.07);
@@ -326,6 +342,14 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
     .lr-input:focus { outline: none; border-color: #0a192f; box-shadow: 0 0 0 3px rgba(10,25,47,0.08); }
     .lr-nego.is-deal { color: #059669; border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.04); }
     .lr-importe { font-size: 0.98rem; color: #0a192f; text-align: right; }
+    .lr-margen {
+        font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em;
+        text-align: center; border-radius: 6px; padding: 3px 6px;
+        color: #059669; background: rgba(16,185,129,0.08);
+    }
+    .lr-margen-na { color: #aab; background: transparent; }
+    .lr-margen-low { color: #dc2626; background: rgba(220,38,38,0.09); }
+    .lh-margen { font-size: 0.73rem; color: #99a2af; text-align: center; }
     .lr-del {
         background: none; border: none; cursor: pointer;
         color: #c3c9d2; font-size: 1.1rem; line-height: 1;
@@ -336,7 +360,7 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
 
     @media (max-width: 720px) {
         .line-row { grid-template-columns: 1fr 60px 90px auto; }
-        .lr-lista, .lr-importe { display: none; }
+        .lr-lista, .lr-importe, .lr-margen, .lh-margen { display: none; }
     }
 </style>
 
@@ -392,7 +416,7 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
     .desc-note[hidden] { display: none; }
 
     .lines-head {
-        display: grid; grid-template-columns: 1.7fr 70px 90px 110px 1fr 30px;
+        display: grid; grid-template-columns: 1.7fr 70px 90px 110px 1fr 58px 30px;
         gap: 0.8rem;
         font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
         color: #99a2af;

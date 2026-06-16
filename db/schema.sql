@@ -159,8 +159,13 @@ alter table clientes add column if not exists descuento_pct numeric not null def
 -- 2) Flujos de aprobación: umbrales por org + estado de aprobación por cotización.
 alter table orgs add column if not exists aprob_descuento_max numeric not null default 0; -- % de descuento que dispara aprobación (0 = sin tope)
 alter table orgs add column if not exists aprob_monto_max numeric not null default 0;     -- total que dispara aprobación (0 = sin tope)
+alter table orgs add column if not exists aprob_margen_min numeric not null default 0;    -- % de margen bruto mínimo; por debajo dispara aprobación (0 = sin tope)
 alter table cotizaciones add column if not exists aprob_estado text;  -- null | pendiente | aprobada | rechazada
 alter table cotizaciones add column if not exists aprob_motivo text;  -- por qué requirió aprobación
+
+-- 2b) Costo de producto para auditoría de márgenes.
+alter table productos add column if not exists costo numeric not null default 0;
+alter table cotizacion_items add column if not exists costo_unitario numeric not null default 0; -- snapshot del costo al cotizar
 
 -- 3) Tesorería: tasa de interés moratorio mensual de la org.
 alter table orgs add column if not exists interes_moratorio_pct numeric not null default 0; -- % mensual compuesto sobre saldo vencido
@@ -432,3 +437,109 @@ create table if not exists intereses_moratorios (
   unique (cotizacion_id, periodo)
 );
 create index if not exists idx_intereses_org on intereses_moratorios(org_id, periodo);
+
+-- ════════════════════════════════════════════════════════════════════════════
+-- RLS — Row Level Security (defensa en profundidad a nivel de base de datos)
+-- ════════════════════════════════════════════════════════════════════════════
+-- El backend usa withOrgTx(orgId, ...queries) en src/lib/db.ts para emitir
+-- SELECT set_config('app.org_id', $1, true) antes de cada batch de queries.
+-- Esto garantiza que, aunque hubiera un bug en el código, la base de datos
+-- rechazaría cualquier fila que no pertenezca al org_id activo.
+--
+-- Sin FORCE por ahora: los handlers de /api/* usan sql directamente (sin
+-- withOrgTx) y el rol dueño de la tabla bypasea RLS sin FORCE.
+-- Una vez que los handlers sean actualizados, agregar:
+--   alter table <tabla> force row level security;
+-- por cada tabla para enforcement total.
+--
+-- orgs / org_members: sin FORCE — las queries de bootstrap en getActiveOrgId()
+-- necesitan acceso sin contexto establecido aún.
+--
+-- cotizaciones / cotizacion_items: política dual — contexto de org_id O de
+-- public_token (para páginas públicas /q/[token] y /embed/[token]).
+--
+-- nullif(..., '') convierte string vacío → NULL, evitando error de cast ::uuid.
+-- NULL::uuid = NULL → "org_id = NULL" nunca es TRUE → fail-closed.
+-- ════════════════════════════════════════════════════════════════════════════
+
+alter table orgs               enable row level security;
+alter table org_members        enable row level security;
+alter table productos          enable row level security;
+alter table clientes           enable row level security;
+alter table cotizaciones       enable row level security;
+alter table cotizacion_items   enable row level security;
+alter table eventos            enable row level security;
+alter table facturas_cfdi      enable row level security;
+alter table tareas             enable row level security;
+alter table audit_log          enable row level security;
+alter table api_keys           enable row level security;
+alter table webhooks           enable row level security;
+alter table webhook_deliveries enable row level security;
+alter table api_requests       enable row level security;
+alter table plantillas_mensaje enable row level security;
+alter table impuestos          enable row level security;
+alter table uso_periodo        enable row level security;
+alter table intereses_moratorios enable row level security;
+
+create policy "rls_orgs" on orgs
+  using (id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_org_members" on org_members
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_productos" on productos
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_clientes" on clientes
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_cotizaciones" on cotizaciones
+  using (
+    org_id = nullif(current_setting('app.org_id', true), '')::uuid
+    or public_token = nullif(current_setting('app.public_token', true), '')
+  );
+
+create policy "rls_cotizacion_items" on cotizacion_items
+  using (
+    cotizacion_id in (
+      select id from cotizaciones
+      where org_id = nullif(current_setting('app.org_id', true), '')::uuid
+         or public_token = nullif(current_setting('app.public_token', true), '')
+    )
+  );
+
+create policy "rls_eventos" on eventos
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_facturas_cfdi" on facturas_cfdi
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_tareas" on tareas
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_audit_log" on audit_log
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_api_keys" on api_keys
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_webhooks" on webhooks
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_webhook_deliveries" on webhook_deliveries
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_api_requests" on api_requests
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_plantillas_mensaje" on plantillas_mensaje
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_impuestos" on impuestos
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_uso_periodo" on uso_periodo
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+create policy "rls_intereses_moratorios" on intereses_moratorios
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);

@@ -3,18 +3,26 @@
 // Encabezado "Configuración › Categoría" + BARRA DE PESTAÑAS horizontal de la
 // categoría (NO rail lateral) + contenido. Si `save`, pinta la barra de guardar
 // y corre el guardado genérico que lee los [data-field] → PATCH /api/org.
+// Si `perm` está presente, verifica el permiso del usuario y muestra acceso
+// denegado inline (sin redirigir) si no lo tiene.
 import AppLayout from '../../layouts/AppLayout.astro';
 import { categoryOfTab } from '../../lib/settings';
+import { getMyMembership } from '../../lib/queries';
+import { memberCan, type PermKey } from '../../lib/permissions';
 
 interface Props {
     title: string;       // título del documento
     tab: string;         // id de la pestaña activa (deriva la categoría)
     intro?: string;      // bajada opcional bajo las pestañas
     save?: boolean;      // ¿barra de guardar + guardado genérico?
+    perm?: PermKey;      // permiso requerido para ver el contenido
 }
-const { title, tab, intro, save = false } = Astro.props;
+const { title, tab, intro, save = false, perm } = Astro.props;
 const category = categoryOfTab(tab)!;
 const single = category.tabs.length <= 1;
+
+const ME = perm ? await getMyMembership() : null;
+const hasAccess = !perm || memberCan(ME!, perm);
 ---
 
 <AppLayout title={title} page="ajustes" heading="Ajustes">
@@ -35,10 +43,16 @@ const single = category.tabs.length <= 1;
         )}
 
         <div class="set2-content" data-settings-form>
-            {intro && <p class="set2-intro">{intro}</p>}
-            <slot />
-
-            {save && (
+            {!hasAccess && (
+                <div class="access-denied">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <h3>Sin acceso</h3>
+                    <p>Tu rol actual no tiene permiso para ver esta sección.<br/>Contacta al administrador de tu organización.</p>
+                </div>
+            )}
+            {hasAccess && intro && <p class="set2-intro">{intro}</p>}
+            {hasAccess && <slot />}
+            {hasAccess && save && (
                 <div class="s-save-row">
                     <button class="s-save" id="sBtn">Guardar cambios</button>
                     <span class="s-saved" id="sMsg">✓ Cambios guardados</span>
@@ -111,6 +125,12 @@ const single = category.tabs.length <= 1;
     .s-saved { font-size: 0.8rem; font-weight: 600; color: var(--color-ok); opacity: 0; transition: opacity 0.3s var(--ease-ios); }
     .s-saved.show { opacity: 1; }
     .s-saved.error { color: var(--color-danger); }
+
+    /* Panel de acceso denegado inline */
+    .access-denied { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; padding: 2.4rem 0 1rem; }
+    .access-denied svg { width: 32px; height: 32px; color: #c9d2de; }
+    .access-denied h3 { font-size: 1rem; font-weight: 700; margin: 0; color: var(--color-text); }
+    .access-denied p { font-size: 0.84rem; color: var(--color-text-muted); margin: 0; line-height: 1.55; }
 
     @media (max-width: 600px) {
         .s-row { grid-template-columns: 1fr; }

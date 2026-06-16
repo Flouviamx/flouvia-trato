@@ -16,6 +16,7 @@ export interface NewQuoteItem {
     cantidad: number;
     precio_unitario: number;
     precio_negociado?: number | null;
+    costo_unitario?: number | null;
 }
 
 export interface NewQuoteInput {
@@ -73,24 +74,40 @@ export async function createCotizacion(
         from cotizaciones where org_id = ${orgId}`;
     const folio = `${org.quote_prefix}-${String(Number(maxn) + 1).padStart(4, '0')}`;
 
-    // Flujo de aprobación: ¿el descuento o el monto rebasan los topes?
+    // Flujo de aprobación: ¿el descuento, monto o margen rebasan los topes?
     let maxDescPct = 0;
+    let minMargenPct = Infinity;
+    let hayLineasConCosto = false;
     for (const it of items) {
         const lista = Number(it.precio_unitario) || 0;
         const nego = it.precio_negociado;
         if (nego !== null && nego !== undefined && lista > 0 && Number(nego) < lista) {
             maxDescPct = Math.max(maxDescPct, (1 - Number(nego) / lista) * 100);
         }
+        const costo = Number(it.costo_unitario) || 0;
+        const precioFinal = (nego !== null && nego !== undefined) ? Number(nego) : lista;
+        if (costo > 0 && precioFinal > 0) {
+            hayLineasConCosto = true;
+            minMargenPct = Math.min(minMargenPct, (precioFinal - costo) / precioFinal * 100);
+        }
     }
+    if (!hayLineasConCosto) minMargenPct = Infinity;
+
     const aprobDesc = Number(org.aprob_descuento_max) || 0;
     const aprobMonto = Number(org.aprob_monto_max) || 0;
-    const needsApproval = !!input.send && ((aprobDesc > 0 && maxDescPct > aprobDesc) || (aprobMonto > 0 && total > aprobMonto));
+    const aprobMargen = Number(org.aprob_margen_min) || 0;
+    const needsApproval = !!input.send && (
+        (aprobDesc > 0 && maxDescPct > aprobDesc) ||
+        (aprobMonto > 0 && total > aprobMonto) ||
+        (aprobMargen > 0 && hayLineasConCosto && minMargenPct < aprobMargen)
+    );
     let aprobEstado: string | null = null;
     let aprobMotivo: string | null = null;
     if (needsApproval) {
         const reasons: string[] = [];
         if (aprobDesc > 0 && maxDescPct > aprobDesc) reasons.push(`descuento ${Math.round(maxDescPct)}% supera el ${aprobDesc}% permitido`);
         if (aprobMonto > 0 && total > aprobMonto) reasons.push(`total ${money0(total)} supera el tope de ${money0(aprobMonto)}`);
+        if (aprobMargen > 0 && hayLineasConCosto && minMargenPct < aprobMargen) reasons.push(`margen bruto ${Math.round(minMargenPct)}% está por debajo del mínimo de ${aprobMargen}%`);
         aprobEstado = 'pendiente';
         aprobMotivo = reasons.join(' y ');
     }
@@ -114,11 +131,12 @@ export async function createCotizacion(
     for (const it of items) {
         await sql`
             insert into cotizacion_items
-                (cotizacion_id, producto_id, descripcion, cantidad, precio_unitario, precio_negociado, orden)
+                (cotizacion_id, producto_id, descripcion, cantidad, precio_unitario, precio_negociado, costo_unitario, orden)
             values
                 (${cot.id}, ${it.producto_id || null}, ${it.descripcion}, ${Number(it.cantidad) || 1},
                  ${Number(it.precio_unitario) || 0},
                  ${it.precio_negociado === null || it.precio_negociado === undefined ? null : Number(it.precio_negociado)},
+                 ${Number(it.costo_unitario) || 0},
                  ${orden++})`;
     }
 

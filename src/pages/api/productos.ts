@@ -14,6 +14,7 @@ function clean(body: any) {
         nombre: String(body.nombre ?? '').trim(),
         unidad: String(body.unidad ?? '').trim() || 'pieza',
         precio: Math.max(0, Number(body.precio) || 0),
+        costo: Math.max(0, Number(body.costo) || 0),
         activo: body.activo === undefined ? true : Boolean(body.activo),
     };
 }
@@ -27,8 +28,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     const orgId = await getActiveOrgId();
     const [row] = await sql`
-        insert into productos (org_id, sku, nombre, unidad, precio_lista, activo)
-        values (${orgId}, ${p.sku}, ${p.nombre}, ${p.unidad}, ${p.precio}, ${p.activo})
+        insert into productos (org_id, sku, nombre, unidad, precio_lista, costo, activo)
+        values (${orgId}, ${p.sku}, ${p.nombre}, ${p.unidad}, ${p.precio}, ${p.costo}, ${p.activo})
         returning id`;
     await logAudit(orgId, { accion: 'producto.creado', entidad: 'producto', entidad_id: row.id as string, detalle: p.nombre, ip: reqIp(request) });
     return json({ id: row.id });
@@ -46,7 +47,7 @@ export const PATCH: APIRoute = async ({ request }) => {
     const rows = await sql`
         update productos set
             sku = ${p.sku}, nombre = ${p.nombre}, unidad = ${p.unidad},
-            precio_lista = ${p.precio}, activo = ${p.activo}
+            precio_lista = ${p.precio}, costo = ${p.costo}, activo = ${p.activo}
         where id = ${body.id} and org_id = ${orgId}
         returning id`;
     if (!rows.length) return json({ error: 'Producto no encontrado' }, 404);
