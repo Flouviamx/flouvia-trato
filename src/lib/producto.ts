@@ -18,15 +18,23 @@ export interface FeatureBlock {
     bullets: string[];
 }
 
+export interface Faq {
+    q: string;
+    a: string;
+}
+
 export interface Feature {
     slug: string;
     nav: string;             // nombre corto (cross-links, megamenú)
     eyebrow: string;
     titulo: string;          // H1, admite <br/>
     sub: string;
+    metaTitle?: string;      // <title>/OG — keyword-rich (cae a `${nav} — Cord`)
+    metaDescription?: string;// meta description (cae a `sub`)
     plan: string;            // en qué plan vive
     stats: FeatureStat[];
     blocks: FeatureBlock[];
+    faqs: Faq[];             // FAQ + FAQPage JSON-LD (mínimo 3 por página)
     cta: { titulo: string; sub: string };
 }
 
@@ -37,6 +45,8 @@ export const FEATURES: Feature[] = [
         eyebrow: 'EDITOR DE COTIZACIONES',
         titulo: 'La cotización perfecta,<br/>en minutos.',
         sub: 'Arrastra productos de tu catálogo, negocia el precio línea por línea y mira el total recalcularse con IVA en vivo. Lo que antes era una hora en Excel, ahora son minutos.',
+        metaTitle: 'Cómo hacer cotizaciones B2B con precios negociados en México — Cord by Flouvia',
+        metaDescription: 'El editor de cotizaciones de Cord permite negociar el precio de cada producto por separado, aplicar términos Net 30/60, calcular IVA en tiempo real y generar un link de aprobación con tu marca. Para distribuidores y mayoristas en México.',
         plan: 'Disponible en todos los planes',
         stats: [
             { valor: '4', countup: 4, suffix: ' min', label: 'tiempo promedio para armar una cotización' },
@@ -75,6 +85,20 @@ export const FEATURES: Feature[] = [
                 ],
             },
         ],
+        faqs: [
+            {
+                q: '¿Cómo funciona el editor de cotizaciones de Cord?',
+                a: 'El editor de cotizaciones de Cord permite agregar productos del catálogo con un clic, negociar el precio de cada línea individualmente, aplicar descuentos por volumen y definir los términos de pago (Contado, Net 30 o Net 60). El subtotal, IVA y total se recalculan automáticamente en tiempo real. El tiempo promedio para armar una cotización es de 4 minutos.',
+            },
+            {
+                q: '¿Puedo tener precios diferentes para cada cliente en Cord?',
+                a: 'Sí. En Cord cada línea de cotización tiene su propio precio negociado, independiente del precio de lista en el catálogo. El sistema muestra el porcentaje de descuento aplicado por línea y guarda el precio de lista como referencia para saber exactamente cuánto se cedió en cada venta.',
+            },
+            {
+                q: '¿El editor de Cord calcula el IVA automáticamente?',
+                a: 'Sí. Cord calcula el IVA 16% de forma automática con cada cambio en el editor. El subtotal, el IVA y el total se actualizan en tiempo real sin necesidad de fórmulas manuales. La tasa de IVA es configurable por negocio.',
+            },
+        ],
         cta: { titulo: 'Arma tu primera cotización hoy.', sub: 'Gratis hasta 5 cotizaciones activas. Sin tarjeta.' },
     },
     {
@@ -83,6 +107,7 @@ export const FEATURES: Feature[] = [
         eyebrow: 'LINK PÚBLICO',
         titulo: 'Tu cliente aprueba<br/>en un clic.',
         sub: 'Cada cotización genera un link elegante con tu marca. Tu cliente lo abre desde el celular, revisa los precios y aprueba — sin crear cuenta, sin descargar nada, sin fricción.',
+        metaTitle: 'Aprobación de cotizaciones B2B por link sin registro — Cord by Flouvia',
         plan: 'Disponible en todos los planes',
         stats: [
             { valor: '0', countup: 0, label: 'cuentas que tu cliente necesita crear' },
@@ -121,7 +146,21 @@ export const FEATURES: Feature[] = [
                 ],
             },
         ],
-        cta: { titulo: 'Mándale un link, no un archivo.', sub: 'Mira la cotización de ejemplo o crea la tuya gratis.' },
+        faqs: [
+            {
+                q: '¿Mi cliente necesita crear una cuenta para aprobar una cotización de Cord?',
+                a: 'No. El cliente recibe un link, lo abre desde el celular o computadora, revisa los productos y el total con la marca del vendedor, y aprueba o rechaza con un botón. No necesita registrarse, instalar nada ni descargar archivos.',
+            },
+            {
+                q: '¿El link de cotización de Cord funciona por WhatsApp?',
+                a: 'Sí. El link público de Cord puede compartirse por WhatsApp, correo electrónico o cualquier canal. El cliente lo abre directamente desde el chat y puede aprobar la cotización sin salir del navegador.',
+            },
+            {
+                q: '¿Puedo quitar la marca de Cord del link de aprobación?',
+                a: 'Sí. En los planes de pago (Starter en adelante) se elimina el "Powered by Cord" y el link muestra únicamente el logo, nombre, colores y datos fiscales del negocio que envía la cotización. La experiencia es 100% de la marca propia.',
+            },
+        ],
+        cta: { titulo: 'La próxima cotización que mandes por WhatsApp puede tener un botón de aprobar.', sub: 'Mira la cotización de ejemplo o crea la tuya gratis.' },
     },
     {
         slug: 'seguimiento',
@@ -129,6 +168,7 @@ export const FEATURES: Feature[] = [
         eyebrow: 'SEGUIMIENTO EN VIVO',
         titulo: 'Sabes el momento exacto<br/>en que la ven.',
         sub: 'Se acabó el "¿ya la revisaste?". Cord te avisa en cuanto tu cliente abre la cotización, cuántas veces la ha visto y qué hizo después — para que llames en el momento justo.',
+        metaTitle: 'Saber cuándo tu cliente abrió la cotización — seguimiento en vivo | Cord by Flouvia',
         plan: 'Disponible en todos los planes',
         stats: [
             { valor: '3', countup: 3, suffix: ' min', label: 'el aviso llega en cuanto abren el link' },
@@ -167,6 +207,20 @@ export const FEATURES: Feature[] = [
                 ],
             },
         ],
+        faqs: [
+            {
+                q: '¿Cómo sé si mi cliente ya vio la cotización en Cord?',
+                a: 'Cord envía una notificación en tiempo real en cuanto el cliente abre el link de la cotización. El dashboard muestra el evento "vista" con fecha y hora exactas, y el número de veces que el cliente la ha abierto. Si la cotización fue vista varias veces, suele indicar que el cliente está comparando opciones.',
+            },
+            {
+                q: '¿Cord guarda el historial completo de cada cotización?',
+                a: 'Sí. Cada cotización en Cord tiene un timeline completo: cuándo se creó, cuándo se envió, cuándo el cliente la vio (y cuántas veces), cuándo fue aprobada o rechazada, y cuándo se timbró el CFDI. Cualquier miembro del equipo puede ver el historial sin necesidad de preguntar.',
+            },
+            {
+                q: '¿Cord tiene pipeline de cotizaciones?',
+                a: 'Sí. El dashboard de Cord muestra las cotizaciones agrupadas por estado (borrador, enviada, vista, aprobada, facturada) con el valor total de cada etapa. Incluye KPIs en vivo: monto por cerrar, monto cerrado en el mes y tasa de cierre. También detecta cotizaciones próximas a vencer antes de que expiren.',
+            },
+        ],
         cta: { titulo: 'Deja de perseguir. Empieza a saber.', sub: 'Tu primera notificación de "la vio" no tiene precio.' },
     },
     {
@@ -175,7 +229,8 @@ export const FEATURES: Feature[] = [
         eyebrow: 'FACTURACIÓN CFDI 4.0',
         titulo: 'De cotización aprobada<br/>a factura timbrada.',
         sub: 'Cuando el trato se cierra, la factura sale sola: CFDI 4.0 real, timbrado ante el SAT, directo desde la cotización. Sin recapturar en otro portal, sin errores de transcripción.',
-        plan: 'Plan Negocio',
+        metaTitle: 'CFDI 4.0 automático desde la cotización aprobada — Cord by Flouvia',
+        plan: 'Disponible desde el plan Starter',
         stats: [
             { valor: '1', countup: 1, suffix: ' clic', label: 'de la cotización aprobada al CFDI' },
             { valor: '0', countup: 0, label: 'capturas dobles — los datos viajan solos' },
@@ -213,7 +268,21 @@ export const FEATURES: Feature[] = [
                 ],
             },
         ],
-        cta: { titulo: 'Factura sin salir del trato.', sub: 'CFDI 4.0 automático en el plan Negocio.' },
+        faqs: [
+            {
+                q: '¿Cómo timbra el CFDI automáticamente Cord?',
+                a: 'Cuando el cliente aprueba una cotización en Cord, el sistema arma el CFDI 4.0 con los datos exactos de la cotización: productos, cantidades, precios, RFC del cliente y datos fiscales del emisor. Lo envía al PAC autorizado y devuelve el UUID, XML y PDF timbrado ante el SAT. Todo sin salir de Cord ni recapturar datos en otro portal.',
+            },
+            {
+                q: '¿Qué necesito para activar el CFDI en Cord?',
+                a: 'Solo se necesita el Certificado de Sello Digital (CSD) del SAT: los archivos .cer y .key con su contraseña. Se cargan una sola vez en la sección de ajustes de Cord y quedan cifrados y aislados en la cuenta. El proceso tarda menos de 5 minutos. Disponible para negocios con RFC en México desde el plan Starter.',
+            },
+            {
+                q: '¿El CFDI de Cord es válido ante el SAT?',
+                a: 'Sí. Cord timbra CFDI 4.0 real a través de un Proveedor Autorizado de Certificación (PAC) autorizado por el SAT. El comprobante generado tiene UUID válido, incluye el sello digital del emisor y cumple con la versión 4.0 del estándar del Comprobante Fiscal Digital por Internet vigente en México.',
+            },
+        ],
+        cta: { titulo: 'Factura sin salir del trato.', sub: 'CFDI 4.0 automático desde el plan Starter.' },
     },
     {
         slug: 'clientes-credito',
@@ -221,7 +290,8 @@ export const FEATURES: Feature[] = [
         eyebrow: 'CLIENTES Y CRÉDITO',
         titulo: 'El crédito es tu ventaja.<br/>Contrólalo.',
         sub: 'En B2B vender a crédito es vender más — si lo controlas. Cord guarda los términos de cada cliente (Contado, Net 30, Net 60) y su límite de crédito, y los aplica solos en cada cotización.',
-        plan: 'Plan Negocio',
+        metaTitle: 'Gestión de crédito B2B: Net 30, Net 60 y límite por cliente — Cord by Flouvia',
+        plan: 'Plan Profesional en adelante',
         stats: [
             { valor: '3', countup: 3, label: 'términos por cliente: Contado, Net 30, Net 60' },
             { valor: '100', countup: 100, suffix: '%', label: 'de tus cotizaciones respetan el límite asignado' },
@@ -257,6 +327,20 @@ export const FEATURES: Feature[] = [
                     'Mejores decisiones de precio y crédito',
                     'La memoria comercial deja de vivir en una sola persona',
                 ],
+            },
+        ],
+        faqs: [
+            {
+                q: '¿Cómo gestiona Cord los términos de crédito Net 30 y Net 60?',
+                a: 'En Cord, cada cliente tiene configurados sus términos de crédito por defecto (Contado, Net 30 o Net 60). Al crear una cotización para ese cliente, los términos se aplican automáticamente sin necesidad de recordarlos o escribirlos cada vez. El cliente y el vendedor ven los términos claramente en el link de aprobación.',
+            },
+            {
+                q: '¿Cord permite asignar un límite de crédito por cliente?',
+                a: 'Sí. Cord permite definir un límite de crédito en pesos para cada cliente. Antes de enviar una cotización a crédito, el vendedor puede ver cuánto crédito disponible le queda al cliente versus el monto total expuesto. Disponible en el plan Profesional en adelante.',
+            },
+            {
+                q: '¿Cord guarda el historial de cotizaciones por cliente?',
+                a: 'Sí. Cada ficha de cliente en Cord concentra todas las cotizaciones enviadas, las aprobadas, los pagos y los CFDI generados. El historial permite identificar qué clientes aprueban rápido, quiénes pagan a tiempo y quiénes solicitan cotizaciones sin cerrarlas, para tomar mejores decisiones de precio y crédito.',
             },
         ],
         cta: { titulo: 'Conoce a tus clientes por sus números.', sub: 'Empieza gratis y carga tu directorio en minutos.' },

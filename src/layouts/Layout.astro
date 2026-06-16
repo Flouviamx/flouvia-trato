@@ -66,6 +66,9 @@ import Analytics from '@vercel/analytics/astro';
 
         <meta name="theme-color" content="#0a192f" />
         <title>{title}</title>
+
+        <!-- Datos estructurados / SEO por página (JSON-LD, etc.) -->
+        <slot name="head" />
     </head>
     <body>
         <slot />

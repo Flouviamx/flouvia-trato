@@ -21,9 +21,10 @@ interface Props {
     title: string;        // título del documento
     page: string;         // id de la página activa en el sidebar
     heading?: string;     // título visible en la topbar
+    crumbs?: { label: string; href?: string }[]; // migajas opcionales (páginas anidadas)
 }
 
-const { title, page, heading } = Astro.props;
+const { title, page, heading, crumbs = [] } = Astro.props;
 
 // Nav agrupada por secciones (estilo Linear/Notion). `badge` = clave de getSidebarBadges();
 // `tone` colorea el contador (neutral / danger). Ajustes vive en el engrane de la topbar.
@@ -115,6 +116,7 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
                 </div>
 
                 <nav class="sb-nav">
+                    <div class="sb-group sb-pins" id="sbPins" hidden></div>
                     {NAV_GROUPS.map((group) => (
                         <div class="sb-group">
                             <span class="sb-group-label">{group.label}</span>
@@ -142,12 +144,9 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
             <!-- ── MAIN ── -->
             <div class="app-main">
                 <header class="topbar">
-                    <div class="tb-left">
-                        <button class="tb-burger" id="navBurger" type="button" aria-label="Abrir menú">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-                        </button>
-                        <h1 class="tb-heading">{heading ?? title}</h1>
-                    </div>
+                    <button class="tb-burger" id="navBurger" type="button" aria-label="Abrir menú">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
 
                     <button class="tb-search" id="cmdkOpen" type="button" aria-label="Buscar — Command K">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -168,15 +167,49 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
                                 <span class="onb-pill-label">Guía de configuración</span>
                             </button>
                         )}
-                        <a class="tb-icon tb-activity" href="/app" title="Actividad" aria-label="Actividad">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                        </a>
+                        <div class="tb-notif-wrap">
+                            <button class="tb-icon tb-activity" id="notifBtn" type="button" title="Actividad" aria-label="Notificaciones" aria-haspopup="menu" aria-expanded="false">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                <span class="tb-notif-dot" id="notifDot" hidden></span>
+                            </button>
+                            <div class="notif-panel" id="notifPanel" role="menu" hidden>
+                                <div class="notif-head">
+                                    <strong>Notificaciones</strong>
+                                    <button type="button" id="notifMarkAll" class="notif-mark">Marcar como leídas</button>
+                                </div>
+                                <div class="notif-list" id="notifList"></div>
+                                <a class="notif-foot" href="/app">Ver toda la actividad</a>
+                            </div>
+                        </div>
                         <a class:list={['tb-icon', 'tb-gear', { active: page === 'ajustes' }]} href="/app/ajustes" title="Ajustes" aria-label="Ajustes">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                         </a>
-                        <slot name="topbar-actions" />
                     </div>
                 </header>
+
+                <div class="page-head">
+                    <div class="ph-inner">
+                        <div class="ph-titles">
+                            {crumbs.length > 0 && (
+                                <nav class="ph-crumbs" aria-label="Ruta">
+                                    {crumbs.map((c) => (
+                                        c.href ? <a href={c.href}>{c.label}</a> : <span>{c.label}</span>
+                                    ))}
+                                    <span class="ph-crumb-here">{heading ?? title}</span>
+                                </nav>
+                            )}
+                            <div class="ph-title-row">
+                                <h1 class="ph-title">{heading ?? title}</h1>
+                                <button class="ph-pin" id="phPin" type="button" aria-label="Fijar página" title="Fijar en el menú">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M5 17h14l-1.5-4.5a2 2 0 0 1-.1-.6V6a2 2 0 0 1 2-2H6a2 2 0 0 1 2 2v5.9a2 2 0 0 1-.1.6L5 17z"/></svg>
+                                </button>
+                            </div>
+                            <slot name="page-sub" />
+                        </div>
+                        <div class="ph-actions"><slot name="topbar-actions" /></div>
+                    </div>
+                    <div class="ph-tabs-row"><slot name="page-tabs" /></div>
+                </div>
 
                 <main class="app-content">
                     <slot />
@@ -208,6 +241,32 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
                     <span><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
                     <span><kbd>↵</kbd> abrir</span>
                     <span><kbd>esc</kbd> cerrar</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de progreso de navegación (estilo Linear/YouTube) -->
+        <div class="nav-progress" id="navProgress" aria-hidden="true"></div>
+
+        <!-- Contenedor de toasts globales (window.cordToast) -->
+        <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+
+        <!-- Overlay de atajos de teclado (se abre con ?) -->
+        <div class="kbd-help" id="kbdHelp" hidden>
+            <div class="kbd-help-backdrop" id="kbdHelpBackdrop"></div>
+            <div class="kbd-help-panel" role="dialog" aria-modal="true" aria-label="Atajos de teclado">
+                <div class="kbd-help-head"><strong>Atajos de teclado</strong><kbd>esc</kbd></div>
+                <div class="kbd-help-body">
+                    <div class="kbd-row"><span>Buscar / menú de comandos</span><span><kbd>⌘</kbd><kbd>K</kbd> · <kbd>/</kbd></span></div>
+                    <div class="kbd-row"><span>Nueva cotización</span><span><kbd>C</kbd></span></div>
+                    <div class="kbd-row"><span>Ir a Dashboard</span><span><kbd>G</kbd> <kbd>D</kbd></span></div>
+                    <div class="kbd-row"><span>Ir a Cotizaciones</span><span><kbd>G</kbd> <kbd>C</kbd></span></div>
+                    <div class="kbd-row"><span>Ir a Clientes</span><span><kbd>G</kbd> <kbd>L</kbd></span></div>
+                    <div class="kbd-row"><span>Ir a Productos</span><span><kbd>G</kbd> <kbd>P</kbd></span></div>
+                    <div class="kbd-row"><span>Ir a Cobranza</span><span><kbd>G</kbd> <kbd>B</kbd></span></div>
+                    <div class="kbd-row"><span>Ir a Analítica</span><span><kbd>G</kbd> <kbd>A</kbd></span></div>
+                    <div class="kbd-row"><span>Fijar / quitar página del menú</span><span><kbd>F</kbd></span></div>
+                    <div class="kbd-row"><span>Mostrar estos atajos</span><span><kbd>?</kbd></span></div>
                 </div>
             </div>
         </div>
@@ -286,6 +345,189 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
         padding: 4px 10px; border-radius: 100px; white-space: nowrap;
     }
     .status-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ════════ Items del Cmd+K (inyectados por JS → globales) ════════ */
+    .cmdk-group-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #99a2af; padding: 10px 12px 5px; }
+    .cmdk-item {
+        position: relative;
+        display: flex; align-items: center; gap: 11px; width: 100%; text-align: left;
+        padding: 9px 12px; border-radius: 9px; cursor: pointer; border: none; background: none;
+        font-family: var(--font-sans); color: var(--color-text); text-decoration: none;
+        transition: background 0.12s ease;
+    }
+    .cmdk-item.sel { background: var(--color-bg-soft); }
+    .cmdk-item.sel::before {
+        content: ''; position: absolute; left: 0; top: 7px; bottom: 7px;
+        width: 3px; border-radius: 0 3px 3px 0; background: var(--color-blue-deep);
+    }
+    .cmdk-item.sel::after {
+        content: '↵'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+        font-size: 0.8rem; color: var(--color-text-muted);
+    }
+    .cmdk-item.sel .cmdk-hint { margin-right: 1.4rem; }
+    .cmdk-ico {
+        width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--color-bg-soft); color: var(--color-blue-deep); font-size: 0.7rem; font-weight: 800;
+        transition: background 0.12s ease, color 0.12s ease;
+    }
+    .cmdk-ico svg { width: 15px; height: 15px; }
+    .cmdk-item.sel .cmdk-ico { background: var(--color-blue-deep); color: #fff; }
+    .cmdk-item-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .cmdk-item-title { font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cmdk-item-sub { font-size: 0.72rem; color: var(--color-text-muted); }
+    .cmdk-pill { font-size: 0.62rem; font-weight: 700; color: var(--color-text-muted); flex-shrink: 0; }
+    .cmdk-hint { font-size: 0.74rem; color: #99a2af; flex-shrink: 0; margin-left: auto; padding-left: 1rem; white-space: nowrap; }
+    .cmdk-empty {
+        display: flex; flex-direction: column; align-items: center; gap: 4px;
+        padding: 2.4rem 1rem; text-align: center; color: var(--color-text-muted);
+    }
+    .cmdk-empty svg { width: 26px; height: 26px; color: #c4cad3; margin-bottom: 6px; }
+    .cmdk-empty p { font-size: 0.88rem; font-weight: 600; color: var(--color-text); margin: 0; }
+    .cmdk-empty span { font-size: 0.76rem; color: #99a2af; }
+    /* Atajo de teclado de un item del Cmd+K (ej. "Nueva cotización  C") */
+    .cmdk-kbd { font-size: 0.62rem; font-weight: 700; color: var(--color-text-muted); background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 5px; padding: 2px 6px; flex-shrink: 0; }
+    .cmdk-item.sel .cmdk-kbd { margin-right: 1.4rem; }
+
+    /* ════════ Notificaciones (campana) ════════ */
+    .tb-notif-wrap { position: relative; }
+    .tb-notif-dot {
+        position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%;
+        background: var(--color-danger); border: 1.5px solid #fff;
+    }
+    .tb-notif-dot[hidden] { display: none; }
+    .notif-panel {
+        position: absolute; top: calc(100% + 8px); right: 0; z-index: 60; width: 340px;
+        background: #fff; border: 1px solid var(--color-border); border-radius: 14px;
+        box-shadow: 0 24px 60px -18px rgba(10,25,47,0.45);
+        overflow: hidden; animation: cmdk-pop 0.18s var(--ease-spring);
+    }
+    .notif-panel[hidden] { display: none; }
+    .notif-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--color-border); }
+    .notif-head strong { font-size: 0.9rem; }
+    .notif-mark { border: none; background: none; cursor: pointer; font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; color: var(--color-text-muted); }
+    .notif-mark:hover { color: var(--color-blue-deep); }
+    .notif-list { max-height: 56vh; overflow-y: auto; padding: 6px; }
+    .notif-item {
+        display: flex; align-items: flex-start; gap: 10px; padding: 9px 10px; border-radius: 10px;
+        text-decoration: none; color: var(--color-text); transition: background 0.14s ease;
+    }
+    .notif-item:hover { background: var(--color-bg-soft); }
+    .notif-item.unread { background: rgba(10,25,47,0.035); }
+    .notif-ico {
+        width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--color-bg-soft); color: var(--color-blue-deep);
+    }
+    .notif-ico svg { width: 15px; height: 15px; }
+    .notif-ico.ok { background: rgba(16,185,129,0.12); color: #059669; }
+    .notif-ico.warn { background: rgba(245,158,11,0.12); color: #b45309; }
+    .notif-ico.danger { background: rgba(239,68,68,0.12); color: #dc2626; }
+    .notif-body { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 1px; }
+    .notif-title { font-size: 0.82rem; font-weight: 600; }
+    .notif-sub { font-size: 0.74rem; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .notif-when { font-size: 0.68rem; color: #99a2af; }
+    .notif-foot { display: block; text-align: center; padding: 10px; border-top: 1px solid var(--color-border); font-size: 0.78rem; font-weight: 600; color: var(--color-blue-deep); text-decoration: none; }
+    .notif-foot:hover { background: var(--color-bg-soft); }
+    .notif-empty { padding: 2rem 1rem; text-align: center; font-size: 0.82rem; color: var(--color-text-muted); }
+
+    /* ════════ "Fijados" en el sidebar (localStorage) ════════ */
+    .sb-pins[hidden] { display: none; }
+    .sb-pin-row { position: relative; display: flex; align-items: center; }
+    .sb-pin-row .sb-item { flex: 1; }
+    .sb-pin-x {
+        position: absolute; right: 6px; opacity: 0; border: none; background: none; cursor: pointer;
+        color: rgba(255,255,255,0.5); padding: 3px; border-radius: 6px; line-height: 0;
+        transition: opacity 0.15s, color 0.15s, background 0.15s;
+    }
+    .sb-pin-x svg { width: 13px; height: 13px; }
+    .sb-pin-row:hover .sb-pin-x { opacity: 1; }
+    .sb-pin-x:hover { color: #fff; background: rgba(255,255,255,0.12); }
+    .sb-collapsed .sb-pin-x { display: none; }
+
+    /* Botón de fijar en el page-head */
+    .ph-title-row { display: flex; align-items: center; gap: 8px; }
+    .ph-pin {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+        border: none; background: none; cursor: pointer; color: #aab2bd;
+        transition: color 0.18s, background 0.18s, transform 0.18s var(--ease-spring);
+    }
+    .ph-pin svg { width: 17px; height: 17px; }
+    .ph-pin:hover { color: var(--color-blue-deep); background: var(--color-bg-soft); transform: translateY(-1px); }
+    .ph-pin.pinned { color: var(--color-blue-deep); }
+    .ph-pin.pinned svg { fill: rgba(10,25,47,0.12); }
+
+    /* Breadcrumbs + tabs del page-head */
+    .ph-crumbs { display: flex; align-items: center; gap: 6px; font-size: 0.76rem; margin-bottom: 2px; flex-wrap: wrap; }
+    .ph-crumbs a, .ph-crumbs > span { color: var(--color-text-muted); text-decoration: none; }
+    .ph-crumbs a:hover { color: var(--color-blue-deep); }
+    .ph-crumbs a::after, .ph-crumbs > span:not(.ph-crumb-here)::after { content: '/'; margin-left: 6px; color: #c4cad3; }
+    .ph-crumb-here { color: var(--color-text); font-weight: 600; }
+    .ph-tabs-row { max-width: 1240px; }
+    .ph-tabs-row:not(:empty) { margin-top: 1rem; border-bottom: 1px solid var(--color-border); display: flex; gap: 2px; }
+    /* Helper para que las páginas pinten tabs consistentes (slot page-tabs) */
+    .ph-tab {
+        position: relative; padding: 9px 12px; font-size: 0.85rem; font-weight: 550;
+        color: var(--color-text-muted); text-decoration: none; background: none; border: none;
+        cursor: pointer; font-family: var(--font-sans); white-space: nowrap;
+    }
+    .ph-tab:hover { color: var(--color-text); }
+    .ph-tab.active { color: var(--color-blue-deep); font-weight: 650; }
+    .ph-tab.active::after { content: ''; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; border-radius: 2px 2px 0 0; background: var(--color-blue-deep); }
+
+    /* ════════ Barra de progreso de navegación ════════ */
+    .nav-progress {
+        position: fixed; top: 0; left: 0; height: 2.5px; width: 0; z-index: 999;
+        background: linear-gradient(90deg, #1e40af, #3b82f6); border-radius: 0 3px 3px 0;
+        opacity: 0; transition: width 0.2s ease, opacity 0.3s ease;
+        box-shadow: 0 0 8px rgba(59,130,246,0.6);
+    }
+    .nav-progress.active { opacity: 1; }
+
+    /* ════════ Toasts globales (window.cordToast) ════════ */
+    .toast-stack { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 800; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+    .toast {
+        display: flex; align-items: center; gap: 9px; pointer-events: auto;
+        background: var(--color-blue-deep); color: #fff;
+        font-size: 0.84rem; font-weight: 550; padding: 11px 15px; border-radius: 11px;
+        box-shadow: 0 16px 40px -12px rgba(10,25,47,0.55), inset 0 0 0 0.5px rgba(255,255,255,0.08);
+        animation: toast-in 0.3s var(--ease-spring); max-width: min(420px, 90vw);
+    }
+    .toast.out { animation: toast-out 0.25s var(--ease-ios) forwards; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(14px) scale(0.96); } to { opacity: 1; transform: none; } }
+    @keyframes toast-out { to { opacity: 0; transform: translateY(10px) scale(0.97); } }
+    .toast-ico { width: 17px; height: 17px; flex-shrink: 0; }
+    .toast.ok .toast-ico { color: #34d399; }
+    .toast.error { background: #7f1d1d; }
+    .toast.error .toast-ico { color: #fca5a5; }
+    .toast-close { margin-left: 4px; border: none; background: none; color: rgba(255,255,255,0.55); cursor: pointer; padding: 0; line-height: 0; }
+    .toast-close:hover { color: #fff; }
+    .toast-close svg { width: 14px; height: 14px; }
+
+    /* ════════ Skeletons reutilizables ════════ */
+    .skeleton { position: relative; overflow: hidden; background: rgba(10,25,47,0.06); border-radius: 8px; }
+    .skeleton::after {
+        content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+        animation: skeleton-shimmer 1.4s infinite;
+    }
+    .skeleton-line { height: 12px; border-radius: 6px; }
+    @keyframes skeleton-shimmer { 100% { transform: translateX(100%); } }
+    @media (prefers-reduced-motion: reduce) { .skeleton::after { animation: none; } }
+
+    /* ════════ Overlay de atajos de teclado ════════ */
+    .kbd-help { position: fixed; inset: 0; z-index: 700; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .kbd-help[hidden] { display: none; }
+    .kbd-help-backdrop { position: absolute; inset: 0; background: rgba(10,25,47,0.35); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); animation: cmdk-fade 0.2s ease; }
+    .kbd-help-panel { position: relative; width: min(440px, 100%); background: #fff; border: 1px solid var(--color-border); border-radius: 16px; box-shadow: 0 40px 100px -24px rgba(10,25,47,0.5); overflow: hidden; animation: cmdk-pop 0.22s var(--ease-spring); }
+    .kbd-help-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--color-border); }
+    .kbd-help-head strong { font-size: 0.95rem; }
+    .kbd-help-head kbd, .kbd-row kbd { font-size: 0.66rem; font-weight: 700; color: var(--color-text-muted); background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 5px; padding: 2px 6px; }
+    .kbd-help-body { padding: 8px 10px 12px; }
+    .kbd-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 8px; font-size: 0.85rem; }
+    .kbd-row + .kbd-row { border-top: 1px solid var(--color-border); }
+    .kbd-row > span:last-child { display: inline-flex; gap: 4px; align-items: center; color: var(--color-text-muted); }
 </style>
 
 <style>
@@ -432,32 +674,31 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
     /* ── MAIN ── */
     .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .topbar {
-        display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-        padding: 1.1rem 2rem;
+        display: flex; align-items: center; gap: 0.75rem;
+        padding: 0.7rem 2rem;
         border-bottom: 1px solid var(--color-border);
         background: rgba(255,255,255,0.75);
         backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
         position: sticky; top: 0; z-index: 50;
     }
-    .tb-left { display: flex; align-items: center; gap: 0.9rem; min-width: 0; }
-    .tb-heading { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.3px; margin: 0; white-space: nowrap; }
     .tb-demo {
         font-size: 0.58rem; font-weight: 800; letter-spacing: 1.2px;
         color: #b45309; background: rgba(245,158,11,0.1);
         padding: 4px 9px; border-radius: 100px; white-space: nowrap;
     }
-    .tb-right { display: flex; align-items: center; gap: 0.5rem; }
+    /* Iconos globales empujados a la derecha (el buscador queda pegado a la izquierda) */
+    .tb-right { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
 
-    /* Buscador de la topbar (abre el menú de comandos) */
+    /* Buscador de la topbar (abre el menú de comandos) — pegado a la izquierda */
     .tb-search {
-        flex: 1; max-width: 400px; margin: 0 auto;
+        flex: 0 1 360px; min-width: 0;
         display: flex; align-items: center; gap: 9px;
         font-family: var(--font-sans); font-size: 0.84rem; color: var(--color-text-muted);
         background: var(--color-bg-soft); border: 1px solid var(--color-border);
         border-radius: 10px; padding: 8px 10px 8px 13px; cursor: text; text-align: left;
         transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
     }
-    .tb-search:hover { border-color: rgba(10,25,47,0.2); background: #fff; }
+    .tb-search:hover { border-color: rgba(10,25,47,0.2); background: #fff; box-shadow: 0 1px 2px rgba(10,25,47,0.04); }
     .tb-search svg { width: 15px; height: 15px; color: #99a2af; flex-shrink: 0; }
     .tb-search-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tb-kbd {
@@ -500,7 +741,26 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
     .tb-burger:hover { background: var(--color-bg-soft); }
     .sb-backdrop { display: none; }
 
-    .app-content { padding: 1.8rem 2rem 4rem; max-width: 1240px; width: 100%; }
+    /* ── Page header (título de la sección, debajo de la topbar, dentro del contenido) ── */
+    .page-head {
+        padding: 1.6rem 2rem 0;
+        animation: app-fadein 0.5s var(--ease-spring) both;
+    }
+    .ph-inner {
+        max-width: 1240px; width: 100%;
+        display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .ph-titles { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .ph-title {
+        font-size: 1.6rem; font-weight: 700; letter-spacing: -0.6px; margin: 0;
+        line-height: 1.1;
+    }
+    .ph-actions { display: flex; align-items: center; gap: 0.55rem; flex-shrink: 0; }
+    /* Subtítulo opcional (slot name="page-sub") */
+    .page-head :global(.ph-sub) { font-size: 0.86rem; color: var(--color-text-muted); margin: 0; }
+
+    .app-content { padding: 1.4rem 2rem 4rem; max-width: 1240px; width: 100%; }
 
     /* ════════ MENÚ DE COMANDOS (Cmd+K) ════════ */
     .cmdk { position: fixed; inset: 0; z-index: 500; display: flex; align-items: flex-start; justify-content: center; padding: 12vh 1rem 1rem; }
@@ -519,36 +779,9 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
     #cmdkInput { flex: 1; border: none; outline: none; background: none; font-family: var(--font-sans); font-size: 1rem; color: var(--color-text); }
     .cmdk-esc { font-size: 0.6rem; font-weight: 700; color: #99a2af; background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 5px; padding: 2px 6px; }
     .cmdk-results { max-height: 52vh; overflow-y: auto; padding: 6px; }
-    .cmdk-group-label { font-size: 0.58rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #99a2af; padding: 10px 12px 5px; }
-    .cmdk-item {
-        display: flex; align-items: center; gap: 11px; width: 100%; text-align: left;
-        padding: 9px 12px; border-radius: 9px; cursor: pointer; border: none; background: none;
-        font-family: var(--font-sans); color: var(--color-text); text-decoration: none;
-    }
-    .cmdk-item.sel { background: var(--color-blue-deep); }
-    .cmdk-item.sel .cmdk-item-title, .cmdk-item.sel .cmdk-ico { color: #fff; }
-    .cmdk-item.sel .cmdk-item-sub, .cmdk-item.sel .cmdk-pill { color: rgba(255,255,255,0.7); }
-    .cmdk-ico {
-        width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        background: var(--color-bg-soft); color: var(--color-blue-deep); font-size: 0.7rem; font-weight: 800;
-    }
-    .cmdk-ico svg { width: 15px; height: 15px; }
-    .cmdk-item.sel .cmdk-ico { background: rgba(255,255,255,0.18); }
-    .cmdk-item-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-    .cmdk-item-title { font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cmdk-item-sub { font-size: 0.72rem; color: var(--color-text-muted); }
-    .cmdk-pill { font-size: 0.62rem; font-weight: 700; color: var(--color-text-muted); flex-shrink: 0; }
-    /* Descripción a la derecha (estilo Stripe "filtros sugeridos") */
-    .cmdk-hint { font-size: 0.74rem; color: #99a2af; flex-shrink: 0; margin-left: auto; padding-left: 1rem; white-space: nowrap; }
-    .cmdk-item.sel .cmdk-hint { color: rgba(255,255,255,0.65); }
-    .cmdk-empty {
-        display: flex; flex-direction: column; align-items: center; gap: 4px;
-        padding: 2.4rem 1rem; text-align: center; color: var(--color-text-muted);
-    }
-    .cmdk-empty svg { width: 26px; height: 26px; color: #c4cad3; margin-bottom: 6px; }
-    .cmdk-empty p { font-size: 0.88rem; font-weight: 600; color: var(--color-text); margin: 0; }
-    .cmdk-empty span { font-size: 0.76rem; color: #99a2af; }
+    /* NOTA: los estilos de los items del Cmd+K (inyectados por JS) viven en el
+       bloque <style is:global> de abajo — Astro scopea por atributo y el HTML
+       inyectado no lo lleva, por eso DEBEN ser globales. */
     .cmdk-foot { display: flex; gap: 1.2rem; padding: 9px 16px; border-top: 1px solid var(--color-border); background: var(--color-bg-soft); }
     .cmdk-foot span { font-size: 0.68rem; color: #99a2af; display: inline-flex; align-items: center; gap: 5px; }
     .cmdk-foot kbd { font-size: 0.62rem; font-weight: 700; background: #fff; border: 1px solid var(--color-border); border-radius: 4px; padding: 1px 5px; color: var(--color-text-muted); }
@@ -572,15 +805,21 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
         .tb-burger { display: inline-flex; }
         /* En el drawer móvil no aplica colapsar (es ancho fijo) */
         .sb-collapse { display: none; }
-        .app-content { padding: 1.2rem 1rem 6rem; }
-        .topbar { padding: 0.9rem 1rem; }
+        .app-content { padding: 1rem 1rem 6rem; }
+        .topbar { padding: 0.7rem 1rem; }
+        .page-head { padding: 1.1rem 1rem 0; }
+        .ph-title { font-size: 1.35rem; }
+        .ph-actions { width: 100%; }
         .tb-demo { display: none; }
-        .tb-search { max-width: none; flex: 1; padding: 8px; }
+        .tb-search { flex: 1 1 auto; padding: 8px; }
         .tb-search-label, .tb-kbd { display: none; }
         /* En móvil ocultamos Actividad pero el engrane de Ajustes se queda
            (ya no está en la tab bar inferior). */
-        .tb-activity { display: none; }
+        .tb-notif-wrap { display: none; }
         .tb-gear { display: inline-flex; }
+        /* El panel de notificaciones a ancho casi completo si llegara a abrirse */
+        .notif-panel { width: min(340px, calc(100vw - 1.5rem)); }
+        .ph-pin { display: none; }
         .onb-pill-label { display: none; }
         .onb-pill { padding: 5px 6px; }
         .mobile-tabs {
@@ -624,13 +863,25 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
             ['Clientes', '/app/clientes', I.users, 'Directorio de clientes'], ['Productos', '/app/productos', I.box, 'Catálogo'], ['Analítica', '/app/analitica', I.chart, 'Métricas y forecast'], ['Ajustes', '/app/ajustes', I.gear, 'Marca, fiscal, PDF…'],
         ].map(([title, href, icon, hint]) => ({ group: 'Ir a', title, href, icon, hint }));
         const ACTIONS: any[] = [
-            { group: 'Acciones', title: 'Nueva cotización', href: '/app/cotizaciones/nueva', icon: I.plus, hint: 'Crear borrador' },
+            { group: 'Acciones', title: 'Nueva cotización', href: '/app/cotizaciones/nueva', icon: I.plus, kbd: 'C' },
             { group: 'Acciones', title: 'Nuevo cliente', href: '/app/clientes', icon: I.plus, hint: 'Agregar al directorio' },
             { group: 'Acciones', title: 'Nuevo producto', href: '/app/productos', icon: I.plus, hint: 'Agregar al catálogo' },
             { group: 'Acciones', title: 'Ver sitio público', href: '/', icon: I.external, hint: 'Abrir la landing' },
         ];
         const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
         const esc = (s: string) => String(s).replace(/</g, '&lt;');
+
+        // ── Recientes (localStorage) — se muestran cuando el buscador está vacío ──
+        const RECENT_KEY = 'cord.recent.v1';
+        const getRecents = (): any[] => { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; } };
+        const pushRecent = (it: any) => {
+            if (!it?.href || it.href === '/') return;
+            try {
+                const r = getRecents().filter((x: any) => x.href !== it.href);
+                r.unshift({ title: it.title, href: it.href, icon: it.icon });
+                localStorage.setItem(RECENT_KEY, JSON.stringify(r.slice(0, 5)));
+            } catch {}
+        };
 
         let items: any[] = []; let sel = 0; let seq = 0;
 
@@ -642,6 +893,9 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
         };
         const buildItems = (q: string, ent: any) => {
             const list: any[] = [];
+            if (!q.trim()) {
+                getRecents().forEach((r: any) => list.push({ group: 'Recientes', title: r.title, href: r.href, icon: r.icon || I.doc }));
+            }
             if (ent) {
                 (ent.cotizaciones || []).forEach((c: any) => list.push({ group: 'Cotizaciones', title: `${c.folio} · ${c.cliente}`, href: `/app/cotizaciones/${c.id}`, icon: I.doc }));
                 (ent.clientes || []).forEach((c: any) => list.push({ group: 'Clientes', title: c.empresa, href: '/app/clientes', icon: I.users }));
@@ -658,8 +912,10 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
             let html = ''; let last = '';
             items.forEach((it, i) => {
                 if (it.group !== last) { html += `<div class="cmdk-group-label">${it.group}</div>`; last = it.group; }
-                const hint = it.hint ? `<span class="cmdk-hint">${esc(it.hint)}</span>` : (it.sub ? `<span class="cmdk-hint">${esc(it.sub)}</span>` : '');
-                html += `<button class="cmdk-item ${i === sel ? 'sel' : ''}" data-i="${i}"><span class="cmdk-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${it.icon}</svg></span><span class="cmdk-item-body"><span class="cmdk-item-title">${esc(it.title)}</span></span>${hint}</button>`;
+                const right = it.kbd ? `<kbd class="cmdk-kbd">${esc(it.kbd)}</kbd>`
+                    : it.hint ? `<span class="cmdk-hint">${esc(it.hint)}</span>`
+                    : it.sub ? `<span class="cmdk-hint">${esc(it.sub)}</span>` : '';
+                html += `<button class="cmdk-item ${i === sel ? 'sel' : ''}" data-i="${i}"><span class="cmdk-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${it.icon}</svg></span><span class="cmdk-item-body"><span class="cmdk-item-title">${esc(it.title)}</span></span>${right}</button>`;
             });
             results.innerHTML = html;
             results.querySelector('.cmdk-item.sel')?.scrollIntoView({ block: 'nearest' });
@@ -676,7 +932,7 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
                 } catch { /* ignora */ }
             }
         };
-        const activate = (i: number) => { const it = items[i]; if (it?.href) { close(); window.location.href = it.href; } };
+        const activate = (i: number) => { const it = items[i]; if (it?.href) { pushRecent(it); close(); window.location.href = it.href; } };
         const open = () => { (cmdk as HTMLElement).hidden = false; document.body.style.overflow = 'hidden'; input.value = ''; render(''); setTimeout(() => input.focus(), 20); };
         const close = () => { (cmdk as HTMLElement).hidden = true; document.body.style.overflow = ''; };
 
@@ -747,7 +1003,186 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
         }, true);
     }
 
-    function initApp() { initCmdk(); initDrawer(); initSidebar(); }
+    // ── Toasts globales — window.cordToast(msg, 'ok'|'error'|'info') ──
+    function initToasts() {
+        const stack = document.getElementById('toastStack');
+        if (!stack) return;
+        const ICONS: any = {
+            ok: '<path d="M20 6L9 17l-5-5"/>',
+            error: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+            info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+        };
+        (window as any).cordToast = (msg: string, type = 'info', ms = 3800) => {
+            const t = document.createElement('div');
+            t.className = 'toast ' + (type === 'ok' || type === 'error' ? type : '');
+            const ico = ICONS[type] || ICONS.info;
+            t.innerHTML = `<svg class="toast-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ico}</svg><span>${String(msg).replace(/</g, '&lt;')}</span><button class="toast-close" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+            stack.appendChild(t);
+            const remove = () => { t.classList.add('out'); setTimeout(() => t.remove(), 250); };
+            t.querySelector('.toast-close')?.addEventListener('click', remove);
+            const timer = setTimeout(remove, ms);
+            t.addEventListener('mouseenter', () => clearTimeout(timer));
+            return t;
+        };
+        // Flash tras navegación: sessionStorage 'cord.flash' = {msg,type}
+        try {
+            const flash = sessionStorage.getItem('cord.flash');
+            if (flash) { sessionStorage.removeItem('cord.flash'); const f = JSON.parse(flash); (window as any).cordToast(f.msg, f.type); }
+        } catch (e) {}
+    }
+
+    // ── Barra de progreso al navegar (feedback de carga) ──
+    function initNavProgress() {
+        const bar = document.getElementById('navProgress');
+        if (!bar) return;
+        let timer = 0; let prog = 0;
+        const start = () => {
+            bar.classList.add('active'); prog = 8; (bar as HTMLElement).style.width = '8%';
+            clearInterval(timer);
+            timer = window.setInterval(() => { prog = Math.min(prog + Math.random() * 12, 90); (bar as HTMLElement).style.width = prog + '%'; }, 220);
+        };
+        const done = () => { clearInterval(timer); bar.classList.remove('active'); (bar as HTMLElement).style.width = '0'; };
+        document.addEventListener('click', (e) => {
+            const a = (e.target as HTMLElement).closest('a');
+            if (!a) return;
+            const href = a.getAttribute('href');
+            if (!href || href.startsWith('#') || a.target === '_blank' || a.hasAttribute('download')) return;
+            if (e.metaKey || e.ctrlKey || e.shiftKey || (e as MouseEvent).button !== 0) return;
+            try { const u = new URL(a.href); if (u.origin !== location.origin) return; if (u.pathname === location.pathname && u.search === location.search) return; } catch { return; }
+            start();
+        });
+        window.addEventListener('pageshow', done);
+        window.addEventListener('beforeunload', start);
+    }
+
+    // ── "Fijados" en el sidebar (localStorage) + botón de fijar en el page-head ──
+    function initPins() {
+        const PIN_KEY = 'cord.pins.v1';
+        const PIN_ICON = '<path d="M12 17v5"/><path d="M5 17h14l-1.5-4.5a2 2 0 0 1-.1-.6V6a2 2 0 0 1 2-2H6a2 2 0 0 1 2 2v5.9a2 2 0 0 1-.1.6L5 17z"/>';
+        const mount = document.getElementById('sbPins');
+        const pinBtn = document.getElementById('phPin');
+        const eA = (s: string) => String(s).replace(/"/g, '&quot;');
+        const eH = (s: string) => String(s).replace(/</g, '&lt;');
+        const getPins = (): any[] => { try { return JSON.parse(localStorage.getItem(PIN_KEY) || '[]'); } catch { return []; } };
+        const setPins = (p: any[]) => { try { localStorage.setItem(PIN_KEY, JSON.stringify(p)); } catch (e) {} };
+        const current = () => ({ href: location.pathname, label: (document.querySelector('.ph-title')?.textContent || document.title).trim() });
+        const isPinned = () => getPins().some((p) => p.href === location.pathname);
+        const syncBtn = () => { if (pinBtn) { const on = isPinned(); pinBtn.classList.toggle('pinned', on); pinBtn.setAttribute('title', on ? 'Quitar del menú' : 'Fijar en el menú'); } };
+        const renderMount = () => {
+            if (!mount) return;
+            const pins = getPins();
+            if (!pins.length) { (mount as HTMLElement).hidden = true; mount.innerHTML = ''; return; }
+            (mount as HTMLElement).hidden = false;
+            let html = '<span class="sb-group-label">Fijados</span>';
+            pins.forEach((p) => {
+                const active = p.href === location.pathname ? ' active' : '';
+                html += `<div class="sb-pin-row"><a href="${eA(p.href)}" class="sb-item${active}" title="${eA(p.label)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${PIN_ICON}</svg><span class="sb-item-label">${eH(p.label)}</span></a><button class="sb-pin-x" data-href="${eA(p.href)}" aria-label="Quitar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`;
+            });
+            mount.innerHTML = html;
+            mount.querySelectorAll('.sb-pin-x').forEach((b) => b.addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation();
+                const href = (b as HTMLElement).dataset.href;
+                setPins(getPins().filter((x) => x.href !== href)); renderMount(); syncBtn();
+            }));
+        };
+        const toggle = () => {
+            const c = current(); const pins = getPins(); const has = pins.some((p) => p.href === c.href);
+            if (has) { setPins(pins.filter((p) => p.href !== c.href)); (window as any).cordToast?.('Quitado de fijados'); }
+            else { pins.push(c); setPins(pins); (window as any).cordToast?.('Fijado en el menú', 'ok'); }
+            renderMount(); syncBtn();
+        };
+        pinBtn?.addEventListener('click', toggle);
+        (window as any).__cordTogglePin = toggle;
+        renderMount(); syncBtn();
+    }
+
+    // ── Notificaciones (campana) ──
+    function initNotifs() {
+        const btn = document.getElementById('notifBtn');
+        const panel = document.getElementById('notifPanel');
+        const list = document.getElementById('notifList');
+        const dot = document.getElementById('notifDot');
+        const markAll = document.getElementById('notifMarkAll');
+        if (!btn || !panel || !list) return;
+        const SEEN_KEY = 'cord.notif.seen';
+        const ICONS: any = {
+            send: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+            eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+            check: '<path d="M20 6L9 17l-5-5"/>',
+            x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+            card: '<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>',
+            doc: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+            chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+        };
+        const TONE: any = { approved: 'ok', paid: 'ok', viewed: 'warn', counter: 'warn', rejected: 'danger' };
+        let latest = 0;
+        const esc = (s: string) => String(s).replace(/</g, '&lt;');
+        const getSeen = () => { try { return parseInt(localStorage.getItem(SEEN_KEY) || '0', 10) || 0; } catch { return 0; } };
+        const paint = (data: any) => {
+            const items = data.items || []; latest = data.latest || 0;
+            if (!items.length) { list.innerHTML = '<div class="notif-empty">Sin actividad reciente</div>'; return; }
+            const seen = getSeen();
+            list.innerHTML = items.map((n: any) => {
+                const unread = n.ts > seen ? ' unread' : '';
+                const tone = TONE[n.tipo] ? ' ' + TONE[n.tipo] : '';
+                const icon = ICONS[n.icon] || ICONS.doc;
+                return `<a class="notif-item${unread}" href="${n.href}"><span class="notif-ico${tone}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icon}</svg></span><span class="notif-body"><span class="notif-title">${esc(n.title)}</span><span class="notif-sub">${esc(n.sub)}</span><span class="notif-when">${esc(n.cuando)}</span></span></a>`;
+            }).join('');
+        };
+        const closeP = () => { (panel as HTMLElement).hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+        const load = async () => {
+            list.innerHTML = '<div class="notif-empty">Cargando…</div>';
+            try {
+                const res = await fetch('/api/notificaciones'); const data = await res.json();
+                paint(data);
+                try { localStorage.setItem(SEEN_KEY, String(latest || Date.now())); } catch (e) {}
+                (dot as HTMLElement).hidden = true;
+            } catch { list.innerHTML = '<div class="notif-empty">No se pudo cargar</div>'; }
+        };
+        const openP = () => { (panel as HTMLElement).hidden = false; btn.setAttribute('aria-expanded', 'true'); load(); };
+        btn.addEventListener('click', (e) => { e.stopPropagation(); (panel as HTMLElement).hidden ? openP() : closeP(); });
+        document.addEventListener('click', (e) => { if (!(panel as HTMLElement).hidden && !panel.contains(e.target as Node) && !btn.contains(e.target as Node)) closeP(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeP(); });
+        markAll?.addEventListener('click', () => {
+            try { localStorage.setItem(SEEN_KEY, String(Date.now())); } catch (e) {}
+            (dot as HTMLElement).hidden = true;
+            list.querySelectorAll('.notif-item.unread').forEach((el) => el.classList.remove('unread'));
+        });
+        // Punto rojo si hay actividad más nueva que la última vista.
+        (async () => {
+            try {
+                const res = await fetch('/api/notificaciones'); const data = await res.json();
+                (dot as HTMLElement).hidden = !((data.latest || 0) > getSeen());
+            } catch (e) {}
+        })();
+    }
+
+    // ── Atajos de teclado globales ──
+    function initShortcuts() {
+        const help = document.getElementById('kbdHelp');
+        document.getElementById('kbdHelpBackdrop')?.addEventListener('click', () => { if (help) (help as HTMLElement).hidden = true; });
+        const ROUTES: any = { d: '/app', c: '/app/cotizaciones', l: '/app/clientes', p: '/app/productos', b: '/app/cobranza', a: '/app/analitica' };
+        const typing = (el: any) => el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
+        let gPending = false; let gTimer = 0;
+        document.addEventListener('keydown', (e) => {
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
+            if (typing(e.target)) return;
+            if (!(document.getElementById('cmdk') as HTMLElement)?.hidden) return; // cmdk abierto
+            const k = e.key.toLowerCase();
+            if (e.key === '?') { e.preventDefault(); if (help) (help as HTMLElement).hidden = !(help as HTMLElement).hidden; return; }
+            if (help && !(help as HTMLElement).hidden) return; // overlay de ayuda abierto
+            if (gPending) {
+                gPending = false; clearTimeout(gTimer);
+                if (ROUTES[k]) { e.preventDefault(); window.location.href = ROUTES[k]; return; }
+            }
+            if (k === 'g') { gPending = true; gTimer = window.setTimeout(() => { gPending = false; }, 1200); return; }
+            if (k === '/') { e.preventDefault(); document.getElementById('cmdkOpen')?.click(); return; }
+            if (k === 'c') { e.preventDefault(); window.location.href = '/app/cotizaciones/nueva'; return; }
+            if (k === 'f') { e.preventDefault(); (window as any).__cordTogglePin?.(); return; }
+        });
+    }
+
+    function initApp() { initCmdk(); initDrawer(); initSidebar(); initToasts(); initNavProgress(); initPins(); initNotifs(); initShortcuts(); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp);
     else initApp();
 </script>

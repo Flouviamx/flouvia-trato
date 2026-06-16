@@ -19,15 +19,36 @@ export interface SolBlock {
     bullets: string[];
 }
 
+export interface SolFaq {
+    q: string;
+    a: string;
+}
+
+// Interlink solución → feature de producto (grafo de entidades para AI agents).
+export interface SolLink {
+    href: string;        // /producto/<slug>
+    label: string;       // ancla del link
+}
+
 export interface Solution {
     slug: string;
     nav: string;              // nombre corto (megamenú, hub, cross-links)
     eyebrow: string;
     titulo: string;          // H1, admite <br/>
     sub: string;
+    metaTitle?: string;      // <title>/OG — keyword-rich de industria (cae a `${nav} — Cord`)
+    metaDescription?: string;// meta description (cae a `sub`)
+    paraQuien: string;       // "Para quién es Cord [industria]" — extractable (audiencia objetivo)
     dolor: string;           // el dolor de la industria, una línea
     stats: SolStat[];
     blocks: SolBlock[];
+    resultado?: {            // caso de uso real con métricas (AI-SEO: estadística con fuente)
+        cliente: string;
+        metricas: { valor: string; label: string }[];
+        nota: string;
+    };
+    faqs: SolFaq[];          // FAQ + FAQPage JSON-LD (4 por página)
+    interlink: SolLink;      // link a la feature de producto más relevante
     cta: { titulo: string; sub: string };
 }
 
@@ -38,6 +59,9 @@ export const SOLUCIONES: Solution[] = [
         eyebrow: 'DISTRIBUIDORAS Y MAYORISTAS',
         titulo: 'Cada cliente,<br/>su propio precio.',
         sub: 'Vendes lo mismo a 200 clientes a 200 precios distintos. Cord guarda el precio negociado y los términos de cada cliente y los aplica solos — para que cualquiera de tu equipo cotice rápido sin regalar margen ni romper acuerdos.',
+        metaTitle: 'Software de cotizaciones para distribuidoras y mayoristas en México — Cord by Flouvia',
+        metaDescription: 'Cord permite a distribuidoras y mayoristas en México gestionar listas de precios por cliente, términos Net 30/60, límites de crédito y CFDI automático — en una sola plataforma. Sin Excel, sin hojas sueltas, sin acuerdos que se pierden.',
+        paraQuien: 'Cord para distribuidoras está diseñado para negocios con 10 a 200 clientes activos, que manejan precios diferenciados por cliente y procesan entre 20 y 500 cotizaciones al mes. Si vendes el mismo catálogo a precios distintos según volumen y relación, y hoy llevas esos acuerdos en Excel o en la cabeza de tus vendedores, Cord es para ti.',
         dolor: 'El precio especial vive en la cabeza de una persona y en hojas de Excel desactualizadas.',
         stats: [
             { valor: '200+', label: 'clientes con su propio precio, sin hojas sueltas' },
@@ -76,6 +100,34 @@ export const SOLUCIONES: Solution[] = [
                 ],
             },
         ],
+        resultado: {
+            cliente: 'Distribuidora El Zarco · La Central de Abastos, CDMX',
+            metricas: [
+                { valor: '−67%', label: 'en el tiempo de procesamiento de órdenes' },
+                { valor: '+25%', label: 'en el ticket promedio de venta' },
+                { valor: '100%', label: 'de las órdenes de venta automatizadas' },
+            ],
+            nota: 'Distribuidora El Zarco, mayorista en La Central de Abastos de la Ciudad de México, adoptó Cord para gestionar sus precios diferenciados por cliente y automatizar su flujo de cotización.',
+        },
+        faqs: [
+            {
+                q: '¿Cómo gestiona Cord los precios diferenciados por cliente en una distribuidora?',
+                a: 'Cord permite asignar un precio negociado a cada línea de cotización, independiente del precio de lista en el catálogo. Cuando un vendedor cotiza a un cliente específico, el sistema aplica automáticamente los precios y descuentos acordados para ese cliente, mostrando el porcentaje de descuento aplicado por línea. El precio de lista queda registrado como referencia para controlar el margen cedido.',
+            },
+            {
+                q: '¿Cord sirve para distribuidoras que manejan cientos de SKUs?',
+                a: 'Sí. El catálogo de Cord acepta importación masiva por CSV, búsqueda instantánea por nombre o SKU y unidades personalizadas (piezas, cajas, toneladas, litros, lo que corresponda al producto). Los productos se activan o pausan sin borrar su historial de precios. No hay límite de productos en los planes de pago.',
+            },
+            {
+                q: '¿Cord funciona para distribuidoras en La Central de Abastos o mercados mayoristas en México?',
+                a: 'Sí. Cord está diseñado específicamente para distribuidores mayoristas en México. Un caso de uso documentado es Distribuidora El Zarco en La Central de Abastos, CDMX, donde Cord redujo el tiempo de procesamiento de órdenes en un 67%, aumentó el ticket promedio en un 25% y automatizó el 100% de las órdenes de venta.',
+            },
+            {
+                q: '¿Qué pasa si un cliente de la distribuidora pide un precio que no está en el catálogo?',
+                a: 'Cord incluye líneas libres en el editor de cotizaciones, que permiten agregar conceptos personalizados fuera del catálogo con su descripción, cantidad, unidad y precio. Se usan para fletes, maniobras, descuentos especiales o cualquier concepto no estándar.',
+            },
+        ],
+        interlink: { href: '/producto/clientes-credito', label: 'clientes y crédito' },
         cta: { titulo: 'Cotiza a cada cliente a su precio.', sub: 'Gratis hasta 5 cotizaciones activas. Sin tarjeta.' },
     },
     {
@@ -84,6 +136,9 @@ export const SOLUCIONES: Solution[] = [
         eyebrow: 'CONSTRUCCIÓN Y MATERIALES',
         titulo: 'Volumen, obra<br/>y crédito, bajo control.',
         sub: 'Cotizaciones de cientos de miles de pesos, entregas en obra y clientes que piden Net 60: el día a día del materialista. Cord le pone folio, vigencia y límite de crédito a cada trato — y te avisa en el momento en que lo aprueban.',
+        metaTitle: 'Cotizaciones de materiales de construcción con CFDI y crédito — Cord by Flouvia',
+        metaDescription: 'Cord permite a ferreterías, materialistas y proveedores de construcción cotizar volúmenes grandes sin errores, controlar crédito Net 60 por obra y timbrar el CFDI 4.0 automáticamente al cierre. Hecho para México.',
+        paraQuien: 'Cord para construcción está diseñado para ferreterías, materialistas y proveedores de obra en México que arman cotizaciones de alto valor con muchas líneas, manejan crédito Net 30 o Net 60 por obra y necesitan timbrar CFDI 4.0 al cierre. Si vendes cemento, varilla, agregados o acabados por volumen y das crédito a constructoras, Cord es para ti.',
         dolor: 'Cotizaciones enormes armadas a mano, con el riesgo de un error de dedo que se come el margen.',
         stats: [
             { valor: '$196,469', label: 'cotizados y aprobados el mismo día' },
@@ -118,10 +173,29 @@ export const SOLUCIONES: Solution[] = [
                 bullets: [
                     'Link público que se aprueba desde cualquier celular',
                     'Aviso inmediato cuando el cliente lo abre y lo aprueba',
-                    'CFDI 4.0 automático al cerrar (plan Negocio)',
+                    'CFDI 4.0 automático al cerrar (plan Starter en adelante)',
                 ],
             },
         ],
+        faqs: [
+            {
+                q: '¿Cord sirve para ferreterías y proveedores de materiales de construcción en México?',
+                a: 'Sí. Cord está diseñado para manejar las particularidades del sector construcción: cotizaciones de alto valor con muchas líneas, unidades reales como sacos, m³, tramos y toneladas, crédito Net 30 o Net 60 por obra o constructora, y CFDI 4.0 automático al cierre. El editor recalcula subtotal e IVA en tiempo real para evitar errores de captura en cotizaciones grandes.',
+            },
+            {
+                q: '¿Cómo controla Cord el crédito de clientes en el sector construcción?',
+                a: 'Cord permite asignar un límite de crédito en pesos a cada constructora u obra. Antes de enviar una cotización a crédito, el vendedor ve cuánto crédito disponible le queda al cliente frente al límite asignado. Los términos Net 30 o Net 60 se configuran por cliente y se aplican automáticamente en cada cotización.',
+            },
+            {
+                q: '¿El cliente de una ferretería puede aprobar la cotización desde la obra?',
+                a: 'Sí. Cord genera un link público que el cliente puede abrir desde cualquier celular sin instalar nada ni crear una cuenta. Puede revisar los materiales, cantidades y precios desde la obra y aprobar con un botón. El proveedor recibe una notificación inmediata de la aprobación.',
+            },
+            {
+                q: '¿Cord genera el CFDI automáticamente para empresas de materiales de construcción?',
+                a: 'Sí. Desde el plan Starter, Cord timbra el CFDI 4.0 automáticamente cuando se cierra una cotización aprobada. Los datos del comprobante se toman directamente de la cotización: productos, cantidades, precios negociados y RFC del cliente. No es necesario recapturar en ningún portal de facturación externo.',
+            },
+        ],
+        interlink: { href: '/producto/cfdi', label: 'facturación CFDI 4.0' },
         cta: { titulo: 'Cotiza la obra completa<br/>en minutos.', sub: 'Empieza gratis y carga tu catálogo de materiales hoy.' },
     },
     {
@@ -130,6 +204,9 @@ export const SOLUCIONES: Solution[] = [
         eyebrow: 'MANUFACTURA',
         titulo: 'Cotiza especificación,<br/>lote y entrega.',
         sub: 'En manufactura cada cotización es un pequeño proyecto: especificaciones, cantidades mínimas, tiempos de entrega. Con líneas libres y notas por cotización, Cord documenta el acuerdo completo — y el timeline guarda quién aprobó qué y cuándo.',
+        metaTitle: 'Cotizaciones de manufactura con especificación técnica y CFDI en México — Cord by Flouvia',
+        metaDescription: 'Cord permite a empresas de manufactura en México cotizar lotes con especificación técnica, MOQ, tiempos de entrega y notas de condición. El cliente aprueba por link y el CFDI 4.0 se timbra automáticamente. Historial completo por cliente.',
+        paraQuien: 'Cord para manufactura está diseñado para empresas que cotizan proyectos a la medida a otras empresas en México —maquinado CNC, corte láser, ensamble, inyección de plástico, metalmecánica— con especificación técnica, cantidad mínima de orden y tiempos de entrega. Si cada cotización tuya es un pequeño proyecto con condiciones propias, Cord es para ti.',
         dolor: 'El acuerdo técnico se pierde entre correos y nadie recuerda a qué precio se cerró el lote anterior.',
         stats: [
             { valor: '100', countup: 100, suffix: '%', label: 'del acuerdo documentado en un solo lugar' },
@@ -164,10 +241,29 @@ export const SOLUCIONES: Solution[] = [
                 bullets: [
                     'Aprobación registrada en el timeline como evidencia',
                     'CFDI 4.0 con los datos exactos de la cotización',
-                    'UUID, XML y PDF disponibles al instante (plan Negocio)',
+                    'UUID, XML y PDF disponibles al instante (plan Starter en adelante)',
                 ],
             },
         ],
+        faqs: [
+            {
+                q: '¿Cord permite cotizar lotes con especificaciones técnicas en manufactura?',
+                a: 'Sí. Cord incluye líneas libres en el editor de cotizaciones donde se puede ingresar la especificación técnica completa de cada concepto: material, acabado, tolerancia, cantidad mínima de orden (MOQ) y cualquier condición relevante. El campo de notas por cotización permite agregar condiciones generales del lote como tiempos de entrega, porcentaje de anticipo y referencias de plano.',
+            },
+            {
+                q: '¿Cord guarda el historial de precios de lotes anteriores en manufactura?',
+                a: 'Sí. Cada cliente en Cord acumula el historial completo de cotizaciones: qué se cotizó, a qué precio, con qué especificación y quién aprobó. Cuando el mismo cliente vuelve a pedir una corrida, el vendedor puede revisar el precio y las condiciones del lote anterior directamente en la ficha del cliente, sin buscar en correos o archivos.',
+            },
+            {
+                q: '¿Cord sirve para empresas de maquinado, corte láser o ensamble en México?',
+                a: 'Sí. Cord está diseñado para cualquier empresa de manufactura que cotiza proyectos a otras empresas en México: maquinado CNC, corte láser, ensamble, inyección de plástico, metalmecánica y similares. Las líneas libres permiten describir cada proceso con su especificación y precio unitario, y el sistema genera el CFDI 4.0 automáticamente al cierre.',
+            },
+            {
+                q: '¿Cómo queda registrada la aprobación del cliente en una cotización de manufactura?',
+                a: 'Cuando el cliente aprueba la cotización a través del link público de Cord, el sistema registra en el timeline quién aprobó, desde qué dispositivo y a qué hora. Este registro funciona como evidencia del acuerdo comercial. El estado de la cotización cambia automáticamente a "aprobada" y queda disponible para generar el CFDI.',
+            },
+        ],
+        interlink: { href: '/producto/seguimiento', label: 'seguimiento en vivo' },
         cta: { titulo: 'Documenta el acuerdo,<br/>no lo persigas.', sub: 'Empieza gratis — tu primera cotización a la medida hoy.' },
     },
     {
@@ -176,6 +272,9 @@ export const SOLUCIONES: Solution[] = [
         eyebrow: 'SERVICIOS PROFESIONALES',
         titulo: 'Propuestas tan serias<br/>como tu trabajo.',
         sub: 'Una propuesta en PDF genérico compite mal contra una página elegante con tu marca, montos claros y un botón de aprobar. Manda un link que cierra por ti — y entérate en el momento exacto en que tu prospecto lo abre.',
+        metaTitle: 'Propuestas B2B con aprobación por link para servicios profesionales en México — Cord by Flouvia',
+        metaDescription: 'Cord permite a despachos, consultorías y agencias en México enviar propuestas con su marca, saber el momento exacto en que el prospecto las abre, recibir la aprobación con un botón y cobrar el anticipo en línea. CFDI 4.0 automático.',
+        paraQuien: 'Cord para servicios profesionales está diseñado para despachos, consultorías, agencias y firmas que envían propuestas a clientes B2B en México y necesitan saber si las leyeron, cerrarlas con un botón y cobrar el anticipo. Si tu venta depende de una propuesta bien presentada y del seguimiento en el momento justo, Cord es para ti.',
         dolor: 'La propuesta perfecta muere en la bandeja de entrada y nunca sabes si la abrieron.',
         stats: [
             { valor: '1', countup: 1, suffix: ' clic', label: 'entre tu propuesta y el "sí"' },
@@ -214,7 +313,26 @@ export const SOLUCIONES: Solution[] = [
                 ],
             },
         ],
-        cta: { titulo: 'Manda un link,<br/>no un archivo.', sub: 'Mira una propuesta de ejemplo o crea la tuya gratis.' },
+        faqs: [
+            {
+                q: '¿Cord sirve para enviar propuestas comerciales a clientes B2B en México?',
+                a: 'Sí. Cord genera un link de propuesta con la marca del negocio (logo, colores, datos fiscales) que el prospecto puede abrir desde cualquier dispositivo. La propuesta muestra los servicios, precios y términos de pago, e incluye botones para aprobar, rechazar o hacer preguntas. No se requiere que el prospecto cree una cuenta ni descargue nada.',
+            },
+            {
+                q: '¿Cómo sé si mi prospecto ya vio la propuesta que le envié?',
+                a: 'Cord envía una notificación en tiempo real en cuanto el prospecto abre el link de la propuesta. El dashboard muestra la hora exacta de cada apertura y el número de veces que fue abierta. Si el prospecto la vio varias veces, suele indicar que está evaluando la decisión — es el momento ideal para hacer seguimiento.',
+            },
+            {
+                q: '¿Cord permite cobrar anticipo al aprobar una propuesta de servicios?',
+                a: 'Sí. Con el plan Profesional en adelante, Cord permite activar pago en línea con Stripe. Cuando el cliente aprueba la propuesta puede pagar el anticipo directamente desde la misma página, sin necesidad de transferencia separada ni seguimiento adicional.',
+            },
+            {
+                q: '¿Cord genera CFDI para empresas de servicios profesionales en México?',
+                a: 'Sí. Desde el plan Starter, Cord timbra el CFDI 4.0 automáticamente cuando el cliente aprueba la propuesta. Los datos del comprobante (descripción del servicio, precio, RFC del cliente) se toman de la propuesta aprobada. Disponible para cualquier empresa con RFC en México que emita CFDI por servicios.',
+            },
+        ],
+        interlink: { href: '/producto/link-publico', label: 'el link público de aprobación' },
+        cta: { titulo: 'La próxima propuesta que mandes<br/>va a tener un botón de aprobar.', sub: 'Mira una propuesta de ejemplo o crea la tuya gratis.' },
     },
 ];
 
