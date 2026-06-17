@@ -5,7 +5,7 @@
 //
 // Usa el SDK oficial @anthropic-ai/sdk con tool_choice forzado (salida estructurada).
 // Necesita ANTHROPIC_API_KEY en el entorno. Modelo configurable con AI_MODEL
-// (default claude-opus-4-8). El emparejamiento se valida en el servidor: la IA
+// (default claude-haiku-4-5-20251001). El emparejamiento se valida en el servidor: la IA
 // sugiere producto_id, pero el precio de lista y los datos salen del catálogo real.
 export const prerender = false;
 
@@ -16,16 +16,46 @@ import { getActiveOrgId } from '../../../lib/db';
 import { reportUsage } from '../../../lib/billing';
 
 const API_KEY = import.meta.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
-const MODEL = import.meta.env.AI_MODEL || process.env.AI_MODEL || 'claude-opus-4-8';
+const MODEL = import.meta.env.AI_MODEL || process.env.AI_MODEL || 'claude-haiku-4-5-20251001';
 
-const SYSTEM = `Eres un asistente experto que arma cotizaciones B2B para un negocio en México.
-Recibes (1) el catálogo de productos del negocio en JSON (id, sku, nombre, unidad, precio de lista)
-y (2) el mensaje de un cliente en lenguaje natural (español mexicano, suele venir de WhatsApp o correo).
-Tu trabajo: identificar qué productos y en qué cantidad pide el cliente, y emparejar cada concepto con
-el producto del catálogo más parecido por nombre o SKU, devolviendo su producto_id EXACTO.
-Si un concepto no está en el catálogo, devuélvelo como línea libre (producto_id vacío) con su descripción.
-Interpreta unidades y cantidades coloquiales (p. ej. "200 sacos", "5 toneladas", "una docena").
-No inventes productos que el cliente no pidió. Llama a la herramienta armar_cotizacion con todas las líneas.`;
+const SYSTEM = `Eres un extractor de pedidos B2B en México. ÚNICA tarea: convertir el mensaje del cliente en líneas de cotización usando el catálogo dado.
+
+CATÁLOGO: formato id|nombre|unidad|precio (una línea por producto).
+
+REGLAS DE EMPAREJAMIENTO (en orden de prioridad):
+1. Coincidencia exacta de nombre o SKU → usa ese id
+2. Nombre parcial, sinónimo o descripción similar → usa el más parecido
+3. No existe en catálogo → línea libre: producto_id="" y descripcion literal del cliente
+
+REGLAS DE CANTIDAD:
+- "una docena"=12, "un par"=2, "un cuarto"=0.25, "medio"=0.5, "un centenar"=100
+- Sin cantidad explícita → cantidad=1
+- Redondea siempre a entero ≥1 (excepto si la unidad es m², m³, kg, ton, lt — ahí usa decimales)
+
+REGLAS DE PRECIO:
+- precio_sugerido > 0 SOLO si el cliente menciona un precio o monto EXPLÍCITO por unidad
+- Si menciona descuento porcentual → precio_sugerido=0 (el vendedor lo calcula)
+- Si no menciona precio → precio_sugerido=0
+
+PROHIBICIONES ABSOLUTAS:
+- Nunca inventes un producto que el cliente no mencionó
+- Nunca fusiones dos productos distintos en una línea
+- Nunca dividas un producto en varias líneas
+
+EJEMPLO 1:
+Catálogo: a1|Cemento Gris 50kg|saco|185 / a2|Arena Fina 25kg|costal|95
+Cliente: "necesito 5 sacos de cemento gris y 2 costales de arena"
+→ items: [{producto_id:"a1",descripcion:"Cemento Gris 50kg",cantidad:5,precio_sugerido:0},{producto_id:"a2",descripcion:"Arena Fina 25kg",cantidad:2,precio_sugerido:0}]
+
+EJEMPLO 2 (línea libre + precio explícito):
+Catálogo: b1|Varilla 3/8"|pieza|42
+Cliente: "10 varillas y también 2 vigas IPR 6m a 850 cada una"
+→ items: [{producto_id:"b1",descripcion:"Varilla 3/8\"",cantidad:10,precio_sugerido:0},{producto_id:"",descripcion:"Vigas IPR 6m",cantidad:2,precio_sugerido:850}]
+
+EJEMPLO 3 (sin producto claro):
+Catálogo: vacío
+Cliente: "mándame lo de siempre"
+→ items: [{producto_id:"",descripcion:"lo de siempre",cantidad:1,precio_sugerido:0}]`;
 
 const TOOL = {
     name: 'armar_cotizacion',
@@ -60,10 +90,12 @@ export const POST: APIRoute = async ({ request }) => {
     try { body = await request.json(); } catch { return json({ error: 'JSON inválido' }, 400); }
     const text = String(body.text ?? '').trim();
     if (!text) return json({ error: 'Pega el pedido del cliente' }, 400);
-    if (text.length > 6000) return json({ error: 'El texto es demasiado largo (máx 6000 caracteres)' }, 400);
+    if (text.length > 2000) return json({ error: 'El texto es demasiado largo (máx 2000 caracteres)' }, 400);
 
     const productos = (await getProductos()).filter((p) => p.activo);
-    const catalogo = productos.map((p) => ({ id: p.id, sku: p.sku, nombre: p.nombre, unidad: p.unidad, precio: p.precio }));
+    const catalogoTexto = productos.length
+        ? 'id|nombre|unidad|precio\n' + productos.map((p) => `${p.id}|${p.nombre}|${p.unidad}|${p.precio}`).join('\n')
+        : '(catálogo vacío)';
     const byId = new Map(productos.map((p) => [p.id, p]));
 
     const client = new Anthropic({ apiKey: API_KEY });
@@ -71,13 +103,13 @@ export const POST: APIRoute = async ({ request }) => {
     try {
         msg = await client.messages.create({
             model: MODEL,
-            max_tokens: 4096,
+            max_tokens: 512,
             system: SYSTEM,
             tools: [TOOL],
             tool_choice: { type: 'tool', name: 'armar_cotizacion' },
             messages: [{
                 role: 'user',
-                content: `Catálogo (JSON):\n${JSON.stringify(catalogo)}\n\nMensaje del cliente:\n"""${text}"""`,
+                content: `Catálogo:\n${catalogoTexto}\n\nMensaje del cliente:\n"""${text}"""`,
             }],
         });
     } catch (err: any) {
