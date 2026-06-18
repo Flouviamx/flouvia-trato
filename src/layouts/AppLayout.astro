@@ -4,7 +4,7 @@
 // Datos reales desde Neon; la org se resuelve desde la sesión de Clerk (src/lib/db.ts).
 
 import { getOrg, getSetupProgress, getSidebarBadges } from '../lib/queries';
-import { SignOutButton, OrganizationSwitcher } from '@clerk/astro/components';
+import { UserButton, OrganizationSwitcher } from '@clerk/astro/components';
 import { clerkAppearance } from '../lib/clerk-theme';
 import OnboardingWidget from '../components/app/OnboardingWidget.astro';
 import Analytics from '@vercel/analytics/astro';
@@ -51,6 +51,12 @@ const NAV_GROUPS = [
             { id: 'productos', href: '/app/productos', label: 'Productos', icon: 'M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v5c0 .75.4 1.38 1 1.73V19c0 1.11.89 2 2 2h14c1.11 0 2-.89 2-2v-3.28c.59-.35 1-.99 1-1.72V9c0-1.1-.9-2-2-2zM10 5h4v2h-4V5z' },
         ],
     },
+    {
+        label: 'Sistema',
+        items: [
+            { id: 'ajustes', href: '/app/ajustes', label: 'Ajustes', icon: 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z' },
+        ],
+    },
 ];
 ---
 
@@ -84,49 +90,48 @@ const NAV_GROUPS = [
             <!-- ── SIDEBAR ── -->
             <aside class="sidebar">
                 <!-- Cuenta — arriba -->
-                <div class="sb-account">
-                    <button class="sb-org-switch" id="orgSwitch" type="button" aria-haspopup="menu" aria-expanded="false" title={ORG.nombre}>
-                        <span class="sb-org-avatar">{ORG.inicial}</span>
-                        <span class="sb-org-info">
-                            <span class="sb-org-name">{ORG.nombre}</span>
-                            <span class="sb-org-plan">Plan {ORG.plan}</span>
-                        </span>
-                        <svg class="sb-org-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
-
-                    <div class="sb-org-menu" id="orgMenu" role="menu" hidden>
-                        <div class="sb-org-menu-head">
-                            <span class="sb-org-avatar">{ORG.inicial}</span>
-                            <div class="sb-org-menu-id">
-                                <strong>{ORG.nombre}</strong>
-                                <span>Plan {ORG.plan}</span>
-                            </div>
-                        </div>
-                        <a href="/app/ajustes" class="sb-menu-item" role="menuitem">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                            Ajustes
-                        </a>
-                        <a href="/app/ajustes/equipo" class="sb-menu-item" role="menuitem">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            Equipo y roles
-                        </a>
-                        <a href="/" class="sb-menu-item" role="menuitem">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                            Ver sitio público
-                        </a>
-                        <div class="sb-menu-sep"></div>
-                        <SignOutButton redirectUrl="/" class="sb-menu-item sb-menu-danger" role="menuitem">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                            Cerrar sesión
-                        </SignOutButton>
-                    </div>
-
+                <div class="sb-account" style="padding: 0.5rem;">
                     <!-- Org switcher de Clerk Organizations (cambiar / crear org).
-                         Clerk es la fuente de verdad de identidad; el webhook
-                         /api/clerk/webhook sincroniza orgs/miembros hacia Neon. -->
-                    <div class="sb-clerk-orgs" style="margin-top: 1rem;">
-                        <OrganizationSwitcher appearance={clerkAppearance} hidePersonal={true} />
-                    </div>
+                         Clerk es la fuente de verdad de identidad; el popup usa tema claro (estilo Stripe).
+                         El trigger se estiliza para integrarse en la sidebar oscura de Cord. -->
+                    <OrganizationSwitcher 
+                        hidePersonal={true} 
+                        appearance={{
+                            elements: {
+                                rootBox: { width: '100%' },
+                                organizationSwitcherTrigger: {
+                                    width: '100%',
+                                    backgroundColor: 'transparent',
+                                    color: '#e2e8f0',
+                                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                                    boxShadow: 'none',
+                                    padding: '0.5rem 0.75rem',
+                                    borderRadius: '8px',
+                                    justifyContent: 'space-between',
+                                    transition: 'all 0.2s ease',
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                                        borderColor: 'rgba(255, 255, 255, 0.12)'
+                                    }
+                                },
+                                organizationSwitcherTriggerIcon: {
+                                    color: '#94a3b8'
+                                },
+                                organizationPreviewTextContainer: {
+                                    color: '#e2e8f0'
+                                },
+                                organizationPreviewSecondaryIdentifier: {
+                                    color: '#94a3b8'
+                                },
+                                // El popup mantiene el tema claro por defecto (clerkAppearance no se pasa aquí)
+                                organizationSwitcherPopoverCard: {
+                                    boxShadow: '0 10px 40px -10px rgba(10,25,47,0.2)',
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '12px'
+                                }
+                            }
+                        }} 
+                    />
                 </div>
 
                 <!-- Acciones móviles (solo en drawer) — crear / ayuda / config -->
@@ -174,6 +179,33 @@ const NAV_GROUPS = [
                         </div>
                     ))}
                 </nav>
+
+                <div class="sb-user" style="padding: 1rem; padding-bottom: 0;">
+                    <!-- UserButton para cerrar sesión y perfil personal -->
+                    <UserButton 
+                        showName={true} 
+                        appearance={{
+                            elements: {
+                                rootBox: { width: '100%' },
+                                userButtonTrigger: { 
+                                    width: '100%', 
+                                    justifyContent: 'flex-start', 
+                                    padding: '0.5rem', 
+                                    borderRadius: '8px', 
+                                    color: '#e2e8f0', 
+                                    transition: 'all 0.2s ease',
+                                    '&:hover': { background: 'rgba(255,255,255,0.06)' } 
+                                },
+                                userButtonBox: { flexDirection: 'row-reverse' },
+                                userPreviewTextContainer: { color: '#e2e8f0', textAlign: 'left' }
+                            }
+                        }}
+                    >
+                        <UserButton.MenuItems>
+                            <UserButton.Action label="Ver sitio público" labelIcon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>} onClick="window.location.href='/'" />
+                        </UserButton.MenuItems>
+                    </UserButton>
+                </div>
 
                 <div class="sb-footer">
                     <img class="sb-foot-logo" src="/imgs/logo-cord-white.png" alt="Cord" />
@@ -1118,39 +1150,16 @@ const NAV_GROUPS = [
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
     }
 
-    // ── Org switcher (menú) + colapsar sidebar ──
+    // ── Colapsar sidebar ──
     function initSidebar() {
         const root = document.documentElement;
-        // Menú del switcher
-        const sw = document.getElementById('orgSwitch');
-        const menu = document.getElementById('orgMenu');
-        if (sw && menu) {
-            const closeMenu = () => { (menu as HTMLElement).hidden = true; sw.setAttribute('aria-expanded', 'false'); };
-            sw.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const open = (menu as HTMLElement).hidden;
-                (menu as HTMLElement).hidden = !open;
-                sw.setAttribute('aria-expanded', String(open));
-            });
-            document.addEventListener('click', (e) => {
-                if (!(menu as HTMLElement).hidden && !menu.contains(e.target as Node) && e.target !== sw) closeMenu();
-            });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
-        }
-        // Colapsar / expandir (persistente). En colapsado, el switcher expande al hacer click.
+        // Colapsar / expandir (persistente).
         const setCollapsed = (v: boolean) => {
             root.classList.toggle('sb-collapsed', v);
             try { localStorage.setItem('cord.sb.collapsed', v ? '1' : '0'); } catch (e) {}
         };
         document.getElementById('sbCollapse')?.addEventListener('click', (e) => { e.stopPropagation(); setCollapsed(true); });
         document.getElementById('sbExpand')?.addEventListener('click', (e) => { e.stopPropagation(); setCollapsed(false); });
-        // Si está colapsado, click en el switcher expande en vez de abrir el menú.
-        sw?.addEventListener('click', (e) => {
-            if (root.classList.contains('sb-collapsed')) {
-                e.stopImmediatePropagation();
-                setCollapsed(false);
-            }
-        }, true);
     }
 
     // ── Toasts globales — window.cordToast(msg, 'ok'|'error'|'info') ──
