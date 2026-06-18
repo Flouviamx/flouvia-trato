@@ -152,6 +152,18 @@ usuario (el de IA ya está cableado en `ai-draft`).
      en la parte inferior con ícono, auto-dismiss y botón X. Flash post-navegación vía
      `sessionStorage 'cord.flash'`. Skeletons reutilizables: `.skeleton` + `.skeleton-line`.
    • **Overlay de ayuda de atajos** (`?`): panel centrado con la tabla de todos los atajos.
+   • **Mobile v2 (jun 2026):** topbar en móvil = solo `☰ burger · lupa · campana` (barra de
+     búsqueda colapsada a ícono cuadrado; notificaciones visibles; engrane/ayuda/guía ocultos
+     de la topbar). **Tab bar inferior eliminada** (`.mobile-tabs` borrada; navegación en el
+     drawer). **Drawer con acciones rápidas** (`.sb-mobile-actions`, solo móvil): botón azul
+     **"+ Crear"** con mini menú desplegable (Cotización → `/app/cotizaciones/nueva`, Cliente →
+     `/app/clientes?nuevo=1`, Producto → `/app/productos?nuevo=1`), **Ayuda** (abre el
+     helpDrawer), **Configuración** (→ `/app/ajustes`). Los links `?nuevo=1` auto-abren el
+     modal de alta correspondiente y limpian el query (`history.replaceState`). Tablas de
+     productos y clientes usan `grid-template-areas` en móvil: fila tipo lista con nombre +
+     dato secundario (SKU / contacto) debajo y precio/límite a la derecha. Bug de fecha en
+     "Tareas y recordatorios" corregido: campo `.task-date` usa `color: var(--color-text)` y
+     el formulario se apila a columna completa en móvil (`min-height: 44px`).
 ✅ **Presencia en vivo** — el cliente con `/q/[token]` abierto manda heartbeat
    (`POST /api/q/[token]` action `ping` → `cotizaciones.viewer_last_seen`); el vendedor
    ve "lo está viendo ahora" en el detalle (poll `/api/cotizaciones/[id]/presence`).
@@ -619,7 +631,9 @@ Page-head: breadcrumbs → `h1.ph-title` + botón pin → ph-actions → ph-tabs
 Clases globales reutilizables: `.card`, `.status-pill`, `.editorial`, `.skeleton`,
 `.skeleton-line`, `.ph-tab`. API JS global: `window.cordToast(msg, type, ms)`.
 `sessionStorage 'cord.flash'` para flash post-navegación. Entradas con CSS `app-fadein`
-escalonado (NO GSAP). Mobile: sidebar → drawer; tab bar inferior fija.
+escalonado (NO GSAP). Mobile: sidebar → drawer (tab bar inferior ELIMINADA jun 2026).
+En móvil la topbar muestra solo burger + lupa (ícono) + campana. Ayuda, config y el botón
+`+ Crear` viven en la sección `.sb-mobile-actions` dentro del drawer (oculta en desktop).
 ⚠️ Estilos de contenido inyectado por JS (Cmd+K items, notif panel, toasts, pins)
 DEBEN vivir en `<style is:global>` — Astro scopea por `[data-astro-cid]` y el HTML
 dinámico no lleva ese atributo. NO moverlos al bloque `<style>` scopeado.

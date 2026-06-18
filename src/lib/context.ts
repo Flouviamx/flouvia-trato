@@ -15,6 +15,9 @@ interface ReqCtx {
     // (máquina-a-máquina, sin sesión Clerk), guardamos aquí el org_id resuelto
     // desde la llave para que getActiveOrgId() lo use directamente.
     orgId?: string | null;
+    // Org ACTIVA de Clerk Organizations (org_xxx). El middleware la toma de
+    // auth().orgId; getActiveOrgId() la mapea al UUID interno (orgs.clerk_org_id).
+    clerkOrgId?: string | null;
 }
 
 export const reqContext = new AsyncLocalStorage<ReqCtx>();
@@ -27,4 +30,9 @@ export function currentUserId(): string | null {
 /** org_id inyectado por auth de API key (carril máquina-a-máquina), o null. */
 export function currentOrgIdOverride(): string | null {
     return reqContext.getStore()?.orgId ?? null;
+}
+
+/** Org activa de Clerk Organizations (org_xxx) de la sesión, o null. */
+export function currentClerkOrgId(): string | null {
+    return reqContext.getStore()?.clerkOrgId ?? null;
 }

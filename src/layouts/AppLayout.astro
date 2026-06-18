@@ -4,7 +4,7 @@
 // Datos reales desde Neon; la org se resuelve desde la sesión de Clerk (src/lib/db.ts).
 
 import { getOrg, getSetupProgress, getSidebarBadges } from '../lib/queries';
-import { SignOutButton } from '@clerk/astro/components';
+import { SignOutButton, OrganizationSwitcher } from '@clerk/astro/components';
 import OnboardingWidget from '../components/app/OnboardingWidget.astro';
 import Analytics from '@vercel/analytics/astro';
 const ORG = await getOrg();
@@ -51,8 +51,6 @@ const NAV_GROUPS = [
         ],
     },
 ];
-// Lista plana para la tab bar inferior de móvil.
-const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
 ---
 
 <!doctype html>
@@ -121,6 +119,61 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
                             Cerrar sesión
                         </SignOutButton>
                     </div>
+
+                    <!-- Org switcher de Clerk Organizations (cambiar / crear org).
+                         Clerk es la fuente de verdad de identidad; el webhook
+                         /api/clerk/webhook sincroniza orgs/miembros hacia Neon. -->
+                    <div class="sb-clerk-orgs">
+                        <OrganizationSwitcher
+                            hidePersonal
+                            afterSelectOrganizationUrl="/app"
+                            afterCreateOrganizationUrl="/app"
+                            afterLeaveOrganizationUrl="/app"
+                            appearance={{
+                                variables: {
+                                    colorBackground: '#0d1f38',
+                                    colorText: '#ffffff',
+                                    colorTextSecondary: 'rgba(255,255,255,0.55)',
+                                    colorInputBackground: '#0d1f38',
+                                    colorInputText: '#ffffff',
+                                    borderRadius: '10px',
+                                },
+                                elements: { rootBox: { width: '100%' }, organizationSwitcherTrigger: { width: '100%', justifyContent: 'flex-start', color: '#fff' } },
+                            }}
+                        />
+                    </div>
+                </div>
+
+                <!-- Acciones móviles (solo en drawer) — crear / ayuda / config -->
+                <div class="sb-mobile-actions">
+                    <div class="sb-create-wrap">
+                        <button class="sb-create" id="sbCreate" type="button" aria-haspopup="menu" aria-expanded="false">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Crear</span>
+                        </button>
+                        <div class="sb-create-menu" id="sbCreateMenu" role="menu" hidden>
+                            <a href="/app/cotizaciones/nueva" class="sb-menu-item" role="menuitem">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                                Cotización
+                            </a>
+                            <a href="/app/clientes?nuevo=1" class="sb-menu-item" role="menuitem">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                                Cliente
+                            </a>
+                            <a href="/app/productos?nuevo=1" class="sb-menu-item" role="menuitem">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                                Producto
+                            </a>
+                        </div>
+                    </div>
+                    <button class="sb-action-row" id="sbHelp" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a2.9 2.9 0 0 1 5.6 1c0 2-2.9 2.9-2.9 2.9"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+                        <span>Ayuda</span>
+                    </button>
+                    <a href="/app/ajustes" class="sb-action-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        <span>Configuración</span>
+                    </a>
                 </div>
 
                 <nav class="sb-nav">
@@ -230,16 +283,6 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
                 </main>
             </div>
         </div>
-
-        <!-- Nav mobile inferior -->
-        <nav class="mobile-tabs">
-            {NAV_FLAT.map((item) => (
-                <a href={item.href} class:list={['mt-item', { active: page === item.id }]}>
-                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={item.icon} /></svg>
-                    <span>{item.label}</span>
-                </a>
-            ))}
-        </nav>
 
         <!-- ── MENÚ DE COMANDOS (Cmd+K) ── -->
         <div class="cmdk" id="cmdk" hidden>
@@ -729,6 +772,8 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
         padding-bottom: 0.5rem;
         margin-bottom: 0.3rem;
     }
+    .sb-clerk-orgs { padding: 0.3rem 0.5rem 0; }
+    .sb-collapsed .sb-clerk-orgs { display: none; }
     /* Separador con degradado debajo de la cuenta */
     .sb-account::after {
         content: '';
@@ -787,6 +832,36 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
     .sb-menu-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
     .sb-menu-danger { color: #fca5a5; }
     .sb-menu-danger:hover { background: rgba(239,68,68,0.14); color: #fecaca; }
+
+    /* ── Acciones móviles del drawer (crear / ayuda / config) — solo móvil ── */
+    .sb-mobile-actions { display: none; }
+    .sb-create-wrap { position: relative; }
+    .sb-create {
+        display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+        padding: 11px 14px; border: none; border-radius: 11px; cursor: pointer;
+        background: #2563eb; color: #fff;
+        font-family: var(--font-sans); font-size: 0.9rem; font-weight: 650;
+        box-shadow: 0 8px 22px -10px rgba(37,99,235,0.8);
+        transition: transform 0.2s var(--ease-spring), background 0.2s;
+    }
+    .sb-create svg { width: 18px; height: 18px; }
+    .sb-create:active { transform: scale(0.98); }
+    .sb-create-menu {
+        position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 60;
+        background: #11233f; border-radius: 13px; padding: 6px;
+        box-shadow: 0 24px 60px -18px rgba(0,0,0,0.7), inset 0 0 0 0.5px rgba(255,255,255,0.1);
+        animation: sb-menu-in 0.18s var(--ease-spring);
+    }
+    .sb-create-menu[hidden] { display: none; }
+    .sb-action-row {
+        display: flex; align-items: center; gap: 11px; width: 100%;
+        padding: 11px 12px; border-radius: 11px; cursor: pointer;
+        background: rgba(255,255,255,0.05); border: none; text-align: left; text-decoration: none;
+        font-family: var(--font-sans); font-size: 0.86rem; font-weight: 500;
+        color: rgba(255,255,255,0.82); transition: background 0.18s, color 0.18s;
+    }
+    .sb-action-row svg { width: 17px; height: 17px; flex-shrink: 0; opacity: 0.85; }
+    .sb-action-row:hover, .sb-action-row:active { background: rgba(255,255,255,0.1); color: #fff; }
 
     /* ── Footer (logo + botones colapsar/expandir) ── */
     .sb-footer { padding-top: 0.7rem; display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; }
@@ -953,7 +1028,6 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
     .cmdk-foot kbd { font-size: 0.62rem; font-weight: 700; background: #fff; border: 1px solid var(--color-border); border-radius: 4px; padding: 1px 5px; color: var(--color-text-muted); }
 
     /* ── MOBILE ── */
-    .mobile-tabs { display: none; }
     @media (max-width: 880px) {
         /* Sidebar como drawer desplegable (se abre con la hamburguesa) */
         .sidebar {
@@ -971,37 +1045,29 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
         .tb-burger { display: inline-flex; }
         /* En el drawer móvil no aplica colapsar (es ancho fijo) */
         .sb-collapse { display: none; }
-        .app-content { padding: 1rem 1rem 6rem; }
+        /* Acciones del drawer (crear / ayuda / config) — visibles solo en móvil */
+        .sb-mobile-actions { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+        .app-content { padding: 1rem 1rem 2rem; }
         .topbar { padding: 0.7rem 1rem; }
         .page-head { padding: 1.1rem 1rem 0; }
         .ph-title { font-size: 1.35rem; }
         .ph-actions { width: 100%; }
         .tb-demo { display: none; }
-        .tb-search { flex: 1 1 auto; padding: 8px; }
+        /* La barra de búsqueda se reduce a un ícono de lupa (estilo Stripe móvil) */
+        .tb-search {
+            flex: 0 0 auto; width: 36px; height: 36px; padding: 0; gap: 0;
+            justify-content: center; border: none; background: transparent; border-radius: 9px;
+        }
+        .tb-search:hover { background: var(--color-bg-soft); box-shadow: none; }
+        .tb-search svg { width: 18px; height: 18px; }
         .tb-search-label, .tb-kbd { display: none; }
-        /* En móvil ocultamos Actividad pero el engrane de Ajustes se queda
-           (ya no está en la tab bar inferior). */
-        .tb-notif-wrap { display: none; }
-        .tb-gear { display: inline-flex; }
-        /* El panel de notificaciones a ancho casi completo si llegara a abrirse */
+        /* Topbar móvil = solo lupa + notificaciones. Engrane, ayuda y guía pasan al drawer. */
+        .tb-notif-wrap { display: inline-flex; }
+        .tb-gear, .tb-help { display: none; }
+        .onb-pill { display: none; }
+        /* El panel de notificaciones a ancho casi completo */
         .notif-panel { width: min(340px, calc(100vw - 1.5rem)); }
         .ph-pin { display: none; }
-        .onb-pill-label { display: none; }
-        .onb-pill { padding: 5px 6px; }
-        .mobile-tabs {
-            display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-            background: rgba(10,25,47,0.97);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
-            justify-content: space-around;
-        }
-        .mt-item {
-            display: flex; flex-direction: column; align-items: center; gap: 3px;
-            color: rgba(255,255,255,0.45); text-decoration: none;
-            font-size: 0.58rem; font-weight: 600; padding: 4px 8px;
-        }
-        .mt-item svg { width: 18px; height: 18px; }
-        .mt-item.active { color: #fff; }
     }
 </style>
 
@@ -1423,7 +1489,34 @@ const NAV_FLAT = NAV_GROUPS.flatMap((g) => g.items);
         });
     }
 
-    function initApp() { initCmdk(); initDrawer(); initSidebar(); initToasts(); initNavProgress(); initPins(); initNotifs(); initHelp(); initShortcuts(); }
+    // ── Acciones móviles del drawer (botón "+" + Ayuda) ──
+    function initMobileActions() {
+        // Mini menú del botón "Crear"
+        const createBtn = document.getElementById('sbCreate');
+        const createMenu = document.getElementById('sbCreateMenu');
+        if (createBtn && createMenu) {
+            const closeMenu = () => { (createMenu as HTMLElement).hidden = true; createBtn.setAttribute('aria-expanded', 'false'); };
+            createBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const willOpen = (createMenu as HTMLElement).hidden;
+                (createMenu as HTMLElement).hidden = !willOpen;
+                createBtn.setAttribute('aria-expanded', String(willOpen));
+            });
+            document.addEventListener('click', (e) => {
+                if (!(createMenu as HTMLElement).hidden && !createMenu.contains(e.target as Node) && e.target !== createBtn) closeMenu();
+            });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+        }
+        // Ayuda: cierra el drawer y abre el panel de ayuda (reusa #helpBtn)
+        document.getElementById('sbHelp')?.addEventListener('click', () => {
+            const shell = document.querySelector('.app-shell');
+            shell?.classList.remove('nav-open');
+            document.body.style.overflow = '';
+            document.getElementById('helpBtn')?.click();
+        });
+    }
+
+    function initApp() { initCmdk(); initDrawer(); initSidebar(); initToasts(); initNavProgress(); initPins(); initNotifs(); initHelp(); initShortcuts(); initMobileActions(); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp);
     else initApp();
 </script>

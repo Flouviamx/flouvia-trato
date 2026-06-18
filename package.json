@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "db:migrate": "node scripts/migrate.mjs",
-    "db:reset": "node scripts/migrate.mjs -- --reset"
+    "db:reset": "node scripts/migrate.mjs -- --reset",
+    "clerk:backfill-orgs": "node scripts/backfill-clerk-orgs.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

@@ -312,8 +312,16 @@ const canEdit = memberCan(ME, 'productos');
 
     @media (max-width: 720px) {
         .t-head { display: none; }
-        .t-row { grid-template-columns: 1fr auto; gap: 0.3rem 1rem; }
-        .t-sku, .t-muted, .t-state { display: none; }
+        /* Fila tipo lista: nombre arriba, SKU debajo, precio a la derecha */
+        .t-row {
+            grid-template-columns: 1fr auto;
+            grid-template-areas: "name price" "sku price";
+            gap: 0.15rem 1rem; align-items: center; padding: 0.75rem 0.3rem;
+        }
+        .t-name { grid-area: name; }
+        .t-sku { grid-area: sku; display: block; }
+        .t-amount { grid-area: price; align-self: center; }
+        .t-muted, .t-state { display: none; }
         .m-row { grid-template-columns: 1fr; }
     }
 </style>
@@ -356,6 +364,11 @@ const canEdit = memberCan(ME, 'productos');
         document.getElementById('btnNew')?.addEventListener('click', () => open());
         document.querySelectorAll<HTMLElement>('.t-row[data-id]').forEach(row =>
             row.addEventListener('click', () => open(row.dataset)));
+        // Auto-abrir el modal de alta cuando se llega con ?nuevo=1 (botón "+" del drawer móvil)
+        if (new URLSearchParams(location.search).get('nuevo')) {
+            open();
+            history.replaceState(null, '', location.pathname);
+        }
         document.getElementById('mClose')?.addEventListener('click', () => modal.close());
         document.getElementById('mCancel')?.addEventListener('click', () => modal.close());
         chips.forEach(c => c.addEventListener('click', () => setActivo(Boolean(c.dataset.v))));

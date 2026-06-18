@@ -230,6 +230,16 @@ select id, clerk_user_id, 'owner', 'activo', now() from orgs
 where clerk_user_id is not null
 on conflict do nothing;
 
+-- ── Clerk Organizations (híbrido, jun 2026) ────────────────────────────────
+-- Clerk es la fuente de verdad de IDENTIDAD de org (switcher, invitaciones por
+-- email, SSO, multi-org); Neon sigue siendo la fuente de los DATOS (RLS, billing,
+-- permisos granulares). El mapeo Clerk↔Neon vive en orgs.clerk_org_id.
+alter table orgs add column if not exists clerk_org_id text unique; -- org_xxx de Clerk
+-- Las orgs creadas vía Clerk Organizations no tienen un "dueño único" reusable en
+-- clerk_user_id (ese usuario ya tiene su org personal): se identifican por
+-- clerk_org_id y el dueño vive como miembro 'owner' en org_members.
+alter table orgs alter column clerk_user_id drop not null;
+
 -- ── Centro de mando Enterprise — Ajustes ampliados (jun 2026) ───────────────
 -- General: localización del negocio.
 alter table orgs add column if not exists zona_horaria text not null default 'America/Mexico_City';

@@ -7,7 +7,7 @@
 // usar sql.query('... $1 ...', [params]).
 
 import { neon } from '@neondatabase/serverless';
-import { currentUserId, currentOrgIdOverride } from './context';
+import { currentUserId, currentOrgIdOverride, currentClerkOrgId } from './context';
 
 const url = import.meta.env.DATABASE_URL || process.env.DATABASE_URL;
 
@@ -52,6 +52,26 @@ export async function getActiveOrgId(): Promise<string> {
 
     const userId = currentUserId();
     if (!userId) return demoOrgId(); // sin sesión (cron, etc.) → org demo
+
+    // 0.5) Org ACTIVA de Clerk Organizations (modo híbrido): si la sesión tiene una
+    //      org seleccionada en el switcher, ESA manda. La mapeamos al UUID interno
+    //      por clerk_org_id. Si la fila aún no existe (el webhook organization.created
+    //      no ha llegado), la creamos al vuelo y sembramos la membresía del usuario
+    //      activo — el webhook reconciliará nombre y rol enseguida.
+    const clerkOrgId = currentClerkOrgId();
+    if (clerkOrgId) {
+        try {
+            const found = await sql`select id from orgs where clerk_org_id = ${clerkOrgId} limit 1`;
+            if (found.length) return found[0].id as string;
+            const [created] = await sql`
+                insert into orgs (clerk_org_id, nombre)
+                values (${clerkOrgId}, ${'Mi negocio'})
+                on conflict (clerk_org_id) do update set clerk_org_id = excluded.clerk_org_id
+                returning id`;
+            await ensureOwnerMember(created.id as string, userId);
+            return created.id as string;
+        } catch { /* si algo falla, caemos al carril legacy de abajo */ }
+    }
 
     // 1) ¿Es miembro ACTIVO de alguna org? (incluye al owner, sembrado como miembro).
     //    Orden: membresía más reciente primero — un invitado que se une después

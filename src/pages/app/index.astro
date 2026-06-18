@@ -227,7 +227,7 @@ const dotColor = (tipo: string) =>
     .task-add { display: flex; gap: 0.6rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .task-input { flex: 1; min-width: 180px; font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text); background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 9px; padding: 9px 12px; }
     .task-input:focus, .task-date:focus { outline: none; border-color: var(--color-blue-deep); }
-    .task-date { font-family: var(--font-sans); font-size: 0.82rem; color: var(--color-text-muted); background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 9px; padding: 9px 10px; }
+    .task-date { font-family: var(--font-sans); font-size: 0.82rem; color: var(--color-text); background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 9px; padding: 9px 10px; }
     .task-btn { font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600; color: #fff; background: var(--color-blue-deep); border: none; border-radius: 9px; padding: 9px 16px; cursor: pointer; transition: transform 0.3s var(--ease-spring); }
     .task-btn:hover { transform: translateY(-2px); }
     .task-list { display: flex; flex-direction: column; }
@@ -257,6 +257,10 @@ const dotColor = (tipo: string) =>
         .pipe-row { grid-template-columns: repeat(2, 1fr); }
         .quote-row { grid-template-columns: auto 1fr auto; }
         .quote-row .status-pill { display: none; }
+        /* Alta de tareas: apilar para que el campo de fecha se vea completo (no un hueco blanco) */
+        .task-add { flex-direction: column; align-items: stretch; }
+        .task-input, .task-date, .task-btn { width: 100%; min-width: 0; }
+        .task-date { min-height: 44px; }
     }
 </style>
 

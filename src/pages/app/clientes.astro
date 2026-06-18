@@ -335,8 +335,16 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
 
     @media (max-width: 880px) {
         .t-head { display: none; }
-        .t-row { grid-template-columns: 1fr auto; gap: 0.3rem 1rem; }
-        .t-muted, .t-contact { display: none; }
+        /* Fila tipo lista: empresa arriba, contacto debajo, límite a la derecha */
+        .t-row {
+            grid-template-columns: 1fr auto;
+            grid-template-areas: "name amount" "contact amount";
+            gap: 0.15rem 1rem; align-items: center; padding: 0.8rem 0.3rem;
+        }
+        .t-client { grid-area: name; }
+        .t-contact { grid-area: contact; display: flex; }
+        .t-amount { grid-area: amount; align-self: center; }
+        .t-muted, .t-term { display: none; }
         .m-row { grid-template-columns: 1fr; }
     }
 </style>
@@ -381,6 +389,11 @@ const NIVEL_LABEL: Record<string, string> = { estandar: 'Estándar', plata: 'Pla
         document.getElementById('btnNew')?.addEventListener('click', () => open());
         document.querySelectorAll<HTMLElement>('.t-row[data-id]').forEach(row =>
             row.addEventListener('click', () => open(row.dataset)));
+        // Auto-abrir el modal de alta cuando se llega con ?nuevo=1 (botón "+" del drawer móvil)
+        if (new URLSearchParams(location.search).get('nuevo')) {
+            open();
+            history.replaceState(null, '', location.pathname);
+        }
         document.getElementById('mClose')?.addEventListener('click', () => modal.close());
         document.getElementById('mCancel')?.addEventListener('click', () => modal.close());
         chips.forEach(c => c.addEventListener('click', () => setTerm(c.dataset.v!)));

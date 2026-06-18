@@ -48,12 +48,12 @@ const PRESETS_JSON = Object.fromEntries(Object.entries(PRESETS).map(([k, v]) => 
                 <button class="inv-btn" id="invBtn">Crear invitación</button>
             </div>
             <div class="inv-link" id="invLink" hidden>
-                <span class="inv-link-label">✓ Invitación lista — comparte este link:</span>
-                <div class="inv-link-row">
+                <span class="inv-link-label" id="invLinkLabel">✓ Invitación lista — comparte este link:</span>
+                <div class="inv-link-row" id="invLinkRow">
                     <input class="s-input" id="invLinkInput" readonly />
                     <button class="inv-copy" id="invCopy">Copiar</button>
                 </div>
-                <span class="s-hint">Quien lo abra e inicie sesión se unirá a tu organización con el rol elegido.</span>
+                <span class="s-hint" id="invHint">Quien lo abra e inicie sesión se unirá a tu organización con el rol elegido.</span>
             </div>
         </div>
     )}
@@ -134,7 +134,15 @@ const PRESETS_JSON = Object.fromEntries(Object.entries(PRESETS).map(([k, v]) => 
                 const d = await res.json();
                 if (!res.ok) throw new Error(d.error || 'No se pudo invitar');
                 const box = document.getElementById('invLink');
-                document.getElementById('invLinkInput').value = d.link;
+                if (d.emailed) {
+                    // Clerk envió la invitación por correo: no hay link que copiar.
+                    document.getElementById('invLinkLabel').textContent = '✓ Invitación enviada por correo';
+                    document.getElementById('invLinkRow').hidden = true;
+                    document.getElementById('invHint').textContent = 'La persona recibirá un email para unirse a tu organización; aparecerá aquí en cuanto acepte. Podrás afinar sus permisos por sección entonces.';
+                } else {
+                    document.getElementById('invLinkRow').hidden = false;
+                    document.getElementById('invLinkInput').value = d.link;
+                }
                 box.hidden = false;
                 box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             } catch (e) { alert(e.message); } finally { invBtn.disabled = false; }

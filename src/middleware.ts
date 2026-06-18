@@ -7,7 +7,8 @@ import { reqContext } from "./lib/context";
 //   /api/cron/*    → cron de Vercel (protegido por CRON_SECRET)
 //   /api/v1/*      → API PÚBLICA (cada ruta se autentica por API key: Bearer)
 //   /api/mcp       → servidor MCP (se autentica por API key: Bearer)
-const PUBLIC_API_PREFIXES = ["/api/q/", "/api/stripe/", "/api/cron/", "/api/v1/", "/api/mcp"];
+//   /api/clerk/*   → webhooks de Clerk (se autentican por firma Svix)
+const PUBLIC_API_PREFIXES = ["/api/q/", "/api/stripe/", "/api/cron/", "/api/v1/", "/api/mcp", "/api/clerk/"];
 
 // ── Rate limiting (in-memory, por IP) ────────────────────────────────────────
 // Ventana: 60 s. Límites:
@@ -37,7 +38,7 @@ function allow(ip: string, scope: string, limit: number): boolean {
 }
 
 export const onRequest = clerkMiddleware((auth, context, next) => {
-    const { userId } = auth();
+    const { userId, orgId } = auth();
     const path = context.url.pathname;
     const ip =
         context.request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anon";
@@ -86,7 +87,8 @@ export const onRequest = clerkMiddleware((auth, context, next) => {
         });
     }
 
-    // Exponer el userId a las queries (db.ts → getActiveOrgId) durante todo el
-    // render/handler de este request, vía AsyncLocalStorage.
-    return reqContext.run({ userId: userId ?? null }, () => next());
+    // Exponer el userId Y la org activa de Clerk a las queries (db.ts →
+    // getActiveOrgId) durante todo el render/handler de este request, vía
+    // AsyncLocalStorage.
+    return reqContext.run({ userId: userId ?? null, clerkOrgId: orgId ?? null }, () => next());
 });
