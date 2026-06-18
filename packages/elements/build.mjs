@@ -10,8 +10,8 @@ const common = {
     sourcemap: true,
     target: ['es2019'],
     logLevel: 'info',
-    // React (y su jsx-runtime) quedan EXTERNOS: son peer dependency del consumidor.
-    external: ['react', 'react-dom', 'react/jsx-runtime'],
+    // React, Vue, and Framer quedan EXTERNOS: son peer dependency del consumidor.
+    external: ['react', 'react-dom', 'react/jsx-runtime', 'vue', 'framer'],
 };
 
 const targets = [
@@ -19,6 +19,13 @@ const targets = [
     { entryPoints: ['src/index.ts'],  outfile: 'dist/index.cjs', format: 'cjs' },
     { entryPoints: ['src/react.tsx'], outfile: 'dist/react.mjs', format: 'esm', jsx: 'automatic' },
     { entryPoints: ['src/react.tsx'], outfile: 'dist/react.cjs', format: 'cjs', jsx: 'automatic' },
+    { entryPoints: ['src/vue.ts'], outfile: 'dist/vue.mjs', format: 'esm' },
+    { entryPoints: ['src/vue.ts'], outfile: 'dist/vue.cjs', format: 'cjs' },
+    { entryPoints: ['src/framer.tsx'], outfile: 'dist/framer.mjs', format: 'esm', jsx: 'automatic' },
+    { entryPoints: ['src/framer.tsx'], outfile: 'dist/framer.cjs', format: 'cjs', jsx: 'automatic' },
+    { entryPoints: ['src/webflow.ts'], outfile: 'dist/webflow.mjs', format: 'esm' },
+    { entryPoints: ['src/webflow.ts'], outfile: 'dist/webflow.cjs', format: 'cjs' },
+    { entryPoints: ['src/webflow.ts'], outfile: 'dist/webflow.js', format: 'iife', globalName: 'CordWebflow' },
 ];
 
 for (const t of targets) {

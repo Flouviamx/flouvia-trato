@@ -35,20 +35,55 @@ el.addEventListener('approved', (e) => console.log('Aprobada', e.detail.folio));
 el.addEventListener('pay', (e) => location.assign('/gracias'));
 ```
 
-**Vue:**
+**Vue 3 (Native Component):**
 
 ```vue
 <script setup>
-import '@flouviahq/elements';
+import { CordCotizador } from '@flouviahq/elements/vue';
+
+const onApproved = (e) => console.log('Aprobada', e.folio);
 </script>
 
 <template>
-  <cord-cotizador :token="token" @approved="onApproved" @pay="onPay" />
+  <CordCotizador token="abc123" @approved="onApproved" />
 </template>
 ```
 
-> En Vue, declara `cord-cotizador` como custom element
-> (`compilerOptions.isCustomElement`) para silenciar el warning del compilador.
+> Nota: También puedes usar el Web Component estándar si no usas Vue 3, pero requerirá configurar `compilerOptions.isCustomElement`.
+
+---
+
+## Framer (No-Code)
+
+Para usar Cord en Framer con controles visuales (Property Controls):
+
+1. Crea un nuevo **Code Component** en Framer.
+2. Pega este código:
+
+```tsx
+import { FramerCordCotizador } from '@flouviahq/elements/framer';
+export default FramerCordCotizador;
+```
+
+3. Arrastra el componente a tu canvas. Aparecerá un campo "Token" en la barra lateral derecha para que ingreses tu token fácilmente.
+
+---
+
+## Webflow (No-Code)
+
+Integración automática para Webflow sin escribir código JS manual:
+
+1. Añade un **Div Block** donde quieras que aparezca el cotizador.
+2. En los ajustes del elemento (Settings), añade un **Custom Attribute**:
+   - Name: `data-cord-token`
+   - Value: `tu_token_aqui`
+3. Ve a los **Site Settings > Custom Code** (o Page Settings) y pega este script en el `<head>`:
+
+```html
+<script src="https://unpkg.com/@flouviahq/elements/dist/webflow.js"></script>
+```
+
+El script buscará automáticamente todos los divs con `data-cord-token` e inyectará el cotizador.
 
 ---
 

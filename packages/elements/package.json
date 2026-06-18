@@ -17,6 +17,21 @@
       "import": "./dist/react.mjs",
       "require": "./dist/react.cjs"
     },
+    "./vue": {
+      "types": "./types/vue.d.ts",
+      "import": "./dist/vue.mjs",
+      "require": "./dist/vue.cjs"
+    },
+    "./framer": {
+      "types": "./types/framer.d.ts",
+      "import": "./dist/framer.mjs",
+      "require": "./dist/framer.cjs"
+    },
+    "./webflow": {
+      "browser": "./dist/webflow.js",
+      "import": "./dist/webflow.mjs",
+      "require": "./dist/webflow.cjs"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -28,10 +43,14 @@
     "prepublishOnly": "node build.mjs"
   },
   "peerDependencies": {
-    "react": ">=17"
+    "react": ">=17",
+    "vue": ">=3",
+    "framer": "*"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": true }
+    "react": { "optional": true },
+    "vue": { "optional": true },
+    "framer": { "optional": true }
   },
   "devDependencies": {
     "esbuild": "*"

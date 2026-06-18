@@ -698,3 +698,46 @@ create index if not exists idx_cotizacion_firmas_cotizacion on cotizacion_firmas
 alter table cotizacion_firmas enable row level security;
 create policy "rls_cotizacion_firmas" on cotizacion_firmas
   using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+-- ════════════════════════════════════════════════════════════════════════════
+-- FASE 5 — AI Agent Workflows (Cobranza y Flujo de Caja)
+-- ════════════════════════════════════════════════════════════════════════════
+
+-- 1) Fecha de pago para predicciones
+alter table cotizaciones add column if not exists paid_at timestamptz;
+
+-- 2) Hilos de negociación del agente de cobranza
+create table if not exists cobranza_conversaciones (
+  id              uuid        default gen_random_uuid() primary key,
+  org_id          uuid        not null references orgs(id) on delete cascade,
+  cotizacion_id   uuid        not null references cotizaciones(id) on delete cascade,
+  autor_tipo      text        not null default 'agente_ia', -- 'agente_ia' | 'cliente' | 'usuario'
+  mensaje         text        not null,
+  canal           text        not null default 'email',     -- 'email' | 'whatsapp'
+  message_id      text,                                     -- ID del correo para threading
+  created_at      timestamptz default now()
+);
+create index if not exists idx_cobranza_conversaciones_org on cobranza_conversaciones(org_id);
+create index if not exists idx_cobranza_conversaciones_cot on cobranza_conversaciones(cotizacion_id, created_at asc);
+
+alter table cobranza_conversaciones enable row level security;
+create policy "rls_cobranza_conversaciones" on cobranza_conversaciones
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
+
+-- 3) Planes de pago negociados por la IA
+create table if not exists planes_pago_negociados (
+  id              uuid        default gen_random_uuid() primary key,
+  org_id          uuid        not null references orgs(id) on delete cascade,
+  cotizacion_id   uuid        not null references cotizaciones(id) on delete cascade,
+  cuotas          int         not null,
+  frecuencia      text        not null default 'mensual',  -- 'semanal' | 'quincenal' | 'mensual'
+  monto_cuota     numeric     not null,
+  estado          text        not null default 'activo',   -- 'propuesto' | 'activo' | 'completado' | 'incumplido'
+  created_at      timestamptz default now()
+);
+create index if not exists idx_planes_pago_org on planes_pago_negociados(org_id);
+create index if not exists idx_planes_pago_cot on planes_pago_negociados(cotizacion_id);
+
+alter table planes_pago_negociados enable row level security;
+create policy "rls_planes_pago_negociados" on planes_pago_negociados
+  using (org_id = nullif(current_setting('app.org_id', true), '')::uuid);
