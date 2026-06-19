@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
 import { $clerkStore, $userStore, $organizationStore, $isLoadedStore } from '@clerk/astro/client';
+import { $isTestMode } from '../../store/testMode';
 
 export default function CustomOrgSwitcher() {
   const isLoaded = useStore($isLoadedStore);
   const user = useStore($userStore);
   const organization = useStore($organizationStore);
   const clerk = useStore($clerkStore);
+  const isTestMode = useStore($isTestMode);
   
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -87,7 +89,7 @@ export default function CustomOrgSwitcher() {
 
           <div className="dropdown-divider"></div>
           
-          <button className="dropdown-action-btn dev-mode-toggle" onClick={(e) => { e.preventDefault(); /* Mock toggle */ }}>
+          <button className={`dropdown-action-btn dev-mode-toggle ${isTestMode ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); $isTestMode.set(!isTestMode); }}>
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
               <polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline>
@@ -97,7 +99,7 @@ export default function CustomOrgSwitcher() {
               <line x1="12" y1="22.08" x2="12" y2="12"></line>
             </svg>
             <span className="flex-1">Entorno de prueba</span>
-            <div className="toggle-switch">
+            <div className={`toggle-switch ${isTestMode ? 'on' : ''}`}>
               <div className="toggle-thumb"></div>
             </div>
           </button>
@@ -291,6 +293,7 @@ export default function CustomOrgSwitcher() {
         .org-item-name {
           font-size: 0.85rem;
           font-weight: 500;
+          color: rgba(255, 255, 255, 0.85);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -390,6 +393,22 @@ export default function CustomOrgSwitcher() {
           transition: transform 0.2s, background 0.2s;
         }
 
+        .toggle-switch.on {
+          background: rgba(16, 185, 129, 0.4); /* green indication for test mode maybe? or cord color */
+        }
+
+        .toggle-switch.on .toggle-thumb {
+          transform: translateX(12px);
+          background: #34d399; /* lighter green */
+        }
+
+        .dev-mode-toggle.active {
+          color: #34d399; /* testing active color */
+        }
+        .dev-mode-toggle.active svg {
+          color: #34d399;
+        }
+
         .dev-mode-toggle:hover .toggle-thumb {
           background: #ffffff;
         }
@@ -400,6 +419,7 @@ export default function CustomOrgSwitcher() {
           gap: 0.75rem;
           padding: 0.5rem 0.6rem;
           margin-bottom: 0.25rem;
+          min-width: 0; /* Fix overflow for long emails */
         }
 
         .user-avatar {

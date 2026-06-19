@@ -151,10 +151,10 @@ const NAV_GROUPS = [
                 <div class="sb-footer">
                     <img class="sb-foot-logo" src="/imgs/logo-cord-white.png" alt="Cord" />
                     <button class="sb-expand" id="sbExpand" type="button" aria-label="Expandir menú" title="Expandir menú">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><path d="M11 8l4 4-4 4"/></svg>
                     </button>
                     <button class="sb-collapse" id="sbCollapse" type="button" aria-label="Colapsar menú" title="Colapsar menú">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><path d="M15 16l-4-4 4-4"/></svg>
                     </button>
                 </div>
             </aside>
@@ -811,10 +811,13 @@ const NAV_GROUPS = [
         flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
         width: 28px; height: 28px; border-radius: 8px;
         background: none; border: none; cursor: pointer;
-        color: rgba(255,255,255,0.35); transition: color 0.2s, background 0.2s;
+        color: rgba(255,255,255,0.35); transition: color 0.2s, background 0.2s, transform 0.2s var(--ease-spring);
     }
-    .sb-collapse svg, .sb-expand svg { width: 16px; height: 16px; }
+    .sb-collapse svg, .sb-expand svg { width: 16px; height: 16px; transition: transform 0.2s var(--ease-spring); }
     .sb-collapse:hover, .sb-expand:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.08); }
+    .sb-collapse:active, .sb-expand:active { transform: scale(0.92); }
+    .sb-collapse:hover svg { transform: translateX(-2px); }
+    .sb-expand:hover svg { transform: translateX(2px); }
     .sb-expand { display: none; }
 
     /* ── Estado COLAPSADO (solo iconos) — solo desktop; en móvil el sidebar es drawer ── */
@@ -890,13 +893,32 @@ const NAV_GROUPS = [
     .tb-icon {
         display: inline-flex; align-items: center; justify-content: center;
         width: 36px; height: 36px; border-radius: 9px; color: var(--color-text-muted);
-        background: transparent; transition: background 0.2s, color 0.2s; outline: none;
+        background: transparent; transition: background 0.2s, color 0.2s, transform 0.2s var(--ease-spring); outline: none;
+        border: none; cursor: pointer;
     }
-    .tb-icon svg { width: 17px; height: 17px; }
-    .tb-icon:hover { background: var(--color-bg-soft); color: var(--color-blue-deep); }
+    .tb-icon svg { width: 17px; height: 17px; transition: transform 0.3s var(--ease-spring); }
+    .tb-icon:hover { background: var(--color-bg-soft); color: var(--color-blue-deep); transform: translateY(-1px); }
+    .tb-icon:active { transform: scale(0.94); }
     .tb-icon:focus-visible { box-shadow: 0 0 0 2px var(--color-blue-deep); }
     /* El engrane queda marcado cuando estás en cualquier página de Ajustes */
     .tb-icon.active { background: var(--color-blue-deep); color: #fff; }
+
+    /* Micro-interacciones topbar (notis, ayuda, ajustes) */
+    .tb-gear:hover svg { transform: rotate(60deg); }
+    @keyframes help-wiggle {
+        0%, 100% { transform: rotate(0); }
+        25% { transform: rotate(-12deg) scale(1.05); }
+        75% { transform: rotate(12deg) scale(1.05); }
+    }
+    .tb-help:hover svg { animation: help-wiggle 0.4s var(--ease-spring); }
+    @keyframes bell-ring {
+        0%, 100% { transform: rotate(0); }
+        20% { transform: rotate(14deg) scale(1.05); }
+        40% { transform: rotate(-14deg) scale(1.05); }
+        60% { transform: rotate(7deg) scale(1.05); }
+        80% { transform: rotate(-7deg) scale(1.05); }
+    }
+    .tb-activity:hover svg { animation: bell-ring 0.6s var(--ease-spring); transform-origin: top center; }
 
     /* ── Píldora de la guía de configuración (estado minimizado del widget) ── */
     .onb-pill {

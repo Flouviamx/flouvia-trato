@@ -72,6 +72,7 @@ config manual en el Dashboard de Clerk y correr la migración.
 
 ## Estado actual (jun 2026)
 
+✅ **Restauración UI (jun 2026)** — Se restauraron los botones de Notificaciones y Ayuda en la topbar que se habían borrado accidentalmente y se corrigió el CSS (`.tb-icon`) para eliminar bordes azules de focus nativos en Safari/macOS.
 ✅ Esqueleto Astro + tokens de diseño
 ✅ **Landing de ventas completa** (estilo Stripe/Linear con ADN Flouvia) — desplegada
 ✅ **Logos reales** en `public/imgs/`: `logo-cord-navy.png` (fondos claros) y `logo-cord-white.png` (fondos oscuros) — recortados a 780×300
