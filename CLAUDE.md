@@ -59,14 +59,15 @@ se resuelve por usuario de Clerk en `getActiveOrgId()` — orden: (0) API key M2
 (0.5) Clerk active org (→ mapeo `clerk_org_id`→`orgs.id`, lazy-create si llega antes
 que el webhook), (1) membresía activa en `org_members`, (2) org propia legacy,
 (3) primera vez → crear. La org demo `demo-user` solo es fallback sin sesión (cron).
-Falta: instancia de PRODUCCIÓN de Clerk + activar Organizations en el Dashboard
-(ver sección "Clerk Organizations" abajo). ✅ **Stripe Billing CONECTADO (jun 2026):**
-suscripciones de 5 planes + medidores de excedente (ver "Stripe Billing" abajo).
-Falta setear `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` en prod, configurar el
-Customer Portal en el dashboard de Stripe y cablear los meter events de CFDI/API/
-usuario (el de IA ya está cableado en `ai-draft`). ✅ **Clerk Organizations HÍBRIDO
-(jun 2026):** código completamente implementado — ver sección abajo. Falta la
-config manual en el Dashboard de Clerk y correr la migración.
+✅ **Clerk en PRODUCCIÓN (jun 2026):** instancia live activa (llaves `pk_live`/`sk_live`),
+webhook registrado en `/api/clerk/webhook`. ✅ **Stripe Billing CONECTADO + EN PROD
+(jun 2026):** suscripciones de 5 planes + medidores de excedente (ver "Stripe Billing"
+abajo); llaves `sk_live`, `STRIPE_WEBHOOK_SECRET` seteado, webhook apuntando a
+`cord.flouvia.com/api/stripe/webhook` y Customer Portal configurado en el dashboard.
+Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cableado en
+`ai-draft`; CFDI/API/usuario también miden uso (ver "Stripe Billing"). ✅ **Clerk Organizations HÍBRIDO
+(jun 2026):** código completamente implementado + **config manual COMPLETADA en prod**
+(Organizations activado, webhook registrado, migración y backfill corridos — ver sección abajo).
 
 ---
 
@@ -291,8 +292,8 @@ config manual en el Dashboard de Clerk y correr la migración.
    `sendEmail`); al crear-con-envío (`POST /api/cotizaciones`) o acción send/resend
    (`PATCH /api/cotizaciones/[id]`) se manda el link público al correo del cliente y se
    registra evento `email`. **Gated por `RESEND_API_KEY`**: sin la llave NO se manda nada
-   (por eso un envío de prueba no llega por correo) — el link se genera igual. Falta:
-   verificar dominio en Resend + setear `RESEND_API_KEY`/`RESEND_FROM`.
+   — el link se genera igual. ✅ **En prod (jun 2026):** dominio verificado en Resend y
+   `RESEND_API_KEY`/`RESEND_FROM` seteados en Vercel; los correos transaccionales ya salen.
 ✅ **Pago en línea (Stripe)** — botón en `/q/[token]` → `/api/q/[token]/checkout` (Stripe
    Checkout vía REST) + `/api/stripe/webhook` marca `paid`. Gated por `STRIPE_SECRET_KEY`.
 ✅ **Navbar con estado de sesión (jun 2026)** — `Nav.astro` detecta sesión en el cliente
@@ -457,14 +458,11 @@ config manual en el Dashboard de Clerk y correr la migración.
    • `scripts/backfill-clerk-orgs.mjs` — script de migración único (`npm run clerk:backfill-orgs`):
      crea Organization en Clerk por cada org Neon sin `clerk_org_id`, guarda el mapeo
      y agrega miembros activos. Re-ejecutable.
-   ⚠️ **Pasos manuales pendientes** (config, no código):
-     1. `clerk enable orgs` (o Dashboard → Organizations settings). Membership = **`optional`**.
-     2. Crear webhook en Clerk Dashboard → `https://cord.flouvia.com/api/clerk/webhook`
-        con los 8 eventos: `user.created/deleted` + `organization.created/updated/deleted`
-        + `organizationMembership.created/updated/deleted`. Copiar signing secret a `CLERK_WEBHOOK_SECRET`.
-     3. `npm run db:migrate` (agrega `orgs.clerk_org_id`).
-     4. `npm run clerk:backfill-orgs` (migra orgs existentes a Clerk).
-     5. Después del backfill: cambiar Membership a `required` si se quiere B2B-only.
+   ✅ **Config manual COMPLETADA en prod (jun 2026):** Organizations activado en el
+     Dashboard, webhook en `https://cord.flouvia.com/api/clerk/webhook` con los 8 eventos
+     (`user.*` + `organization.*` + `organizationMembership.*`) y `CLERK_WEBHOOK_SECRET`
+     seteado; migración + `clerk:backfill-orgs` corridos. (Si se quiere B2B-only: cambiar
+     Membership de `optional` a `required` en el Dashboard.)
 ✅ **MCP Bidireccional y Gobernanza de Agentes (jun 2026)** — CORD funciona ahora como Servidor Inbound (HTTP/SSE en `/api/mcp/sse` y `/api/mcp/message`) y como Cliente Outbound (`McpClientManager` en `src/lib/mcp/client-manager.ts`). La Base de Datos incluye tablas de gobernanza (`mcp_servers`, `agentes_ia`, `agentes_permisos`) permitiendo que la IA interna de CORD acceda a CRMs corporativos bajo un control estricto (RLS). El endpoint `/api/cotizaciones/ai-draft` implementa un 'Agent Loop' que consulta dinámicamente las herramientas remotas MCP habilitadas para ese agente antes de generar la cotización.
 ✅ **Rediseño UI/UX de Desarrolladores (Stripe-like) (jun 2026)** — La página de Configuración de API y Webhooks (`/app/ajustes/api.astro`) fue reconstruida usando una estética premium estilo Stripe (Vanilla CSS: `DeveloperUI.css`). Incorpora layout de tarjetas limpios, insignias semánticas, tipografía monoespaciada, toggles segmentados y un bloque "Terminal Oscura" con micro-interacciones para la conexión de servidores MCP y webhooks.
 ✅ **Internacionalización B2B (Abstracción Fiscal Global) (jun 2026)** — Desacoplamiento del SAT. La tabla `orgs` ahora soporta `country_code` y los documentos se centralizan en la tabla abstracta `documentos_fiscales`. Implementación del patrón Adapter (`src/lib/fiscal`) con `FiscalFactory` que enruta a proveedores locales como `MexicoSatProvider` (CFDI) o `USInvoiceProvider` (Commercial Invoices).
@@ -570,14 +568,26 @@ config manual en el Dashboard de Clerk y correr la migración.
    cubre SOLO las líneas aceptadas** (el snapshot hashea `firmadas`, no todas). El evento
    registra "aprobó N de M líneas ($X de $Y)". El detalle del vendedor muestra las líneas
    excluidas tachadas con badge "No incluida" + nota de aprobación parcial. ⚠️ Correr
-   `npm run db:migrate` (columna `cotizacion_items.aprobado`).
-⬜ Pendiente: `USInvoiceProvider` real (US), "tiempo real" full vía SSE/WebSocket, producción
-   de Clerk (instancia real), Stripe Billing en prod (price_ids + webhook secret). NOTA: la
-   facturación/CFDI sigue timbrando sobre el total original — si se factura una aprobación
-   PARCIAL, conviene emitir solo las líneas con `aprobado=true` (pendiente de cablear en
-   `emit.ts`). Deuda: doc drift (la app usa componentes `Custom*` de Clerk, no los nativos
-   `<SignIn/>`), el "Entorno de prueba" es cosmético (solo cambia el prefijo de API key), y
-   5 vulnerabilidades de `npm audit`.
+   `npm run db:migrate` (columna `cotizacion_items.aprobado`). **La facturación SÍ respeta
+   la aprobación parcial:** `emit.ts` emite solo las líneas `aprobado=true` y recalcula
+   subtotal/IVA/total desde las aceptadas (marca `aprobacion_parcial` en `provider_data`).
+✅ **FIX crítico de schema (jun 2026)** — varias columnas vivían SOLO en su `CREATE TABLE`
+   y nunca se aplicaban en bases ya existentes (el `migrate` ignora "already exists"). Se
+   re-declararon como `ALTER ... IF NOT EXISTS`: `cotizaciones.base_currency/fiscal_currency/
+   fx_rate/fx_rate_source/fx_locked_until` (sin ellas `createCotizacion` tronaba) y
+   `orgs.country_code` (sin ella `emit.ts`/facturar tronaba). **Regla a futuro:** toda
+   columna nueva sobre una tabla existente va como `alter table … add column if not exists`,
+   NUNCA editando el `create table`.
+✅ **LISTO PARA PRODUCCIÓN (jun 2026)** — operativa verificada: DB de prod migrada; env vars
+   en Vercel (`ANTHROPIC_API_KEY`, `RESEND_API_KEY`/`RESEND_FROM`, `CRON_SECRET`, DATABASE_URL,
+   Clerk/Stripe live); webhooks de Stripe (`/api/stripe/webhook` + Customer Portal) y Clerk
+   (`/api/clerk/webhook`) registrados; dominio de Resend verificado. Build y rutas sanas.
+⬜ Pendiente (no bloquea lanzamiento): timbrado CFDI **real** (hoy SIMULADO sin `PAC_API_URL`;
+   cotizar/aprobar/pagar funciona, solo la factura fiscal espera el PAC), `USInvoiceProvider`
+   real (US), publicar `@flouviahq/elements` v0.2.0 (`npm login && npm publish`), "tiempo real"
+   full vía SSE/WebSocket. Deuda menor: el "Entorno de prueba" es cosmético (solo cambia el
+   prefijo de API key mostrado), y 5 vulnerabilidades de `npm audit` de bajo riesgo (esbuild
+   dev-Windows / path-to-regexp build-time) cuyo fix exige downgrade breaking de `@astrojs/vercel`.
 
 ---
 
