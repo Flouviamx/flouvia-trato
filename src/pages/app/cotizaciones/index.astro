@@ -30,8 +30,6 @@ const BOARD_COLS = [
 ---
 
 <AppLayout title="Cotizaciones — Cord" page="cotizaciones" heading="Cotizaciones">
-    <a slot="topbar-actions" href="/app/cotizaciones/nueva" class="btn-new">+ Nueva cotización</a>
-
     <div class="view-row">
         <div class="filters" id="filters">
             {FILTERS.map((f, i) => (
@@ -108,22 +106,12 @@ const BOARD_COLS = [
 </AppLayout>
 
 <style>
-    .btn-new {
-        background: var(--color-blue-deep); color: #fff;
-        font-size: 0.82rem; font-weight: 600; text-decoration: none;
-        padding: 9px 16px; border-radius: 9px;
-        box-shadow: 0 6px 18px -8px rgba(10,25,47,0.5);
-        transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-spring);
-        white-space: nowrap;
-    }
-    .btn-new:hover { transform: translateY(-2px); }
-
     .filters { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .filter-pill {
         font-family: var(--font-sans);
         font-size: 0.78rem; font-weight: 600;
         color: var(--color-text-muted);
-        background: #fff; border: 1px solid var(--color-border);
+        background: var(--surface); border: 1px solid var(--color-border);
         padding: 7px 14px; border-radius: 100px; cursor: pointer;
         transition: all 0.25s var(--ease-ios);
     }
@@ -154,15 +142,17 @@ const BOARD_COLS = [
     .bd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .bd-count { margin-left: auto; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); }
     .bd-col-total { font-size: 1rem; color: var(--color-blue-deep); margin: 0.3rem 0 0.9rem; }
-    .bd-cards { display: flex; flex-direction: column; gap: 0.6rem; min-height: 40px; border-radius: 10px; transition: background 0.2s, box-shadow 0.2s; }
+    .bd-cards { display: flex; flex-direction: column; min-height: 40px; border-radius: 10px; transition: background 0.2s, box-shadow 0.2s; }
     .bd-cards.drop-ok { background: rgba(16,185,129,0.08); box-shadow: inset 0 0 0 1.5px rgba(16,185,129,0.4); }
     .bd-cards.drop-no { background: rgba(239,68,68,0.05); box-shadow: inset 0 0 0 1.5px rgba(239,68,68,0.3); }
+    /* Filas hairline (sin tarjetas) dentro de cada columna del Kanban */
     .bd-card {
-        background: #fff; border: 1px solid var(--color-border); border-radius: 11px; padding: 0.7rem 0.8rem; cursor: grab;
-        box-shadow: 0 1px 3px rgba(10,25,47,0.04); transition: box-shadow 0.2s, transform 0.2s, opacity 0.2s;
+        background: transparent; border: none; border-radius: 9px; padding: 0.6rem 0.55rem; cursor: grab;
+        transition: background 0.2s var(--ease-ios), transform 0.2s, opacity 0.2s;
     }
-    .bd-card:hover { box-shadow: 0 10px 24px -12px rgba(10,25,47,0.3); }
-    .bd-card.dragging { opacity: 0.4; }
+    .bd-card + .bd-card { border-top: 1px solid var(--color-border); }
+    .bd-card:hover { background: var(--color-bg-soft); }
+    .bd-card.dragging { opacity: 0.4; background: var(--color-bg-soft); }
     .bd-card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
     .bd-card-folio { font-size: 0.78rem; font-weight: 700; color: var(--color-text); }
     .bd-card-amount { font-size: 0.86rem; color: var(--color-blue-deep); }

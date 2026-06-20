@@ -81,8 +81,9 @@ const NAV_GROUPS = [
 
         <title>{title}</title>
         <script is:inline>
-            // Restaura el estado colapsado de la sidebar antes del primer paint (sin flash).
+            // Restaura estado colapsado de la sidebar + tema antes del primer paint (sin flash).
             try { if (localStorage.getItem('cord.sb.collapsed') === '1') document.documentElement.classList.add('sb-collapsed'); } catch (e) {}
+            try { if (localStorage.getItem('cord.theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
         </script>
     </head>
     <body>
@@ -180,6 +181,31 @@ const NAV_GROUPS = [
                     </button>
 
                     <div class="tb-right">
+                        <div class="tb-create-wrap">
+                            <button class="tb-create" id="tbCreate" type="button" aria-haspopup="menu" aria-expanded="false">
+                                <svg class="tb-create-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <span>Crear</span>
+                                <svg class="tb-create-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="tb-create-menu" id="tbCreateMenu" role="menu" hidden>
+                                <a href="/app/cotizaciones/nueva" class="tb-create-item" role="menuitem">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                                    <span>Cotización</span><kbd>C</kbd>
+                                </a>
+                                <a href="/app/clientes?nuevo=1" class="tb-create-item" role="menuitem">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                                    <span>Cliente</span>
+                                </a>
+                                <a href="/app/productos?nuevo=1" class="tb-create-item" role="menuitem">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                                    <span>Producto</span>
+                                </a>
+                                <button type="button" class="tb-create-item" id="tbCreateTarea" role="menuitem">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                    <span>Tarea</span>
+                                </button>
+                            </div>
+                        </div>
                         <div class="tb-notif-wrap">
                             <button class="tb-icon tb-activity" id="notifBtn" type="button" title="Actividad" aria-label="Notificaciones" aria-haspopup="menu" aria-expanded="false">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -196,6 +222,10 @@ const NAV_GROUPS = [
                         </div>
                         <button class="tb-icon tb-help" id="helpBtn" type="button" title="Ayuda" aria-label="Ayuda" aria-haspopup="dialog" aria-expanded="false">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/><path d="M9.1 9a2.9 2.9 0 0 1 5.6 1c0 2-2.9 2.9-2.9 2.9"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+                        </button>
+                        <button class="tb-icon tb-theme" id="themeBtn" type="button" title="Tema claro/oscuro" aria-label="Cambiar tema">
+                            <svg class="tb-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                            <svg class="tb-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                         </button>
                         <a class:list={['tb-icon', 'tb-gear', { active: page === 'ajustes' }]} href="/app/ajustes" title="Ajustes" aria-label="Ajustes">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -298,6 +328,24 @@ const NAV_GROUPS = [
             </div>
         </div>
 
+        <!-- Quick-add de Tarea (desde el botón "Crear") -->
+        <div class="qtask" id="qtask" hidden>
+            <div class="qtask-backdrop" id="qtaskBackdrop"></div>
+            <form class="qtask-panel" id="qtaskForm" role="dialog" aria-modal="true" aria-label="Nueva tarea">
+                <div class="qtask-head">
+                    <strong>Nueva tarea</strong>
+                    <button type="button" class="qtask-x" id="qtaskClose" aria-label="Cerrar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <input id="qtaskTitulo" class="qtask-input" placeholder="Ej. Llamar a GAMA para dar seguimiento…" autocomplete="off" required />
+                <div class="qtask-row">
+                    <input id="qtaskDue" class="qtask-date" type="date" aria-label="Fecha límite" />
+                    <button type="submit" class="qtask-btn">Agregar tarea</button>
+                </div>
+            </form>
+        </div>
+
         <!-- Barra de progreso de navegación (estilo Linear/YouTube) -->
         <div class="nav-progress" id="navProgress" aria-hidden="true"></div>
 
@@ -340,6 +388,9 @@ const NAV_GROUPS = [
         --color-ok: #10b981;
         --color-warn: #f59e0b;
         --color-danger: #ef4444;
+        /* Superficies (paneles, modales, chips) — para soportar tema oscuro */
+        --surface: #ffffff;
+        --surface-2: #fafafa;
         /* Tipografía de sistema (estilo Apple): SF Pro en macOS/iOS, Segoe en
            Windows, Roboto en Android. La landing conserva Inter; la app usa
            la fuente nativa — carga cero y se siente "de sistema operativo". */
@@ -348,6 +399,42 @@ const NAV_GROUPS = [
         --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
         --sidebar-w: 232px;
     }
+
+    /* ── Tema oscuro (data-theme="dark" en <html>) ──
+       El sidebar y el org switcher ya son navy → no cambian. Aquí remapeamos los
+       tokens: el fondo va a navy-negro, el texto aclara, y --color-blue-deep pasa
+       a un azul vivo (era invisible sobre fondo oscuro) — sirve de acento para
+       montos .editorial, avatares y botones. */
+    html[data-theme="dark"] {
+        --color-bg: #0b1018;
+        --color-bg-soft: #141c28;
+        --color-blue-deep: #6b9bf2;
+        --color-text: #e8ebf1;
+        --color-text-muted: #9aa6b6;
+        --color-border: rgba(255, 255, 255, 0.1);
+        --surface: #141c28;
+        --surface-2: #1a2230;
+    }
+    html[data-theme="dark"] body { background: #0b1018; }
+    /* Topbar: en oscuro, vidrio navy translúcido (en claro es blanco) */
+    html[data-theme="dark"] .topbar {
+        background: linear-gradient(180deg, rgba(20,28,40,0.82), rgba(11,16,24,0.7));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    /* Buscador y kbd de la topbar */
+    html[data-theme="dark"] .tb-kbd, html[data-theme="dark"] .cmdk-esc { background: rgba(255,255,255,0.06); color: var(--color-text-muted); }
+    /* Menú "Crear" → vidrio oscuro */
+    html[data-theme="dark"] .tb-create-menu {
+        background: linear-gradient(180deg, rgba(26,34,48,0.92), rgba(16,22,32,0.86));
+        border-color: rgba(255,255,255,0.12);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 24px 60px -18px rgba(0,0,0,0.7);
+    }
+    html[data-theme="dark"] .tb-create-item kbd { background: rgba(255,255,255,0.08); }
+    /* Toggle de tema en la topbar */
+    .tb-theme .tb-sun { display: none; }
+    .tb-theme .tb-moon { display: inline-flex; }
+    html[data-theme="dark"] .tb-theme .tb-sun { display: inline-flex; }
+    html[data-theme="dark"] .tb-theme .tb-moon { display: none; }
 
     *, *::before, *::after { box-sizing: border-box; }
     html, body {
@@ -385,7 +472,7 @@ const NAV_GROUPS = [
 
     /* ── Card base reutilizable ── */
     .card {
-        background: #fff;
+        background: var(--surface);
         border: 1px solid var(--color-border);
         border-radius: 14px;
     }
@@ -450,7 +537,7 @@ const NAV_GROUPS = [
     .tb-notif-dot[hidden] { display: none; }
     .notif-panel {
         position: absolute; top: calc(100% + 8px); right: 0; z-index: 60; width: 340px;
-        background: #fff; border: 1px solid var(--color-border); border-radius: 14px;
+        background: var(--surface); border: 1px solid var(--color-border); border-radius: 14px;
         box-shadow: 0 24px 60px -18px rgba(10,25,47,0.45);
         overflow: hidden; animation: cmdk-pop 0.18s var(--ease-spring);
     }
@@ -590,7 +677,7 @@ const NAV_GROUPS = [
     .kbd-help { position: fixed; inset: 0; z-index: 700; display: flex; align-items: center; justify-content: center; padding: 1rem; }
     .kbd-help[hidden] { display: none; }
     .kbd-help-backdrop { position: absolute; inset: 0; background: rgba(10,25,47,0.35); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); animation: cmdk-fade 0.2s ease; }
-    .kbd-help-panel { position: relative; width: min(440px, 100%); background: #fff; border: 1px solid var(--color-border); border-radius: 16px; box-shadow: 0 40px 100px -24px rgba(10,25,47,0.5); overflow: hidden; animation: cmdk-pop 0.22s var(--ease-spring); }
+    .kbd-help-panel { position: relative; width: min(440px, 100%); background: var(--surface); border: 1px solid var(--color-border); border-radius: 16px; box-shadow: 0 40px 100px -24px rgba(10,25,47,0.5); overflow: hidden; animation: cmdk-pop 0.22s var(--ease-spring); }
     .kbd-help-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--color-border); }
     .kbd-help-head strong { font-size: 0.95rem; }
     .kbd-help-head kbd, .kbd-row kbd { font-size: 0.66rem; font-weight: 700; color: var(--color-text-muted); background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 5px; padding: 2px 6px; }
@@ -605,7 +692,7 @@ const NAV_GROUPS = [
     .help-backdrop { position: absolute; inset: 0; background: rgba(10,25,47,0.35); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: cmdk-fade 0.2s ease; }
     .help-panel {
         position: absolute; top: 0; right: 0; height: 100%; width: min(420px, 100%);
-        display: flex; flex-direction: column; background: #fff;
+        display: flex; flex-direction: column; background: var(--surface);
         border-left: 1px solid var(--color-border);
         box-shadow: -30px 0 80px -30px rgba(10,25,47,0.5);
         animation: help-slide 0.32s var(--ease-spring);
@@ -922,8 +1009,9 @@ const NAV_GROUPS = [
         display: flex; align-items: center; gap: 0.75rem;
         padding: 0.7rem 2rem;
         border-bottom: 1px solid var(--color-border);
-        background: rgba(255,255,255,0.75);
-        backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+        background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.62));
+        backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
         position: sticky; top: 0; z-index: 50;
     }
     .tb-demo {
@@ -934,6 +1022,49 @@ const NAV_GROUPS = [
     /* Iconos globales empujados a la derecha (el buscador queda pegado a la izquierda) */
     .tb-right { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
 
+    /* ── Botón "Crear" (desktop) con menú de vidrio ── */
+    .tb-create-wrap { position: relative; }
+    .tb-create {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 8px 12px 8px 11px; border: none; border-radius: 9px; cursor: pointer;
+        background: var(--color-blue-deep); color: #fff;
+        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600; white-space: nowrap;
+        box-shadow: 0 6px 18px -8px rgba(10,25,47,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+        transition: transform 0.35s var(--ease-spring), box-shadow 0.35s var(--ease-spring), background 0.2s;
+    }
+    .tb-create-plus { width: 15px; height: 15px; flex-shrink: 0; }
+    .tb-create-caret { width: 12px; height: 12px; opacity: 0.7; flex-shrink: 0; transition: transform 0.25s var(--ease-spring); }
+    .tb-create[aria-expanded="true"] .tb-create-caret { transform: rotate(180deg); }
+    .tb-create:hover { transform: translateY(-1px); background: #11233f; box-shadow: 0 10px 24px -8px rgba(10,25,47,0.55), inset 0 1px 0 rgba(255,255,255,0.16); }
+    .tb-create:active { transform: scale(0.97); }
+    .tb-create-menu {
+        position: absolute; top: calc(100% + 8px); left: 0; z-index: 60; min-width: 232px;
+        padding: 6px; border-radius: 14px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.7));
+        backdrop-filter: blur(26px) saturate(1.7) brightness(1.04);
+        -webkit-backdrop-filter: blur(26px) saturate(1.7) brightness(1.04);
+        border: 1px solid rgba(255,255,255,0.6);
+        box-shadow:
+            inset 0 1px 1px rgba(255,255,255,0.92),
+            inset 0 0 0 0.5px rgba(255,255,255,0.5),
+            0 24px 60px -18px rgba(10,25,47,0.4),
+            0 4px 12px rgba(10,25,47,0.08);
+        animation: tb-create-in 0.18s var(--ease-spring);
+    }
+    .tb-create-menu[hidden] { display: none; }
+    @keyframes tb-create-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
+    .tb-create-item {
+        display: flex; align-items: center; gap: 10px; width: 100%;
+        padding: 9px 10px; border-radius: 9px; cursor: pointer;
+        background: none; border: none; text-align: left; text-decoration: none;
+        font-family: var(--font-sans); font-size: 0.85rem; font-weight: 500; color: var(--color-text);
+        transition: background 0.16s var(--ease-ios), color 0.16s;
+    }
+    .tb-create-item svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--color-text-muted); transition: color 0.16s; }
+    .tb-create-item:hover { background: rgba(10,25,47,0.06); }
+    .tb-create-item:hover svg { color: var(--color-blue-deep); }
+    .tb-create-item kbd { margin-left: auto; font-family: var(--font-sans); font-size: 0.62rem; font-weight: 700; color: var(--color-text-muted); background: #fff; border: 1px solid var(--color-border); border-radius: 5px; padding: 1px 5px; }
+
     /* Buscador de la topbar (abre el menú de comandos) — pegado a la izquierda */
     .tb-search {
         flex: 0 1 360px; min-width: 0;
@@ -943,7 +1074,7 @@ const NAV_GROUPS = [
         border-radius: 10px; padding: 8px 10px 8px 13px; cursor: text; text-align: left;
         transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
     }
-    .tb-search:hover { border-color: rgba(10,25,47,0.2); background: #fff; box-shadow: 0 1px 2px rgba(10,25,47,0.04); }
+    .tb-search:hover { border-color: rgba(10,25,47,0.2); background: var(--surface); box-shadow: 0 1px 2px rgba(10,25,47,0.04); }
     .tb-search svg { width: 15px; height: 15px; color: #99a2af; flex-shrink: 0; }
     .tb-search-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tb-kbd {
@@ -1034,7 +1165,7 @@ const NAV_GROUPS = [
     @keyframes cmdk-fade { from { opacity: 0; } to { opacity: 1; } }
     .cmdk-panel {
         position: relative; width: min(620px, 100%);
-        background: #fff; border: 1px solid var(--color-border); border-radius: 16px;
+        background: var(--surface); border: 1px solid var(--color-border); border-radius: 16px;
         box-shadow: 0 40px 100px -24px rgba(10,25,47,0.5);
         overflow: hidden; animation: cmdk-pop 0.22s var(--ease-spring);
     }
@@ -1050,6 +1181,30 @@ const NAV_GROUPS = [
     .cmdk-foot { display: flex; gap: 1.2rem; padding: 9px 16px; border-top: 1px solid var(--color-border); background: var(--color-bg-soft); }
     .cmdk-foot span { font-size: 0.68rem; color: #99a2af; display: inline-flex; align-items: center; gap: 5px; }
     .cmdk-foot kbd { font-size: 0.62rem; font-weight: 700; background: #fff; border: 1px solid var(--color-border); border-radius: 4px; padding: 1px 5px; color: var(--color-text-muted); }
+
+    /* ── Quick-add de Tarea (modal centrado) ── */
+    .qtask { position: fixed; inset: 0; z-index: 510; display: flex; align-items: flex-start; justify-content: center; padding: 16vh 1rem 1rem; }
+    .qtask[hidden] { display: none; }
+    .qtask-backdrop { position: absolute; inset: 0; background: rgba(10,25,47,0.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: cmdk-fade 0.2s ease; }
+    .qtask-panel {
+        position: relative; width: min(460px, 100%);
+        background: var(--surface); border: 1px solid var(--color-border); border-radius: 16px;
+        box-shadow: 0 40px 100px -24px rgba(10,25,47,0.5);
+        padding: 18px; animation: cmdk-pop 0.22s var(--ease-spring);
+        display: flex; flex-direction: column; gap: 12px;
+    }
+    .qtask-head { display: flex; align-items: center; justify-content: space-between; }
+    .qtask-head strong { font-size: 1rem; font-weight: 650; color: var(--color-text); }
+    .qtask-x { width: 30px; height: 30px; border: none; background: none; border-radius: 8px; color: var(--color-text-muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s, color 0.2s; }
+    .qtask-x svg { width: 16px; height: 16px; }
+    .qtask-x:hover { background: var(--color-bg-soft); color: var(--color-text); }
+    .qtask-input { font-family: var(--font-sans); font-size: 0.92rem; color: var(--color-text); background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 10px; padding: 11px 13px; }
+    .qtask-input:focus, .qtask-date:focus { outline: none; border-color: var(--color-blue-deep); }
+    .qtask-row { display: flex; gap: 10px; }
+    .qtask-date { flex: 0 0 auto; font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text); background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 10px; padding: 10px 12px; }
+    .qtask-btn { flex: 1; font-family: var(--font-sans); font-size: 0.86rem; font-weight: 600; color: #fff; background: var(--color-blue-deep); border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer; transition: transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-spring); box-shadow: 0 6px 18px -8px rgba(10,25,47,0.5); }
+    .qtask-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -8px rgba(10,25,47,0.55); }
+    @media (max-width: 560px) { .qtask-row { flex-direction: column; } .qtask-date { width: 100%; } }
 
     /* ── MOBILE ── */
     @media (max-width: 880px) {
@@ -1085,9 +1240,9 @@ const NAV_GROUPS = [
         .tb-search:hover { background: var(--color-bg-soft); box-shadow: none; }
         .tb-search svg { width: 18px; height: 18px; }
         .tb-search-label, .tb-kbd { display: none; }
-        /* Topbar móvil = solo lupa + notificaciones. Engrane, ayuda y guía pasan al drawer. */
+        /* Topbar móvil = solo lupa + notificaciones. Crear, engrane, ayuda y guía pasan al drawer. */
         .tb-notif-wrap { display: inline-flex; }
-        .tb-gear, .tb-help { display: none; }
+        .tb-gear, .tb-help, .tb-create-wrap, .tb-theme { display: none; }
         .onb-pill { display: none; }
         /* El panel de notificaciones a ancho casi completo */
         .notif-panel { width: min(340px, calc(100vw - 1.5rem)); }
@@ -1112,16 +1267,20 @@ const NAV_GROUPS = [
             chart: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
             gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
             plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+            check: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
             external: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
         };
         const NAV: any[] = [
             ['Dashboard', '/app', I.dashboard, 'Resumen y actividad'], ['Cotizaciones', '/app/cotizaciones', I.doc, 'Lista y pipeline'], ['Cobranza', '/app/cobranza', I.card, 'Cuentas por cobrar'],
-            ['Clientes', '/app/clientes', I.users, 'Directorio de clientes'], ['Productos', '/app/productos', I.box, 'Catálogo'], ['Analítica', '/app/analitica', I.chart, 'Métricas y forecast'], ['CFO Dashboard', '/app/cfo', I.chart, 'Proyección de flujo de caja'], ['Ajustes', '/app/ajustes', I.gear, 'Marca, fiscal, PDF…'],
+            ['CFO Dashboard', '/app/cfo', I.chart, 'Proyección de flujo de caja'], ['Analítica', '/app/analitica', I.chart, 'Métricas y forecast'],
+            ['Flujo predictivo', '/app/tesoreria/flujo', I.chart, 'Tesorería IA'], ['Agentes de cobranza', '/app/tesoreria/cobranza', I.users, 'Tesorería IA'],
+            ['Clientes', '/app/clientes', I.users, 'Directorio de clientes'], ['Productos', '/app/productos', I.box, 'Catálogo'], ['Ajustes', '/app/ajustes', I.gear, 'Marca, fiscal, PDF…'],
         ].map(([title, href, icon, hint]) => ({ group: 'Ir a', title, href, icon, hint }));
         const ACTIONS: any[] = [
             { group: 'Acciones', title: 'Nueva cotización', href: '/app/cotizaciones/nueva', icon: I.plus, kbd: 'C' },
-            { group: 'Acciones', title: 'Nuevo cliente', href: '/app/clientes', icon: I.plus, hint: 'Agregar al directorio' },
-            { group: 'Acciones', title: 'Nuevo producto', href: '/app/productos', icon: I.plus, hint: 'Agregar al catálogo' },
+            { group: 'Acciones', title: 'Nuevo cliente', href: '/app/clientes?nuevo=1', icon: I.plus, hint: 'Agregar al directorio' },
+            { group: 'Acciones', title: 'Nuevo producto', href: '/app/productos?nuevo=1', icon: I.plus, hint: 'Agregar al catálogo' },
+            { group: 'Acciones', title: 'Nueva tarea', icon: I.check, hint: 'Recordatorio rápido', run: () => (window as any).cordQuickTask?.() },
             { group: 'Acciones', title: 'Ver sitio público', href: '/', icon: I.external, hint: 'Abrir la landing' },
         ];
         const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -1188,7 +1347,12 @@ const NAV_GROUPS = [
                 } catch { /* ignora */ }
             }
         };
-        const activate = (i: number) => { const it = items[i]; if (it?.href) { pushRecent(it); close(); window.location.href = it.href; } };
+        const activate = (i: number) => {
+            const it = items[i];
+            if (!it) return;
+            if (typeof it.run === 'function') { close(); it.run(); return; }
+            if (it.href) { pushRecent(it); close(); window.location.href = it.href; }
+        };
         const open = () => { (cmdk as HTMLElement).hidden = false; document.body.style.overflow = 'hidden'; input.value = ''; render(''); setTimeout(() => input.focus(), 20); };
         const close = () => { (cmdk as HTMLElement).hidden = true; document.body.style.overflow = ''; };
 
@@ -1235,6 +1399,19 @@ const NAV_GROUPS = [
         document.getElementById('sbToggleFloating')?.addEventListener('click', (e) => {
             e.stopPropagation();
             setCollapsed(!root.classList.contains('sb-collapsed'));
+        });
+    }
+
+    // ── Tema claro / oscuro (persistente, sin flash; el <head> lo aplica al cargar) ──
+    function initTheme() {
+        const btn = document.getElementById('themeBtn');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) { document.documentElement.removeAttribute('data-theme'); try { localStorage.setItem('cord.theme', 'light'); } catch (e) {} }
+            else { document.documentElement.setAttribute('data-theme', 'dark'); try { localStorage.setItem('cord.theme', 'dark'); } catch (e) {} }
+            // Reposiciona el indicador del sidebar por si cambió alguna métrica.
+            window.dispatchEvent(new Event('resize'));
         });
     }
 
@@ -1524,24 +1701,58 @@ const NAV_GROUPS = [
         });
     }
 
+    // ── Menú "Crear" genérico (botón + popover) — reusado por móvil y desktop ──
+    function initCreateMenu(btnId: string, menuId: string) {
+        const btn = document.getElementById(btnId);
+        const menu = document.getElementById(menuId);
+        if (!btn || !menu) return;
+        const m = menu as HTMLElement;
+        const closeMenu = () => { m.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const willOpen = m.hidden;
+            m.hidden = !willOpen;
+            btn.setAttribute('aria-expanded', String(willOpen));
+        });
+        document.addEventListener('click', (e) => {
+            if (!m.hidden && !menu.contains(e.target as Node) && !btn.contains(e.target as Node)) closeMenu();
+        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+    }
+
+    // ── Quick-add de Tarea (modal desde el botón "Crear") ──
+    function initQuickTask() {
+        const modal = document.getElementById('qtask');
+        const form = document.getElementById('qtaskForm') as HTMLFormElement | null;
+        const titulo = document.getElementById('qtaskTitulo') as HTMLInputElement | null;
+        const due = document.getElementById('qtaskDue') as HTMLInputElement | null;
+        if (!modal || !form || !titulo) return;
+        const open = () => { (modal as HTMLElement).hidden = false; document.body.style.overflow = 'hidden'; setTimeout(() => titulo.focus(), 30); };
+        const close = () => { (modal as HTMLElement).hidden = true; document.body.style.overflow = ''; form.reset(); };
+        // Disparadores: botón de la topbar y el menú móvil (si existiera un item de tarea).
+        document.getElementById('tbCreateTarea')?.addEventListener('click', () => { document.getElementById('tbCreateMenu')!.hidden = true; document.getElementById('tbCreate')?.setAttribute('aria-expanded', 'false'); open(); });
+        (window as any).cordQuickTask = open;
+        document.getElementById('qtaskClose')?.addEventListener('click', close);
+        document.getElementById('qtaskBackdrop')?.addEventListener('click', close);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !(modal as HTMLElement).hidden) close(); });
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const t = titulo.value.trim();
+            if (!t) return;
+            try {
+                const res = await fetch('/api/tareas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ titulo: t, due_date: due?.value || null }) });
+                if (!res.ok) throw new Error();
+                close();
+                if (location.pathname === '/app') location.reload();
+                else (window as any).cordToast?.('Tarea creada', 'ok');
+            } catch { (window as any).cordToast?.('No se pudo crear la tarea', 'error'); }
+        });
+    }
+
     // ── Acciones móviles del drawer (botón "+" + Ayuda) ──
     function initMobileActions() {
-        // Mini menú del botón "Crear"
-        const createBtn = document.getElementById('sbCreate');
-        const createMenu = document.getElementById('sbCreateMenu');
-        if (createBtn && createMenu) {
-            const closeMenu = () => { (createMenu as HTMLElement).hidden = true; createBtn.setAttribute('aria-expanded', 'false'); };
-            createBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const willOpen = (createMenu as HTMLElement).hidden;
-                (createMenu as HTMLElement).hidden = !willOpen;
-                createBtn.setAttribute('aria-expanded', String(willOpen));
-            });
-            document.addEventListener('click', (e) => {
-                if (!(createMenu as HTMLElement).hidden && !createMenu.contains(e.target as Node) && e.target !== createBtn) closeMenu();
-            });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
-        }
+        initCreateMenu('sbCreate', 'sbCreateMenu');   // menú "Crear" del drawer (móvil)
+        initCreateMenu('tbCreate', 'tbCreateMenu');   // botón "Crear" de la topbar (desktop)
         // Ayuda: cierra el drawer y abre el panel de ayuda (reusa #helpBtn)
         document.getElementById('sbHelp')?.addEventListener('click', () => {
             const shell = document.querySelector('.app-shell');
@@ -1551,7 +1762,7 @@ const NAV_GROUPS = [
         });
     }
 
-    function initApp() { initCmdk(); initDrawer(); initSidebar(); initToasts(); initNavProgress(); initPins(); initSidebarIndicator(); initNotifs(); initHelp(); initShortcuts(); initMobileActions(); }
+    function initApp() { initCmdk(); initDrawer(); initSidebar(); initTheme(); initToasts(); initNavProgress(); initPins(); initSidebarIndicator(); initNotifs(); initHelp(); initShortcuts(); initMobileActions(); initQuickTask(); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp);
     else initApp();
 </script>
