@@ -418,16 +418,21 @@ const NAV_GROUPS = [
     html[data-theme="dark"] body { background: #0b1018; }
     /* Topbar: en oscuro, vidrio navy translúcido (en claro es blanco) */
     html[data-theme="dark"] .topbar {
-        background: linear-gradient(180deg, rgba(20,28,40,0.82), rgba(11,16,24,0.7));
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+        background: linear-gradient(180deg, rgba(22,30,44,0.85) 0%, rgba(13,19,29,0.72) 100%);
+        border-color: rgba(255,255,255,0.1);
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            inset 0 0 0 0.5px rgba(255,255,255,0.05),
+            inset 0 -6px 14px rgba(0,0,0,0.2),
+            0 16px 44px -10px rgba(0,0,0,0.55);
     }
     /* Buscador y kbd de la topbar */
     html[data-theme="dark"] .tb-kbd, html[data-theme="dark"] .cmdk-esc { background: rgba(255,255,255,0.06); color: var(--color-text-muted); }
     /* Menú "Crear" → vidrio oscuro */
     html[data-theme="dark"] .tb-create-menu {
-        background: linear-gradient(180deg, rgba(26,34,48,0.92), rgba(16,22,32,0.86));
+        background: linear-gradient(180deg, rgba(28,37,53,0.97), rgba(17,24,35,0.95));
         border-color: rgba(255,255,255,0.12);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 24px 60px -18px rgba(0,0,0,0.7);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), inset 0 0 0 0.5px rgba(255,255,255,0.06), 0 24px 60px -18px rgba(0,0,0,0.75);
     }
     html[data-theme="dark"] .tb-create-item kbd { background: rgba(255,255,255,0.08); }
     /* Toggle de tema en la topbar */
@@ -590,7 +595,7 @@ const NAV_GROUPS = [
     .sb-pin-row .sb-item:hover { color: rgba(255,255,255,0.92); background: rgba(255,255,255,0.05); }
     .sb-pin-row .sb-item.active { color: #fff; background: rgba(255,255,255,0.09); }
     .sb-collapsed .sb-pins .sb-group-label { display: none; }
-    .sb-collapsed .sb-pin-row .sb-item { justify-content: center; padding: 9px; }
+    .sb-collapsed .sb-pin-row .sb-item { justify-content: center; padding: 0; width: 44px; height: 40px; }
     .sb-collapsed .sb-pin-row .sb-item-label { display: none; }
     .sb-pin-x {
         position: absolute; right: 6px; opacity: 0; border: none; background: none; cursor: pointer;
@@ -970,24 +975,30 @@ const NAV_GROUPS = [
 
     /* ── Estado COLAPSADO (solo iconos) — solo desktop; en móvil el sidebar es drawer ── */
     @media (min-width: 881px) {
-    .sb-collapsed .app-shell { --sidebar-w: 68px; }
-    .sb-collapsed .sidebar { padding-left: 0.6rem; padding-right: 0.6rem; align-items: stretch; }
-    /* Fade-out de labels (cambio 4) — no display:none para que la transition funcione */
+    .sb-collapsed .app-shell { --sidebar-w: 76px; }
+    .sb-collapsed .sidebar { padding-left: 0.7rem; padding-right: 0.7rem; align-items: stretch; }
+    .sb-collapsed .sb-nav { gap: 0.85rem; align-items: center; }
+    .sb-collapsed .sb-group { width: 100%; align-items: center; gap: 4px; }
+    /* Fade-out de labels — no display:none para que la transition funcione.
+       Los group-labels SÍ colapsan en alto/padding (si no, dejan huecos vacíos). */
     .sb-collapsed .sb-item-label,
-    .sb-collapsed .sb-shortcut,
-    .sb-collapsed .sb-group-label { opacity: 0; pointer-events: none; width: 0; overflow: hidden; }
+    .sb-collapsed .sb-shortcut { opacity: 0; pointer-events: none; width: 0; overflow: hidden; }
+    .sb-collapsed .sb-group-label { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; pointer-events: none; }
     .sb-collapsed .sb-org-info,
     .sb-collapsed .sb-org-caret { opacity: 0; pointer-events: none; width: 0; overflow: hidden; }
     .sb-collapsed .sb-foot-logo { opacity: 0; width: 0; overflow: hidden; }
     .sb-collapsed .sb-collapse { display: none; }
-    .sb-collapsed .sb-account { padding-bottom: 0.3rem; }
+    .sb-collapsed .sb-account { padding-bottom: 0.4rem; }
     .sb-collapsed .sb-account::after { display: none; }
-    .sb-collapsed .sb-org-switch { justify-content: center; padding: 7px; }
+    .sb-collapsed .sb-org-switch { justify-content: center; padding: 6px; }
     .sb-collapsed .sb-org-menu { left: 0; right: auto; width: 210px; top: calc(100% + 4px); bottom: auto; }
-    .sb-collapsed .sb-item { justify-content: center; padding: 9px; }
+    /* Ítems = cuadros uniformes centrados (columna limpia, sin hueco de label) */
+    .sb-collapsed .sb-item { justify-content: center; padding: 0; width: 44px; height: 40px; }
+    /* Indicador de vidrio → cuadrado centrado detrás del ícono activo */
+    .sb-collapsed .sb-indicator { left: 50%; right: auto; width: 44px; margin-left: -22px; border-radius: 13px; }
     /* Badge → punto cuando está colapsado */
     .sb-collapsed .sb-badge {
-        position: absolute; top: 4px; right: 4px; min-width: 0; width: 7px; height: 7px;
+        position: absolute; top: 3px; right: 7px; min-width: 0; width: 7px; height: 7px;
         padding: 0; font-size: 0; border: 1.5px solid #0a192f;
     }
     .sb-collapsed .sb-expand { display: inline-flex; }
@@ -1005,14 +1016,23 @@ const NAV_GROUPS = [
 
     /* ── MAIN ── */
     .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    /* Topbar = pill flotante de vidrio (igual que el sidebar) */
     .topbar {
         display: flex; align-items: center; gap: 0.75rem;
-        padding: 0.7rem 2rem;
-        border-bottom: 1px solid var(--color-border);
-        background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.62));
-        backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
-        position: sticky; top: 0; z-index: 50;
+        margin: 1rem 1rem 0;
+        padding: 0.5rem 0.6rem 0.5rem 0.85rem;
+        border-radius: 17px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.6) 100%);
+        backdrop-filter: blur(34px) saturate(1.9) brightness(1.04);
+        -webkit-backdrop-filter: blur(34px) saturate(1.9) brightness(1.04);
+        border: 1px solid rgba(255,255,255,0.6);
+        box-shadow:
+            inset 0 1px 1px rgba(255,255,255,0.95),
+            inset 0 0 0 0.5px rgba(255,255,255,0.5),
+            inset 0 -6px 14px rgba(255,255,255,0.18),
+            0 12px 36px -8px rgba(10,25,47,0.14),
+            0 2px 6px rgba(10,25,47,0.06);
+        position: sticky; top: 1rem; z-index: 50;
     }
     .tb-demo {
         font-size: 0.58rem; font-weight: 800; letter-spacing: 1.2px;
@@ -1040,15 +1060,15 @@ const NAV_GROUPS = [
     .tb-create-menu {
         position: absolute; top: calc(100% + 8px); left: 0; z-index: 60; min-width: 232px;
         padding: 6px; border-radius: 14px;
-        background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.7));
-        backdrop-filter: blur(26px) saturate(1.7) brightness(1.04);
-        -webkit-backdrop-filter: blur(26px) saturate(1.7) brightness(1.04);
-        border: 1px solid rgba(255,255,255,0.6);
+        background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(252,253,255,0.94));
+        backdrop-filter: blur(44px) saturate(1.9) brightness(1.03);
+        -webkit-backdrop-filter: blur(44px) saturate(1.9) brightness(1.03);
+        border: 1px solid rgba(255,255,255,0.7);
         box-shadow:
-            inset 0 1px 1px rgba(255,255,255,0.92),
-            inset 0 0 0 0.5px rgba(255,255,255,0.5),
-            0 24px 60px -18px rgba(10,25,47,0.4),
-            0 4px 12px rgba(10,25,47,0.08);
+            inset 0 1px 1px rgba(255,255,255,0.95),
+            inset 0 0 0 0.5px rgba(255,255,255,0.6),
+            0 24px 60px -18px rgba(10,25,47,0.42),
+            0 4px 12px rgba(10,25,47,0.1);
         animation: tb-create-in 0.18s var(--ease-spring);
     }
     .tb-create-menu[hidden] { display: none; }
@@ -1227,7 +1247,7 @@ const NAV_GROUPS = [
         /* Acciones del drawer (crear / ayuda / config) — visibles solo en móvil */
         .sb-mobile-actions { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
         .app-content { padding: 1rem 1rem 2rem; }
-        .topbar { padding: 0.7rem 1rem; }
+        .topbar { margin: 0.6rem 0.6rem 0; padding: 0.45rem 0.6rem; border-radius: 14px; }
         .page-head { padding: 1.1rem 1rem 0; }
         .ph-title { font-size: 1.35rem; }
         .ph-actions { width: 100%; }

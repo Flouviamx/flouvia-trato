@@ -240,12 +240,12 @@ export default function CustomOrgSwitcher() {
           top: calc(100% + 0.5rem);
           left: 0;
           width: 280px;
-          /* Liquid glass navy: base translúcida + blur fuerte para que se lea el vidrio
-             sin perder legibilidad del texto. Rim lights en capas (receta del navbar). */
-          background: linear-gradient(180deg, rgba(18,38,68,0.86) 0%, rgba(10,25,47,0.82) 60%, rgba(8,20,38,0.85) 100%);
-          backdrop-filter: blur(30px) saturate(1.8) brightness(1.05);
-          -webkit-backdrop-filter: blur(30px) saturate(1.8) brightness(1.05);
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          /* Liquid glass navy: frosted casi-opaco (legible, NO se ve el contenido de
+             atrás) + blur muy fuerte estilo Apple. Rim lights en capas. */
+          background: linear-gradient(180deg, rgba(22,42,74,0.97) 0%, rgba(13,28,52,0.96) 60%, rgba(9,21,40,0.97) 100%);
+          backdrop-filter: blur(44px) saturate(1.9) brightness(1.08);
+          -webkit-backdrop-filter: blur(44px) saturate(1.9) brightness(1.08);
+          border: 1px solid rgba(255, 255, 255, 0.14);
           border-radius: 16px;
           box-shadow:
             inset 0 1px 0 rgba(255,255,255,0.22),
