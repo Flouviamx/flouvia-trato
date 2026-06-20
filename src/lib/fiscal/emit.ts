@@ -25,7 +25,7 @@ export async function emitFiscalDocument(orgId: string, cotizacionId: string): P
   // 1. Datos de la org (país) + cotización (totales, divisa) + cliente.
   const [head] = await sql`
     select
-      o.country_code, o.iva_pct,
+      o.country_code, o.iva_pct, o.cp_fiscal as org_cp, o.uso_cfdi as org_uso,
       c.subtotal, c.iva, c.total, c.fiscal_currency,
       cl.empresa as cliente_empresa, cl.rfc as cliente_rfc,
       cl.email as cliente_email, cl.contacto as cliente_contacto
@@ -68,12 +68,21 @@ export async function emitFiscalDocument(orgId: string, cotizacionId: string): P
       quoteId: cotizacionId,
       countryCode: country,
       customerData: {
-        empresa: head.cliente_empresa,
-        rfc: head.cliente_rfc,
+        legal_name: head.cliente_empresa,
+        tax_id: head.cliente_rfc,
         email: head.cliente_email,
         contacto: head.cliente_contacto,
+        // Cord aún no captura régimen/CP fiscal POR CLIENTE → usamos defaults y el
+        // CP del emisor como placeholder. Para CFDI real a un RFC específico hay que
+        // capturar el domicilio fiscal y régimen del receptor (gap del modelo).
+        zip: head.org_cp || undefined,
+        cfdi_use: head.org_uso || undefined,
       },
-      items: items as any[],
+      items: items.map((it: any) => ({
+        description: it.descripcion,
+        quantity: Number(it.cantidad) || 1,
+        unit_price: Number(it.precio_negociado ?? it.precio_unitario) || 0,
+      })),
       totalAmounts: {
         subtotal,
         taxes,

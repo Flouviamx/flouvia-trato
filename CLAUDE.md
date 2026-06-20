@@ -42,7 +42,7 @@ Node requerido: **>=22.12.0** (ver `.nvmrc` → 24.15.0; alineado a Node 24 LTS,
 | DB | **Neon (PostgreSQL serverless)** — schema en `db/schema.sql`. Decisión jun 2026: Neon en vez de Supabase. Crear vía Vercel Marketplace → integración Neon (auto-provisiona `DATABASE_URL`). |
 | Billing | Stripe Billing (freemium) |
 | Emails | Resend (transaccionales: cotización vista, aprobada, etc.) |
-| CFDI | PAC de timbrado (mismo proveedor que la app de Shopify) |
+| CFDI | **Facturapi** (facturapi.io) — timbrado CFDI 4.0 vía `MexicoSatProvider` |
 | Animaciones | GSAP 3 — **solo en landing/login**; dentro de la app, CSS animations |
 | Analytics | **Vercel Analytics** (`@vercel/analytics`) — `<Analytics />` en `Layout.astro` y `AppLayout.astro` |
 | Tipografía | **Inter única** (las serif se ELIMINARON jun 2026 a petición de André) — montos con clase `.editorial` = Inter 600, tracking −0.03em, `tabular-nums` |
@@ -529,9 +529,10 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
    • **Abstracción fiscal CABLEADA:** `src/lib/fiscal/emit.ts` junta datos (org/cliente/
      items/totales/país), enruta por `FiscalFactory` y registra en `documentos_fiscales`.
      Enganchado en la acción `invoiced` de `/api/cotizaciones/[id]`. `MexicoSatProvider`
-     ahora timbra REAL si `PAC_API_URL`+`PAC_API_KEY` están seteadas; si no, devuelve
-     respuesta marcada `provider_data.simulado=true` (honesto, ya no finge UUID).
-     UI de documentos fiscales en el detalle de cotización (`getDocumentosFiscales`).
+     ahora timbra REAL vía **Facturapi** si `FACTURAPI_API_KEY` está seteada (sk_test_/
+     sk_live_); si no, devuelve respuesta marcada `provider_data.simulado=true` (honesto).
+     El PDF/XML se sirven por el proxy `/api/cotizaciones/[id]/cfdi?type=pdf|xml` (Facturapi
+     no da URLs públicas). UI de documentos fiscales en el detalle (`getDocumentosFiscales`).
    • **FX REAL + multi-divisa cableada:** `FXService` hace fetch a Frankfurter (BCE, sin
      key) con fallback a mock; conectado a `createCotizacion` (puebla `base_currency`/
      `fiscal_currency`/`fx_rate`/`fx_locked_until`). Endpoint `/api/fx/quote` (preview) +
@@ -582,12 +583,21 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
    en Vercel (`ANTHROPIC_API_KEY`, `RESEND_API_KEY`/`RESEND_FROM`, `CRON_SECRET`, DATABASE_URL,
    Clerk/Stripe live); webhooks de Stripe (`/api/stripe/webhook` + Customer Portal) y Clerk
    (`/api/clerk/webhook`) registrados; dominio de Resend verificado. Build y rutas sanas.
-⬜ Pendiente (no bloquea lanzamiento): timbrado CFDI **real** (hoy SIMULADO sin `PAC_API_URL`;
-   cotizar/aprobar/pagar funciona, solo la factura fiscal espera el PAC), `USInvoiceProvider`
-   real (US), publicar `@flouviahq/elements` v0.2.0 (`npm login && npm publish`), "tiempo real"
-   full vía SSE/WebSocket. Deuda menor: el "Entorno de prueba" es cosmético (solo cambia el
-   prefijo de API key mostrado), y 5 vulnerabilidades de `npm audit` de bajo riesgo (esbuild
-   dev-Windows / path-to-regexp build-time) cuyo fix exige downgrade breaking de `@astrojs/vercel`.
+✅ **CFDI 4.0 vía Facturapi (jun 2026)** — `MexicoSatProvider` crea la factura real en
+   Facturapi (auth Basic con la API key), devuelve el UUID del SAT y los PDF/XML se sirven
+   por `/api/cotizaciones/[id]/cfdi?type=pdf|xml`. **Key de TEST ya configurada**
+   (`FACTURAPI_API_KEY`). ⚠️ **Gap del modelo:** Cord captura el RFC del cliente pero NO su
+   régimen fiscal ni CP (domicilio) — `emit.ts` usa defaults (público en general / CP del
+   emisor / uso G03). Para CFDI válido a un RFC específico hay que capturar régimen + CP +
+   uso CFDI POR CLIENTE (agregar al alta de clientes). Para subir a producción: cambiar a
+   `sk_live_` en `FACTURAPI_API_KEY` (Vercel).
+⬜ Pendiente (no bloquea lanzamiento): capturar datos fiscales del receptor por cliente
+   (régimen/CP/uso CFDI) para CFDI nominativo; `FACTURAPI_API_KEY` live en prod;
+   `USInvoiceProvider` real (US); publicar `@flouviahq/elements` v0.2.0 (`npm login && npm
+   publish`); "tiempo real" full vía SSE/WebSocket. Deuda menor: el "Entorno de prueba" es
+   cosmético (solo cambia el prefijo de API key mostrado), y 5 vulnerabilidades de `npm audit`
+   de bajo riesgo (esbuild dev-Windows / path-to-regexp build-time) cuyo fix exige downgrade
+   breaking de `@astrojs/vercel`.
 
 ---
 
@@ -1055,8 +1065,8 @@ PUBLIC_CLERK_PUBLISHABLE_KEY=  CLERK_SECRET_KEY=                # signup ABIERTO
 STRIPE_SECRET_KEY=  STRIPE_WEBHOOK_SECRET=  PUBLIC_STRIPE_PUBLISHABLE_KEY=
 RESEND_API_KEY=  RESEND_FROM=                                   # recordatorios de cobro
 CRON_SECRET=                                                    # protege /api/cron/recordatorios
-PAC_API_KEY=                                                    # timbrado CFDI
-PAC_API_URL=                                                    # endpoint del PAC (sin ella el timbrado es SIMULADO)
+FACTURAPI_API_KEY=                                              # CFDI 4.0 vía Facturapi (sk_test_/sk_live_); sin ella el timbrado es SIMULADO
+# FACTURAPI_URL=                                                # opcional (default https://www.facturapi.io/v2)
 ANTHROPIC_API_KEY=                                              # IA "armar cotización desde texto" + cobranza/MCP
 AI_MODEL=                                                       # opcional (default claude-opus-4-8)
 ```
