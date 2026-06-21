@@ -153,6 +153,21 @@
         margin-bottom: 4px;
         font-weight: 700;
     }
+    :global(.sup-result-title mark), :global(.sup-result-desc mark) {
+        background: rgba(9,105,218,0.2);
+        color: inherit;
+        border-radius: 2px;
+    }
+    :global(.sup-header) {
+        padding: 12px 16px 4px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--color-text-muted);
+        border-bottom: 1px solid var(--color-border);
+        margin-bottom: 4px;
+    }
 </style>
 
 <script>
@@ -174,10 +189,10 @@
     function highlightText(text, term) {
         if (!term) return text;
         const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-        return text.replace(regex, '<mark style="background:rgba(9,105,218,0.2);color:inherit;border-radius:2px;">$1</mark>');
+        return text.replace(regex, '<mark>$1</mark>');
     }
 
-    function renderResults(results, term) {
+    function renderArticles(results, term = '', title = '') {
         const resultsEl = document.getElementById('supSearchResults');
         const emptyEl = document.getElementById('supSearchEmpty');
         const termSpan = document.getElementById('supSearchTerm');
@@ -191,6 +206,13 @@
         } else {
             resultsEl.hidden = false;
             emptyEl.hidden = true;
+            
+            if (title) {
+                const header = document.createElement('div');
+                header.className = 'sup-header';
+                header.textContent = title;
+                resultsEl.appendChild(header);
+            }
             
             results.forEach((item, idx) => {
                 const a = document.createElement('a');
@@ -207,6 +229,18 @@
             });
         }
     }
+
+    // Default suggestions
+    const showSuggestions = async () => {
+        const index = await fetchIndex();
+        if (index.length === 0) return;
+        
+        const defaultSlugs = ['emitir-cfdi', 'cobro-divisas', 'cord-elements', 'manejo-disputas'];
+        const suggestions = index.filter(a => defaultSlugs.some(slug => a.url.includes(slug)));
+        
+        renderArticles(suggestions, '', 'Sugerencias');
+        document.getElementById('supSearchDropdown').hidden = false;
+    };
 
     document.addEventListener('DOMContentLoaded', () => {
         const input = document.getElementById('supSearchInput') as HTMLInputElement;
@@ -233,7 +267,11 @@
         });
 
         input.addEventListener('focus', () => {
-            if (input.value.trim().length > 0) dropdown.hidden = false;
+            if (input.value.trim().length === 0) {
+                showSuggestions();
+            } else {
+                dropdown.hidden = false;
+            }
         });
 
         input.addEventListener('input', async (e) => {
@@ -241,7 +279,8 @@
             selectedIndex = -1;
             
             if (term.length < 2) {
-                dropdown.hidden = true;
+                if (term.length === 0) showSuggestions();
+                else dropdown.hidden = true;
                 return;
             }
             
@@ -255,7 +294,7 @@
             ).slice(0, 7); // Max 7 results
             
             dropdown.hidden = false;
-            renderResults(results, term);
+            renderArticles(results, term, 'Resultados');
         });
 
         // Keyboard navigation in results
