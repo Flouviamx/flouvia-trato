@@ -1,0 +1,124 @@
+---
+// /src/components/support/SupportHero.astro
+---
+
+<section class="support-hero">
+    <div class="pr-mesh" aria-hidden="true"></div>
+    <div class="hero-content">
+        <p class="pp-eyebrow reveal">CENTRO DE AYUDA</p>
+        <h1 class="pr-h1 masked-title">¿Cómo podemos ayudarte?</h1>
+        <div class="search-container reveal">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Busca artículos, guías y más..." class="search-input" />
+        </div>
+    </div>
+</section>
+
+<style>
+    .support-hero {
+        position: relative;
+        text-align: center;
+        padding: 11.5rem 5% 6rem;
+        overflow: clip;
+        background: var(--color-bg);
+        border-bottom: 1px solid var(--color-border);
+    }
+    .pr-mesh {
+        position: absolute;
+        inset: -20% -10% auto;
+        height: 100%;
+        background:
+            radial-gradient(ellipse 50% 60% at 28% 20%, rgba(10,25,47,0.05) 0%, transparent 60%),
+            radial-gradient(ellipse 44% 54% at 76% 12%, rgba(10,25,47,0.04) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 760px;
+        margin: 0 auto;
+    }
+    .pp-eyebrow {
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #888;
+        margin: 0 0 1.4rem;
+    }
+    .pr-h1 {
+        font-size: clamp(2.4rem, 5.4vw, 4.2rem);
+        font-weight: 800;
+        line-height: 1.04;
+        letter-spacing: -0.035em;
+        color: var(--color-text);
+        margin: 0 0 2.5rem;
+    }
+    
+    .search-container {
+        position: relative;
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-spring);
+    }
+    .search-container:hover, .search-container:focus-within {
+        transform: translateY(-4px);
+        box-shadow: 0 24px 60px rgba(10, 25, 47, 0.12);
+    }
+    .search-icon {
+        position: absolute;
+        left: 24px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        color: var(--color-text-muted);
+        pointer-events: none;
+        transition: color 0.3s ease;
+    }
+    .search-container:focus-within .search-icon {
+        color: var(--color-blue-deep);
+    }
+    .search-input {
+        width: 100%;
+        padding: 24px 24px 24px 64px;
+        font-size: 1.125rem;
+        font-family: var(--font-sans);
+        font-weight: 500;
+        color: var(--color-text);
+        border: 1px solid rgba(10,25,47,0.08);
+        border-radius: 16px;
+        outline: none;
+        background: #ffffff;
+        transition: border-color 0.3s ease;
+    }
+    .search-input:focus {
+        border-color: rgba(10, 25, 47, 0.3);
+    }
+    .search-input::placeholder {
+        color: #99a2af;
+        font-weight: 400;
+    }
+
+    @media (max-width: 768px) {
+        .support-hero {
+            padding-top: 9.5rem;
+            padding-bottom: 4rem;
+        }
+        .search-input {
+            font-size: 1rem;
+            padding: 20px 20px 20px 56px;
+        }
+        .search-icon {
+            left: 20px;
+            width: 20px;
+            height: 20px;
+        }
+    }
+</style>
