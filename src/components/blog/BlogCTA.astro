@@ -1,21 +1,22 @@
 ---
 // BlogCTA.astro
+const { isEn } = Astro.props;
 ---
 <section class="article-footer-cta">
     <div class="bento-grid">
         
         <!-- Columna Grande: Suscripción -->
         <div class="bento-card span-2 hairline-border">
-            <h3>Suscríbete al Blog de Cord</h3>
-            <p>Estrategias financieras, análisis de mercado y novedades de producto directamente en tu bandeja de entrada.</p>
+            <h3>{isEn ? 'Subscribe to the Cord Blog' : 'Suscríbete al Blog de Cord'}</h3>
+            <p>{isEn ? 'Financial strategies, market analysis, and product updates right in your inbox.' : 'Estrategias financieras, análisis de mercado y novedades de producto directamente en tu bandeja de entrada.'}</p>
             
             <form class="subscribe-form" onsubmit="event.preventDefault()">
-                <input type="email" placeholder="tu@empresa.com" required />
+                <input type="email" placeholder={isEn ? 'you@company.com' : 'tu@empresa.com'} required />
                 <button type="submit" class="btn-primary">
-                    Suscribirme <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    {isEn ? 'Subscribe' : 'Suscribirme'} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
             </form>
-            <span class="privacy-note">Cord tratará tus datos según su <a href="/privacidad">Política de Privacidad</a>.</span>
+            <span class="privacy-note">{isEn ? 'Cord will process your data according to our' : 'Cord tratará tus datos según su'} <a href={isEn ? "/en/privacidad" : "/privacidad"}>{isEn ? 'Privacy Policy' : 'Política de Privacidad'}</a>.</span>
         </div>
 
         <!-- Columna Pequeña 1: Careers -->
@@ -23,9 +24,9 @@
             <div class="bento-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
             </div>
-            <h4>¿Te gusta lo que lees?</h4>
-            <p>Cord construye infraestructura financiera para acelerar las ventas B2B. Únete al equipo.</p>
-            <a href="/unirse" class="bento-link">Ver vacantes <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            <h4>{isEn ? 'Like what you read?' : '¿Te gusta lo que lees?'}</h4>
+            <p>{isEn ? 'Cord builds financial infrastructure to accelerate B2B sales. Join the team.' : 'Cord construye infraestructura financiera para acelerar las ventas B2B. Únete al equipo.'}</p>
+            <a href={isEn ? "/en/unirse" : "/unirse"} class="bento-link">{isEn ? 'View open roles' : 'Ver vacantes'} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
 
         <!-- Columna Pequeña 2: Contact -->
@@ -33,9 +34,9 @@
             <div class="bento-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             </div>
-            <h4>¿Dudas o comentarios?</h4>
-            <p>Nos encantaría escuchar tu opinión sobre este artículo o tu flujo de ventas.</p>
-            <a href="mailto:hello@cord.mx" class="bento-link">Contáctanos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            <h4>{isEn ? 'Questions or comments?' : '¿Dudas o comentarios?'}</h4>
+            <p>{isEn ? "We'd love to hear your thoughts on this article or your sales flow." : 'Nos encantaría escuchar tu opinión sobre este artículo o tu flujo de ventas.'}</p>
+            <a href="mailto:hello@cord.mx" class="bento-link">{isEn ? 'Contact us' : 'Contáctanos'} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
 
     </div>

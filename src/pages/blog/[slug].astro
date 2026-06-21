@@ -8,10 +8,13 @@ import BlogCTA from '../../components/blog/BlogCTA.astro';
 
 export const prerender = true;
 
+import { getLangFromUrl } from '../../i18n/utils';
+
 export async function getStaticPaths() {
     const blogEntries = await getCollection('blog');
-    return blogEntries.map(entry => ({
-        params: { slug: entry.id },
+    const esEntries = blogEntries.filter(entry => entry.id.startsWith('es/'));
+    return esEntries.map(entry => ({
+        params: { slug: entry.id.replace('es/', '') },
         props: { entry },
     }));
 }
@@ -19,14 +22,17 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 
+const lang = getLangFromUrl(Astro.url);
+const isEn = Astro.props.isEn || lang === 'en';
+
 // Fallbacks para el post en caso de faltar datos opcionales
-const authorName = entry.data.authorName || 'Equipo Cord';
-const authorRole = entry.data.authorRole || 'Redacción';
+const authorName = entry.data.authorName || (isEn ? 'Cord Team' : 'Equipo Cord');
+const authorRole = entry.data.authorRole || (isEn ? 'Editorial' : 'Redacción');
 const authorAvatar = entry.data.authorAvatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80';
 ---
 
 <Layout
-    title={`${entry.data.title} | Blog de Cord`}
+    title={isEn ? `${entry.data.title} | Cord Blog` : `${entry.data.title} | Blog de Cord`}
     description={entry.data.excerpt}
 >
     <Nav />
@@ -75,7 +81,7 @@ const authorAvatar = entry.data.authorAvatar || 'https://images.unsplash.com/pho
             <aside class="article-sidebar article-sidebar-left">
                 {headings.length > 0 && (
                     <div class="toc-container sticky reveal" style="transition-delay: 500ms">
-                        <div class="toc-title"><span class="toc-dash"></span>EN ESTE ARTÍCULO</div>
+                        <div class="toc-title"><span class="toc-dash"></span>{isEn ? 'IN THIS ARTICLE' : 'EN ESTE ARTÍCULO'}</div>
                         <div class="toc-body">
                             <div class="toc-track">
                                 <div class="toc-indicator" id="toc-indicator"></div>
@@ -89,9 +95,9 @@ const authorAvatar = entry.data.authorAvatar || 'https://images.unsplash.com/pho
                             </ul>
                         </div>
                         <div class="toc-footer">
-                            <a href="/blog" class="toc-back-link">
+                            <a href={isEn ? "/en/blog" : "/blog"} class="toc-back-link">
                                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                                Volver al Blog
+                                {isEn ? 'Back to Blog' : 'Volver al Blog'}
                             </a>
                         </div>
                     </div>
@@ -129,14 +135,14 @@ const authorAvatar = entry.data.authorAvatar || 'https://images.unsplash.com/pho
                 </div>
             </aside>
         </div>
-        
-        <BlogCTA />
+                <BlogCTA isEn={isEn} />
 
     </main>
 
     <Footer 
-        ctaTitle="Acelera tus ciclos de venta"
-        ctaSub="Con Cord, tus prospectos aprueban y pagan cotizaciones en minutos, no en semanas."
+        ctaTitle={isEn ? "Accelerate your sales cycles" : "Acelera tus ciclos de venta"}
+        ctaSub={isEn ? "With Cord, your prospects approve and pay quotes in minutes, not weeks." : "Con Cord, tus prospectos aprueban y pagan cotizaciones en minutos, no en semanas."}
+        isEn={isEn}
     />
     <PageAnims />
 </Layout>

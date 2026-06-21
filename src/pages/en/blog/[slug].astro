@@ -1,0 +1,18 @@
+---
+export const prerender = true;
+
+import { getCollection } from 'astro:content';
+import BlogPostTemplate from '../../blog/[slug].astro';
+
+export async function getStaticPaths() {
+    const blogEntries = await getCollection('blog');
+    const enEntries = blogEntries.filter(entry => entry.id.startsWith('en/'));
+    return enEntries.map(entry => ({
+        params: { slug: entry.id.replace('en/', '') },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+---
+<BlogPostTemplate entry={entry} isEn={true} />

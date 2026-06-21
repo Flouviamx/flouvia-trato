@@ -9,12 +9,16 @@ import PageAnims from '../components/landing/PageAnims.astro';
 import BlogCTA from '../components/blog/BlogCTA.astro';
 
 import { getCollection } from 'astro:content';
+import { getLangFromUrl } from '../i18n/utils';
 
-const allPosts = await getCollection('blog');
+const lang = getLangFromUrl(Astro.url);
+const isEn = Astro.props.isEn || lang === 'en';
+const collectionDir = isEn ? 'en/' : 'es/';
+const allPosts = (await getCollection('blog')).filter(p => p.id.startsWith(collectionDir));
 
 // Featured post is explicitly handled via the "featured" flag or we just take the first one
-const FEATURED_POST = allPosts.find(p => p.data.featured)?.data || allPosts[0].data;
-const featuredPostId = allPosts.find(p => p.data.featured)?.id || allPosts[0].id;
+const FEATURED_POST = allPosts.find(p => p.data.featured)?.data || allPosts[0]?.data;
+const featuredPostId = allPosts.find(p => p.data.featured)?.id || allPosts[0]?.id;
 
 // Rest of the posts
 const POSTS = allPosts.filter(p => p.id !== featuredPostId).map(p => ({
@@ -22,10 +26,10 @@ const POSTS = allPosts.filter(p => p.id !== featuredPostId).map(p => ({
     ...p.data
 }));
 
-const CATEGORIES = ['Todos', ...new Set(allPosts.map(p => p.data.category))];
+const CATEGORIES = [isEn ? 'All' : 'Todos', ...new Set(allPosts.map(p => p.data.category))];
 
-const featuredAuthorName = FEATURED_POST.authorName || 'Equipo Cord';
-const featuredAuthorRole = FEATURED_POST.authorRole || 'Redacción';
+const featuredAuthorName = FEATURED_POST?.authorName || (isEn ? 'Cord Team' : 'Equipo Cord');
+const featuredAuthorRole = FEATURED_POST?.authorRole || (isEn ? 'Editorial' : 'Redacción');
 
 const getCategoryIcon = (category) => {
     switch (category) {
@@ -44,12 +48,12 @@ const getCategoryIcon = (category) => {
     }
 };
 
-const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-author-avatar.png';
+const featuredAuthorAvatar = FEATURED_POST?.authorAvatar || '/images/blog/cord-author-avatar.png';
 ---
 
 <Layout
-    title="Blog | Cord"
-    description="Artículos, guías y estrategias sobre ventas B2B, facturación, y cómo acelerar tu flujo de ingresos."
+    title={isEn ? "Blog | Cord" : "Blog | Cord"}
+    description={isEn ? "Articles, guides, and strategies on B2B sales, billing, and how to accelerate your revenue." : "Artículos, guías y estrategias sobre ventas B2B, facturación, y cómo acelerar tu flujo de ingresos."}
 >
     <Nav />
     
@@ -72,10 +76,10 @@ const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-au
                 <!-- Top Links Minimalistas -->
                 <div class="hero-top-links reveal">
                     <span class="blog-brand">
-                        <span class="stagger-mask"><span class="stagger-line" style="animation-delay: 0ms">Blog de Cord</span></span>
+                        <span class="stagger-mask"><span class="stagger-line" style="animation-delay: 0ms">{isEn ? 'Cord Blog' : 'Blog de Cord'}</span></span>
                     </span>
                     <a href="https://linkedin.com/company/cord" target="_blank" class="social-link stagger-mask">
-                        <span class="stagger-line" style="animation-delay: 100ms">Cord en LinkedIn <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        <span class="stagger-line" style="animation-delay: 100ms">{isEn ? 'Cord on LinkedIn' : 'Cord en LinkedIn'} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
                     </a>
                 </div>
 
@@ -85,13 +89,13 @@ const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-au
                         <!-- Left: Text -->
                         <div class="fc-text">
                             <div class="fc-meta-top">
-                                <span class="fc-category">{FEATURED_POST.category}</span>
-                                <span class="technical-meta">{FEATURED_POST.date}</span>
+                                <span class="fc-category">{FEATURED_POST?.category}</span>
+                                <span class="technical-meta">{FEATURED_POST?.date}</span>
                             </div>
                             
-                            <h1 class="fc-title">{FEATURED_POST.title}</h1>
+                            <h1 class="fc-title">{FEATURED_POST?.title}</h1>
                             
-                            <p class="fc-excerpt">{FEATURED_POST.excerpt}</p>
+                            <p class="fc-excerpt">{FEATURED_POST?.excerpt}</p>
                             
                             <div class="fc-footer-flex">
                                 <div class="fc-author">
@@ -115,7 +119,7 @@ const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-au
                             <div class="stripe-shape shape-1"></div>
                             <div class="stripe-shape shape-2"></div>
                             <div class="stripe-pattern-overlay"></div>
-                            <div class="abstract-category-icon" set:html={getCategoryIcon(FEATURED_POST.category)}></div>
+                            <div class="abstract-category-icon" set:html={getCategoryIcon(FEATURED_POST?.category)}></div>
                         </div>
                     </a>
                 </div>
@@ -126,7 +130,7 @@ const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-au
         <div class="blog-sticky-nav reveal">
             <div class="blog-filters-glass" id="blog-filters">
                 {CATEGORIES.map((cat, i) => (
-                    <button class={`filter-btn ${i === 0 ? 'active' : ''}`} data-filter={cat === 'Todos' ? 'all' : cat}>
+                    <button class={`filter-btn ${i === 0 ? 'active' : ''}`} data-filter={cat === 'Todos' || cat === 'All' ? 'all' : cat}>
                         {cat}
                     </button>
                 ))}
@@ -155,7 +159,7 @@ const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-au
                                 <h3 class="blog-title">{post.title}</h3>
                                 <p class="blog-excerpt">{post.excerpt}</p>
                                 <div class="blog-read-more">
-                                    Leer artículo
+                                    {isEn ? 'Read article' : 'Leer artículo'}
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                                 </div>
                             </div>
@@ -166,13 +170,14 @@ const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-au
         </section>
 
         <!-- SUSCRIPCIÓN BENTO CTA -->
-        <BlogCTA />
+        <BlogCTA isEn={isEn} />
         
     </main>
 
     <Footer 
-        ctaTitle="¿Listo para acelerar tus cierres?"
-        ctaSub="Empieza gratis hoy — 5 cotizaciones activas al mes, sin tarjeta."
+        ctaTitle={isEn ? "Ready to accelerate your deals?" : "¿Listo para acelerar tus cierres?"}
+        ctaSub={isEn ? "Start for free today — 5 active quotes per month, no credit card." : "Empieza gratis hoy — 5 cotizaciones activas al mes, sin tarjeta."}
+        isEn={isEn}
     />
     <PageAnims />
 </Layout>
