@@ -6,17 +6,19 @@
     <div class="fw-content" id="fwQuestion">
         <h4>¿Te fue útil este artículo?</h4>
         <div class="fw-actions">
-            <button class="fw-btn" data-vote="yes">
-                <span class="fw-icon">👍</span> Sí
+            <button class="fw-btn btn-yes" data-vote="yes">
+                <svg class="fw-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                Sí, fue útil
             </button>
-            <button class="fw-btn" data-vote="no">
-                <span class="fw-icon">👎</span> No
+            <button class="fw-btn btn-no" data-vote="no">
+                <svg class="fw-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg>
+                No realmente
             </button>
         </div>
     </div>
     <div class="fw-content" id="fwThanks" hidden>
-        <h4>¡Gracias por tu retroalimentación!</h4>
-        <p>Nos ayuda a mejorar constantemente el Centro de Ayuda de Cord.</p>
+        <h4>Gracias por tus comentarios</h4>
+        <p>Tu opinión nos ayuda a mejorar continuamente la calidad de nuestros artículos.</p>
     </div>
 </div>
 
@@ -57,25 +59,47 @@
         border: 1px solid var(--color-border);
         background: transparent;
         border-radius: 8px;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 500;
-        color: var(--color-text);
+        color: var(--color-text-muted);
         cursor: pointer;
         transition: all 0.2s;
     }
     .fw-btn:hover {
         background: var(--color-bg-soft);
+        color: var(--color-text);
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
-    .fw-icon {
-        filter: grayscale(100%);
-        transition: filter 0.2s, transform 0.2s;
+    .fw-svg {
+        opacity: 0.7;
+        transition: transform 0.2s, opacity 0.2s;
     }
-    .fw-btn:hover .fw-icon {
-        filter: grayscale(0%);
+    .fw-btn:hover .fw-svg {
+        opacity: 1;
         transform: scale(1.1);
     }
+    
+    /* Estados de selección */
+    .fw-btn.selected-yes {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.4);
+        color: #16a34a;
+    }
+    .fw-btn.selected-yes .fw-svg {
+        opacity: 1;
+        stroke: #16a34a;
+    }
+    .fw-btn.selected-no {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #dc2626;
+    }
+    .fw-btn.selected-no .fw-svg {
+        opacity: 1;
+        stroke: #dc2626;
+    }
+
     .fw-content[hidden] {
         display: none;
     }
@@ -90,12 +114,24 @@
         buttons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const vote = btn.getAttribute('data-vote');
-                // En un entorno real, aquí harías un POST a tu analítica (ej. Vercel Analytics o BD)
+                // Marcar el botón seleccionado
+                if (vote === 'yes') {
+                    btn.classList.add('selected-yes');
+                } else {
+                    btn.classList.add('selected-no');
+                }
+                
+                // Deshabilitar botones
+                buttons.forEach(b => b.setAttribute('disabled', 'true'));
+                
+                // En un entorno real, aquí harías un POST a tu analítica
                 console.log(`User voted: ${vote}`);
                 
-                // Animación de UI
-                questionBox.hidden = true;
-                thanksBox.hidden = false;
+                // Mostrar agradecimiento tras un breve delay
+                setTimeout(() => {
+                    questionBox.hidden = true;
+                    thanksBox.hidden = false;
+                }, 400);
             });
         });
     });
