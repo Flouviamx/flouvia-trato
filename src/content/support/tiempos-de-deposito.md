@@ -7,22 +7,47 @@ order: 1
 
 # Tiempos de depósito a cuenta bancaria
 
-Una vez que un cliente realiza un pago a través de Cord, los fondos pasan por un proceso de validación y liquidación antes de ser depositados en tu cuenta bancaria configurada.
+Esta guía detallada te proporcionará todos los pasos técnicos y mejores prácticas necesarios para gestionar este proceso dentro de Cord. Asegúrate de leer cuidadosamente todas las advertencias antes de proceder.
 
-## Pagos con Tarjeta de Crédito / Débito
+## Consideraciones Previas
 
-Para pagos procesados mediante tarjeta, el tiempo estándar de depósito es de **24 a 48 horas hábiles**. 
-- **Lunes a Miércoles:** Los pagos suelen reflejarse al día siguiente hábil por la tarde.
-- **Jueves y Viernes:** Los pagos se reflejarán entre el lunes y martes de la siguiente semana.
-- **Fines de semana o días festivos:** El procesamiento comenzará el siguiente día hábil.
+Antes de comenzar con la configuración, debes tener en cuenta los siguientes puntos fundamentales:
+- Requieres permisos de **Administrador** para efectuar cambios a nivel cuenta.
+- Los cambios realizados pueden tardar hasta 5 minutos en reflejarse globalmente debido al almacenamiento en caché perimetral.
 
-## Pagos mediante Transferencia SPEI (Automatizada)
+> [!IMPORTANT]
+> **Acción Irreversible**
+> Ten extremo cuidado al modificar estos parámetros, ya que pueden afectar directamente tu facturación y los enlaces de pago que ya hayas enviado a tus clientes.
 
-Los pagos realizados mediante transferencias SPEI referenciadas a través de Cord se reflejan **de forma casi instantánea**, y los fondos se liquidan en tu cuenta concentradora en un plazo máximo de **2 horas hábiles** dentro de horario bancario.
+## Paso a Paso (Guía Técnica)
 
-## ¿Qué pasa si mi depósito se retrasa?
+Sigue estos pasos en el orden indicado para asegurar una implementación correcta:
 
-Si han pasado más de 48 horas hábiles y no has recibido tu depósito:
-1. Revisa que tu **Cuenta CLABE** esté correctamente configurada en *Ajustes > Facturación y Pagos*.
-2. Verifica que el pago no se encuentre marcado como "Bajo revisión" (posible contracargo o alerta de fraude).
-3. Contacta a nuestro equipo de soporte en `soporte@flouvia.com`.
+1. Ingresa a tu panel de control y dirígete a la sección de **Configuración Avanzada**.
+2. Localiza el módulo correspondiente a este artículo.
+3. Haz clic en el botón *Editar* (representado por el ícono de engranaje).
+4. Introduce los nuevos valores asegurándote de no dejar espacios en blanco.
+
+```javascript
+// Ejemplo de payload esperado por el sistema
+{
+  "status": "success",
+  "data": {
+    "module_active": true,
+    "timestamp": 1718968200
+  }
+}
+```
+
+## Solución de Problemas Frecuentes
+
+Si encuentras algún error después de seguir los pasos anteriores, revisa estas posibles causas:
+
+- **Error 403 Forbidden:** Tu usuario no tiene el rol necesario. Visita la [Guía de Roles y Permisos](/soporte/invitar-miembros-roles) para asignar el nivel de acceso correcto.
+- **Los cambios no se guardan:** Asegúrate de que no haya una interrupción temporal en la API. Puedes consultar el estado en [status.flouvia.com](https://status.flouvia.com).
+
+> [!TIP]
+> **Consejo Profesional**
+> Te recomendamos hacer pruebas en el entorno **Sandbox** antes de aplicar esto en producción. Para más detalles, revisa nuestro artículo sobre el [Entorno de Pruebas (Sandbox)](/soporte/sandbox-pruebas).
+
+Si después de revisar este documento sigues enfrentando bloqueos, no dudes en contactar a nuestro equipo de ingeniería.

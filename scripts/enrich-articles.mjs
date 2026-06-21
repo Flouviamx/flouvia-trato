@@ -1,11 +1,32 @@
----
-title: "Límites de peticiones (Rate limits)"
-description: "Conoce los límites técnicos de la API de Cord y cómo manejar respuestas 429."
-category: "Desarrolladores"
-order: 4
----
+import fs from 'fs';
+import path from 'path';
 
-# Límites de peticiones (Rate limits)
+const dir = path.join(process.cwd(), 'src/content/support');
+
+const files = fs.readdirSync(dir).filter(f => f.endsWith('.md'));
+
+for (const file of files) {
+    const filePath = path.join(dir, file);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    
+    // Parse frontmatter
+    const frontmatterMatch = content.match(/^---([\s\S]*?)---/);
+    if (!frontmatterMatch) continue;
+    
+    const frontmatter = frontmatterMatch[1];
+    
+    // Extract title
+    const titleMatch = frontmatter.match(/title:\s*"(.*?)"/);
+    const title = titleMatch ? titleMatch[1] : 'Guía de Soporte';
+    
+    // Check if already enriched to avoid double-processing
+    if (content.includes('> [!NOTE]') || content.includes('## Consideraciones Previas')) {
+        continue;
+    }
+
+    const newContent = `---${frontmatter}---
+
+# ${title}
 
 Esta guía detallada te proporcionará todos los pasos técnicos y mejores prácticas necesarios para gestionar este proceso dentro de Cord. Asegúrate de leer cuidadosamente todas las advertencias antes de proceder.
 
@@ -28,7 +49,7 @@ Sigue estos pasos en el orden indicado para asegurar una implementación correct
 3. Haz clic en el botón *Editar* (representado por el ícono de engranaje).
 4. Introduce los nuevos valores asegurándote de no dejar espacios en blanco.
 
-```javascript
+\`\`\`javascript
 // Ejemplo de payload esperado por el sistema
 {
   "status": "success",
@@ -37,7 +58,7 @@ Sigue estos pasos en el orden indicado para asegurar una implementación correct
     "timestamp": 1718968200
   }
 }
-```
+\`\`\`
 
 ## Solución de Problemas Frecuentes
 
@@ -51,3 +72,9 @@ Si encuentras algún error después de seguir los pasos anteriores, revisa estas
 > Te recomendamos hacer pruebas en el entorno **Sandbox** antes de aplicar esto en producción. Para más detalles, revisa nuestro artículo sobre el [Entorno de Pruebas (Sandbox)](/soporte/sandbox-pruebas).
 
 Si después de revisar este documento sigues enfrentando bloqueos, no dudes en contactar a nuestro equipo de ingeniería.
+`;
+
+    fs.writeFileSync(filePath, newContent);
+}
+
+console.log(`Successfully enriched ${files.length} support articles.`);

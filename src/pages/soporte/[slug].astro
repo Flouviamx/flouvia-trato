@@ -17,6 +17,24 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+// Build navigation (Sidebar & Pagination)
+const allSupport = await getCollection('support');
+const categoryEntries = allSupport
+    .filter(a => a.data.category === entry.data.category)
+    // Optional: Sort by an "order" field if present, otherwise by title
+    .sort((a, b) => {
+        if (a.data.order && b.data.order) return a.data.order - b.data.order;
+        return a.data.title.localeCompare(b.data.title);
+    });
+
+const currentIndex = categoryEntries.findIndex(a => a.id === entry.id);
+const prevEntry = currentIndex > 0 ? categoryEntries[currentIndex - 1] : null;
+const nextEntry = currentIndex < categoryEntries.length - 1 ? categoryEntries[currentIndex + 1] : null;
+
+// Helper to format category for URLs
+const slugifyCategory = (cat: string) => cat.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'y').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const catSlug = slugifyCategory(entry.data.category);
 ---
 
 <Layout
@@ -26,10 +44,54 @@ const { Content } = await render(entry);
     <Nav />
     <main class="article-layout">
         <div class="article-container reveal">
-            <a href="/soporte" class="back-link">← Volver al Centro de Ayuda</a>
-            <article class="markdown-body">
-                <Content />
-            </article>
+            <!-- Left Sidebar -->
+            <aside class="article-sidebar">
+                <a href="/soporte" class="back-link">← Centro de Ayuda</a>
+                <div class="sidebar-category">
+                    <h3>{entry.data.category}</h3>
+                    <nav class="sidebar-nav">
+                        {categoryEntries.map(item => (
+                            <a href={`/soporte/${item.id}`} class={`sidebar-link ${item.id === entry.id ? 'active' : ''}`}>
+                                {item.data.title}
+                            </a>
+                        ))}
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="article-main">
+                <nav class="breadcrumbs">
+                    <a href="/soporte">Soporte</a>
+                    <span class="separator">/</span>
+                    <a href={`/soporte/categoria/${catSlug}`}>{entry.data.category}</a>
+                    <span class="separator">/</span>
+                    <span class="current">{entry.data.title}</span>
+                </nav>
+
+                <article class="markdown-body">
+                    <Content />
+                </article>
+
+                <hr class="article-divider" />
+
+                <!-- Next / Prev Pagination -->
+                <nav class="article-pagination">
+                    {prevEntry ? (
+                        <a href={`/soporte/${prevEntry.id}`} class="pagination-link prev">
+                            <span class="pag-label">← Anterior</span>
+                            <span class="pag-title">{prevEntry.data.title}</span>
+                        </a>
+                    ) : <div></div>}
+
+                    {nextEntry ? (
+                        <a href={`/soporte/${nextEntry.id}`} class="pagination-link next">
+                            <span class="pag-label">Siguiente →</span>
+                            <span class="pag-title">{nextEntry.data.title}</span>
+                        </a>
+                    ) : <div></div>}
+                </nav>
+            </div>
         </div>
     </main>
     <Footer ctaTitle="¿Necesitas más ayuda?" ctaSub="Contacta a nuestro equipo especializado." />
@@ -43,20 +105,142 @@ const { Content } = await render(entry);
         min-height: 80vh;
     }
     .article-container {
-        max-width: 760px;
+        max-width: 1100px;
         margin: 0 auto;
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 60px;
+        align-items: start;
+    }
+    
+    /* Sidebar */
+    .article-sidebar {
+        position: sticky;
+        top: 120px;
     }
     .back-link {
         display: inline-block;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         color: var(--color-text-muted);
         text-decoration: none;
         font-weight: 500;
         font-size: 0.95rem;
         transition: color 0.2s;
     }
-    .back-link:hover {
+    .back-link:hover { color: var(--color-blue-deep); }
+    
+    .sidebar-category h3 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--color-text-muted);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .sidebar-link {
+        color: var(--color-text);
+        text-decoration: none;
+        font-size: 0.95rem;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-left: -12px;
+        transition: background 0.2s, color 0.2s;
+        line-height: 1.4;
+    }
+    .sidebar-link:hover {
+        background: rgba(10,25,47,0.04);
+    }
+    .sidebar-link.active {
         color: var(--color-blue-deep);
+        font-weight: 600;
+        background: rgba(10,25,47,0.06);
+    }
+
+    /* Main Content */
+    .article-main {
+        min-width: 0; /* Prevent flex overflow */
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 3rem;
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+    }
+    .breadcrumbs a {
+        color: var(--color-text-muted);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .breadcrumbs a:hover { color: var(--color-blue-deep); }
+    .breadcrumbs .separator { opacity: 0.5; }
+    .breadcrumbs .current {
+        color: var(--color-text);
+        font-weight: 500;
+    }
+
+    /* Pagination */
+    .article-divider {
+        border: none;
+        border-top: 1px solid var(--color-border);
+        margin: 4rem 0 2rem;
+    }
+    .article-pagination {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+    }
+    .pagination-link {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        padding: 1.5rem;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        flex: 1;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .pagination-link:hover {
+        border-color: rgba(10,25,47,0.15);
+        box-shadow: 0 8px 20px rgba(10,25,47,0.04);
+    }
+    .pagination-link.next { text-align: right; }
+    .pag-label {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+    }
+    .pag-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-blue-deep);
+    }
+
+    @media (max-width: 900px) {
+        .article-container {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+        .article-sidebar {
+            position: static;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 2rem;
+        }
+        .article-pagination {
+            flex-direction: column;
+        }
+        .pagination-link.next { text-align: left; }
     }
     
     /* Estilos básicos para el contenido Markdown */
@@ -100,5 +284,63 @@ const { Content } = await render(entry);
         color: var(--color-blue-deep);
         text-decoration: underline;
         text-underline-offset: 4px;
+    }
+    /* GitHub Alerts Styling */
+    .markdown-body :global(.github-alert) {
+        padding: 1.25rem 1.5rem;
+        border-radius: 12px;
+        margin: 2rem 0;
+        background: rgba(10,25,47,0.03);
+        border-left: 4px solid var(--color-text-muted);
+    }
+    .markdown-body :global(.github-alert-note) {
+        border-left-color: #0969da;
+        background: rgba(9,105,218,0.05);
+    }
+    .markdown-body :global(.github-alert-tip) {
+        border-left-color: #1a7f37;
+        background: rgba(26,127,55,0.05);
+    }
+    .markdown-body :global(.github-alert-important) {
+        border-left-color: #8250df;
+        background: rgba(130,80,223,0.05);
+    }
+    .markdown-body :global(.github-alert-warning) {
+        border-left-color: #bf8700;
+        background: rgba(191,135,0,0.05);
+    }
+    .markdown-body :global(.github-alert-title) {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+    .markdown-body :global(.github-alert-note .github-alert-title) { color: #0969da; }
+    .markdown-body :global(.github-alert-tip .github-alert-title) { color: #1a7f37; }
+    .markdown-body :global(.github-alert-important .github-alert-title) { color: #8250df; }
+    .markdown-body :global(.github-alert-warning .github-alert-title) { color: #bf8700; }
+    
+    .markdown-body :global(pre) {
+        background: #0d1117;
+        color: #c9d1d9;
+        padding: 1.5rem;
+        border-radius: 12px;
+        overflow-x: auto;
+        margin: 2rem 0;
+        font-size: 0.95rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .markdown-body :global(code) {
+        background: rgba(10,25,47,0.05);
+        padding: 0.2em 0.4em;
+        border-radius: 6px;
+        font-size: 0.9em;
+        font-family: monospace;
+    }
+    .markdown-body :global(pre code) {
+        background: transparent;
+        padding: 0;
     }
 </style>
