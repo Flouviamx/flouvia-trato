@@ -77,7 +77,9 @@ const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-au
                             
                             <div class="fc-footer-flex">
                                 <div class="fc-author">
-                                    <img src={featuredAuthorAvatar} alt={featuredAuthorName} />
+                                    <div class="fc-author-initial">
+                                        {featuredAuthorName.charAt(0).toUpperCase()}
+                                    </div>
                                     <div class="fc-author-info">
                                         <strong>{featuredAuthorName}</strong>
                                         <span class="technical-meta">{featuredAuthorRole}</span>
@@ -400,7 +402,15 @@ const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-au
     .fc-author {
         display: flex; align-items: center; gap: 1rem;
     }
-    .fc-author img { width: 44px; height: 44px; border-radius: 50%; }
+    .fc-author-initial {
+        width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+        background: linear-gradient(135deg, #0a2540 0%, #3b82f6 100%);
+        color: #fff; display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 1.1rem;
+    }
+    :global(html[data-theme="dark"]) .fc-author-initial {
+        background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+    }
     .fc-author-info { display: flex; flex-direction: column; gap: 2px; }
     .fc-author-info strong { font-size: 0.95rem; font-weight: 700; color: #111827; }
     :global(html[data-theme="dark"]) .fc-author-info strong { color: #fff; }
@@ -451,13 +461,13 @@ const featuredAuthorAvatar = FEATURED_POST.authorAvatar || '/images/blog/cord-au
     .floating-card:hover .abstract-category-icon { transform: rotate(0deg) scale(1.05); }
     .blog-card-link:hover .abstract-category-icon { transform: rotate(0deg) scale(1.1); }
 
-    /* Stripe Gradients */
-    .gradient-featured { background: linear-gradient(135deg, #0a2540 0%, #6366f1 100%); }
-    .gradient-1 { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
-    .gradient-2 { background: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%); }
-    .gradient-3 { background: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%); }
-    .gradient-4 { background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%); }
-    .gradient-5 { background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); }
+    /* Flouvia Tech-forward Gradients (Monochromatic & Glass) */
+    .gradient-featured { background: linear-gradient(135deg, #0a2540 0%, #3b82f6 100%); }
+    .gradient-1 { background: linear-gradient(135deg, #0f172a 0%, #06b6d4 100%); }
+    .gradient-2 { background: linear-gradient(135deg, #1e3a8a 0%, #60a5fa 100%); }
+    .gradient-3 { background: linear-gradient(135deg, #172554 0%, #38bdf8 100%); }
+    .gradient-4 { background: linear-gradient(135deg, #082f49 0%, #2dd4bf 100%); }
+    .gradient-5 { background: linear-gradient(135deg, #111827 0%, #94a3b8 100%); }
 
     /* ==========================================================
        FILTROS (GLASS PILL)
