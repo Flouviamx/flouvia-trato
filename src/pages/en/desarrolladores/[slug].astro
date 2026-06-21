@@ -1,0 +1,12 @@
+---
+import DesarrolladoresTemplate from '../../../pages/desarrolladores/[slug].astro';
+import { DEV_PAGES_EN } from '../../../lib/desarrolladores.en';
+
+export function getStaticPaths() {
+    return DEV_PAGES_EN.map((p) => ({ params: { slug: p.slug }, props: { page: p } }));
+}
+
+const { page } = Astro.props;
+---
+
+<DesarrolladoresTemplate page={page} isEn={true} />

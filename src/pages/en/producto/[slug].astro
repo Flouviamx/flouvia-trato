@@ -1,0 +1,12 @@
+---
+import ProductoTemplate from '../../../pages/producto/[slug].astro';
+import { FEATURES_EN } from '../../../lib/producto.en';
+
+export function getStaticPaths() {
+    return FEATURES_EN.map((f) => ({ params: { slug: f.slug }, props: { feature: f } }));
+}
+
+const { feature } = Astro.props;
+---
+
+<ProductoTemplate feature={feature} isEn={true} />

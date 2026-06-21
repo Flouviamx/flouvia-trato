@@ -13,7 +13,7 @@ const l = (p: string) => lang === 'es' ? p : `/en${p === '/' ? '' : p}`;
     <div class="cv-inner">
         <div class="cv-text">
             <p class="cv-eyebrow reveal">{t("cv.eyebrow")}</p>
-            <h2 class="cv-title reveal">{t("cv.title")}</h2>
+            <h2 class="cv-title reveal" set:html={t("cv.title")} />
             <p class="cv-p reveal">
                 {t("cv.p")}
             </p>
@@ -44,9 +44,9 @@ const l = (p: string) => lang === 'es' ? p : `/en${p === '/' ? '' : p}`;
                     </div>
 
                     <div class="ps-items">
-                        <div class="ps-item"><span>Cemento gris 50kg ×120</span><span class="editorial">$21,840</span></div>
-                        <div class="ps-item"><span>Varilla 3/8" ×340</span><span class="editorial">$57,290</span></div>
-                        <div class="ps-item"><span>Block hueco ×2,400</span><span class="editorial">$34,080</span></div>
+                        <div class="ps-item"><span>{lang === 'en' ? 'Grey cement 50kg' : 'Cemento gris 50kg'} ×120</span><span class="editorial">$21,840</span></div>
+                        <div class="ps-item"><span>{lang === 'en' ? 'Rebar 3/8"' : 'Varilla 3/8"'} ×340</span><span class="editorial">$57,290</span></div>
+                        <div class="ps-item"><span>{lang === 'en' ? 'Hollow block' : 'Block hueco'} ×2,400</span><span class="editorial">$34,080</span></div>
                         <div class="ps-item ps-more">{t("cv.mk.more")}</div>
                     </div>
 

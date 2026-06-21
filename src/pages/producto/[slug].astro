@@ -10,13 +10,18 @@ import Footer from '../../components/landing/Footer.astro';
 import PageAnims from '../../components/landing/PageAnims.astro';
 import BlockMockup from '../../components/producto/BlockMockup.astro';
 import { FEATURES } from '../../lib/producto';
+import { FEATURES_EN } from '../../lib/producto.en';
+import { getLangFromUrl } from '../../i18n/utils';
 
 export function getStaticPaths() {
     return FEATURES.map((f) => ({ params: { slug: f.slug }, props: { feature: f } }));
 }
 
-const { feature } = Astro.props;
-const otros = FEATURES.filter((f) => f.slug !== feature.slug);
+const lang = getLangFromUrl(Astro.url);
+const isEn = Astro.props.isEn || lang === 'en';
+const currentFeature = Astro.props.feature || Astro.props.feature;
+const feature = isEn && currentFeature ? FEATURES_EN.find((f) => f.slug === currentFeature.slug) || currentFeature : currentFeature;
+const otros = (isEn ? FEATURES_EN : FEATURES).filter((f) => f.slug !== feature.slug);
 const tituloPlano = feature.titulo.replace(/<br\s*\/?>/gi, ' ');
 
 // ── Datos estructurados (JSON-LD) — FAQPage: lo que extraen los AI Overviews.
@@ -52,10 +57,10 @@ const faqSchema = {
                 <p class="pp-sub reveal">{feature.sub}</p>
                 <div class="pp-actions reveal">
                     <a href="/registro" class="pp-btn-primary">
-                        <span>Empezar gratis</span>
+                        <span>{isEn ? 'Start for free' : 'Empezar gratis'}</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </a>
-                    <a href="/q/demo" class="pp-btn-ghost">Ver una cotización real</a>
+                    <a href="/q/demo" class="pp-btn-ghost">{isEn ? 'See a real quote' : 'Ver una cotización real'}</a>
                 </div>
                 <p class="pp-plan reveal">{feature.plan}</p>
 
@@ -70,34 +75,34 @@ const faqSchema = {
                             <div class="mk-window">
                                 <div class="mk-bar">
                                     <span class="mk-dots"><i></i><i></i><i></i></span>
-                                    <span class="mk-bar-title">COT-0149 · Distribuidora El Zarco</span>
+                                    <span class="mk-bar-title">COT-0149 · {isEn ? 'El Zarco Distribution' : 'Distribuidora El Zarco'}</span>
                                     <div class="mk-bar-actions">
                                         <span class="mk-avatar-sm">RM</span>
-                                        <span class="mk-badge mk-badge-draft">● Borrador</span>
+                                        <span class="mk-badge mk-badge-draft">● {isEn ? 'Draft' : 'Borrador'}</span>
                                     </div>
                                 </div>
                                 <div class="mk-body">
                                     <div class="mk-sidebar">
-                                        <div class="mk-sb-item mk-sb-active"><i>📄</i> Cotización actual</div>
-                                        <div class="mk-sb-item"><i>👤</i> Datos del cliente</div>
-                                        <div class="mk-sb-item"><i>⚙️</i> Configuración</div>
+                                        <div class="mk-sb-item mk-sb-active"><i>📄</i> {isEn ? 'Current quote' : 'Cotización actual'}</div>
+                                        <div class="mk-sb-item"><i>👤</i> {isEn ? 'Client details' : 'Datos del cliente'}</div>
+                                        <div class="mk-sb-item"><i>⚙️</i> {isEn ? 'Settings' : 'Configuración'}</div>
                                     </div>
                                     <div class="mk-content">
                                         <div class="mk-rows">
-                                            <div class="mk-row mk-row-head"><span>Producto</span><span>Cant.</span><span>Precio</span><span>Importe</span></div>
-                                            <div class="mk-row"><span>Cemento gris 50kg</span><span>120</span><span class="editorial">$182.00</span><span class="editorial">$21,840.00</span></div>
+                                            <div class="mk-row mk-row-head"><span>{isEn ? 'Product' : 'Producto'}</span><span>{isEn ? 'Qty' : 'Cant.'}</span><span>{isEn ? 'Price' : 'Precio'}</span><span>{isEn ? 'Amount' : 'Importe'}</span></div>
+                                            <div class="mk-row"><span>{isEn ? 'Grey cement 50kg' : 'Cemento gris 50kg'}</span><span>120</span><span class="editorial">$182.00</span><span class="editorial">$21,840.00</span></div>
                                             <div class="mk-row mk-row-edit" id="editorTargetRow">
-                                                <span>Varilla 3/8" × 12m</span><span>340</span>
+                                                <span>{isEn ? 'Rebar 3/8" × 12m' : 'Varilla 3/8" × 12m'}</span><span>340</span>
                                                 <span class="editorial mk-green" id="editorPrice">$191.48 <i class="mk-chip" id="editorChip">−12%</i></span>
                                                 <span class="editorial" id="editorImport">$65,103.20</span>
                                             </div>
-                                            <div class="mk-row"><span>Block hueco 15×20×40</span><span>2,400</span><span class="editorial">$14.20</span><span class="editorial">$34,080.00</span></div>
-                                            <div class="mk-row"><span>Malla electrosoldada 6×6</span><span>180</span><span class="editorial">$312.00</span><span class="editorial">$56,160.00</span></div>
+                                            <div class="mk-row"><span>{isEn ? 'Hollow block 15×20×40' : 'Block hueco 15×20×40'}</span><span>2,400</span><span class="editorial">$14.20</span><span class="editorial">$34,080.00</span></div>
+                                            <div class="mk-row"><span>{isEn ? 'Welded wire mesh 6×6' : 'Malla electrosoldada 6×6'}</span><span>180</span><span class="editorial">$312.00</span><span class="editorial">$56,160.00</span></div>
                                         </div>
                                         <div class="mk-totals">
-                                            <div class="mk-tot-col"><span>Subtotal</span><b class="editorial">$169,370.00</b></div>
-                                            <div class="mk-tot-col"><span>IVA 16%</span><b class="editorial">$27,099.20</b></div>
-                                            <div class="mk-tot-col mk-tot-final"><span>Total</span><b class="editorial" id="editorTotal">$196,469.20</b></div>
+                                            <div class="mk-tot-col"><span>{isEn ? 'Subtotal' : 'Subtotal'}</span><b class="editorial">$169,370.00</b></div>
+                                            <div class="mk-tot-col"><span>{isEn ? 'Tax (16%)' : 'IVA 16%'}</span><b class="editorial">$27,099.20</b></div>
+                                            <div class="mk-tot-col mk-tot-final"><span>{isEn ? 'Total' : 'Total'}</span><b class="editorial" id="editorTotal">$196,469.20</b></div>
                                         </div>
                                     </div>
                                 </div>
@@ -114,29 +119,29 @@ const faqSchema = {
                                     <div class="mk-public-head">
                                         <span class="mk-avatar">MV</span>
                                         <div>
-                                            <b>Materiales del Valle</b>
-                                            <i>te envió una cotización</i>
+                                            <b>{isEn ? 'Valle Materials' : 'Materiales del Valle'}</b>
+                                            <i>{isEn ? 'sent you a quote' : 'te envió una cotización'}</i>
                                         </div>
                                         <span class="mk-badge mk-badge-sent">● COT-0148</span>
                                     </div>
                                     <div class="mk-public-total">
-                                        <span>Total con IVA</span>
+                                        <span>{isEn ? 'Total with tax' : 'Total con IVA'}</span>
                                         <b class="editorial">$196,469.20</b>
-                                        <i>Net 30 · vigente al 24 jun 2026</i>
+                                        <i>Net 30 · {isEn ? 'valid until Jun 24, 2026' : 'vigente al 24 jun 2026'}</i>
                                     </div>
                                     <div class="mk-public-actions">
                                         <div class="mk-btn-wrap" id="publicApproveBtn">
                                             <div class="mk-btn-glow" id="publicGlow"></div>
-                                            <span class="mk-approve">Aprobar cotización</span>
+                                            <span class="mk-approve">{isEn ? 'Approve quote' : 'Aprobar cotización'}</span>
                                         </div>
-                                        <span class="mk-reject">Rechazar</span>
+                                        <span class="mk-reject">{isEn ? 'Reject' : 'Rechazar'}</span>
                                     </div>
                                     <span class="mk-via">vía <b>cord</b></span>
                                 </div>
                                 <div class="mk-success-overlay" id="publicSuccess">
                                     <div class="mk-success-ring"></div>
                                     <i class="mk-success-check">✓</i>
-                                    <b>¡Aprobada exitosamente!</b>
+                                    <b>¡{isEn ? 'Successfully approved!' : 'Aprobada exitosamente!'}</b>
                                 </div>
                             </div>
                         )}
@@ -147,16 +152,16 @@ const faqSchema = {
                                     <div class="mk-toast" id="trackToast">
                                         <span class="mk-toast-dot"></span>
                                         <div class="mk-toast-content">
-                                            <b>Raúl Mendoza</b> abrió tu cotización
+                                            <b>Raúl Mendoza</b> {isEn ? 'opened your quote' : 'abrió tu cotización'}
                                             <i>hace 3 min</i>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="mk-tl">
-                                    <div class="mk-tl-row mk-on track-item"><i class="ok">✓</i><div class="mk-tl-info"><b>Aprobada</b><span>El Zarco aprobó la cotización · hoy, 12:36</span></div><span class="mk-avatar-sm">EZ</span></div>
+                                    <div class="mk-tl-row mk-on track-item"><i class="ok">✓</i><div class="mk-tl-info"><b>{isEn ? 'Approved' : 'Aprobada'}</b><span>El Zarco aprobó la cotización · hoy, 12:36</span></div><span class="mk-avatar-sm">EZ</span></div>
                                     <div class="mk-tl-row mk-on track-item"><i class="warn">👁</i><div class="mk-tl-info"><b>Vista (3 veces)</b><span>Raúl Mendoza abrió el link · hoy, 12:31</span></div><span class="mk-avatar-sm">RM</span></div>
                                     <div class="mk-tl-row track-item"><i>✉️</i><div class="mk-tl-info"><b>Enviada</b><span>Por correo y WhatsApp · hoy, 11:02</span></div></div>
-                                    <div class="mk-tl-row track-item"><i>📄</i><div class="mk-tl-info"><b>Creada</b><span>Borrador COT-0148 · hoy, 10:41</span></div></div>
+                                    <div class="mk-tl-row track-item"><i>📄</i><div class="mk-tl-info"><b>Creada</b><span>{isEn ? 'Draft' : 'Borrador'} COT-0148 · hoy, 10:41</span></div></div>
                                 </div>
                             </div>
                         )}
@@ -165,10 +170,10 @@ const faqSchema = {
                             <div class="mk-cfdi">
                                 <div class="mk-cfdi-bg-code">
                                     &lt;cfdi:Comprobante Version="4.0" Serie="A" Folio="1048" Fecha="2026-06-24T12:00:00"&gt;<br/>
-                                    &nbsp;&nbsp;&lt;cfdi:Emisor Rfc="MVA240611AB3" Nombre="Materiales del Valle" RegimenFiscal="601"/&gt;<br/>
-                                    &nbsp;&nbsp;&lt;cfdi:Receptor Rfc="DEZ981123QX1" Nombre="Distribuidora El Zarco" UsoCFDI="G03"/&gt;<br/>
+                                    &nbsp;&nbsp;&lt;cfdi:Emisor Rfc="MVA240611AB3" Nombre="{isEn ? 'Valle Materials' : 'Materiales del Valle'}" RegimenFiscal="601"/&gt;<br/>
+                                    &nbsp;&nbsp;&lt;cfdi:Receptor Rfc="DEZ981123QX1" Nombre="{isEn ? 'El Zarco Distribution' : 'Distribuidora El Zarco'}" UsoCFDI="G03"/&gt;<br/>
                                     &nbsp;&nbsp;&lt;cfdi:Conceptos&gt;<br/>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;cfdi:Concepto ClaveProdServ="30111500" Cantidad="120" ClaveUnidad="H87" Descripcion="Cemento gris 50kg"/&gt;<br/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;cfdi:Concepto ClaveProdServ="30111500" Cantidad="120" ClaveUnidad="H87" Descripcion="{isEn ? 'Grey cement 50kg' : 'Cemento gris 50kg'}"/&gt;<br/>
                                     &nbsp;&nbsp;&lt;/cfdi:Conceptos&gt;<br/>
                                     &lt;/cfdi:Comprobante&gt;
                                 </div>
@@ -179,9 +184,9 @@ const faqSchema = {
                                     </div>
                                     <div class="mk-cfdi-rows">
                                         <div><span>UUID</span><b class="editorial">a1b2c3d4-9f01-4e22-b7aa-3c5d8e2f11f9</b></div>
-                                        <div><span>Emisor</span><b>Materiales del Valle · MVA240611AB3</b></div>
-                                        <div><span>Receptor</span><b>Distribuidora El Zarco · DEZ981123QX1</b></div>
-                                        <div><span>Total</span><b class="editorial">$196,469.20 MXN</b></div>
+                                        <div><span>Emisor</span><b>{isEn ? 'Valle Materials' : 'Materiales del Valle'} · MVA240611AB3</b></div>
+                                        <div><span>Receptor</span><b>{isEn ? 'El Zarco Distribution' : 'Distribuidora El Zarco'} · DEZ981123QX1</b></div>
+                                        <div><span>{isEn ? 'Total' : 'Total'}</span><b class="editorial">$196,469.20 MXN</b></div>
                                     </div>
                                     <div class="mk-cfdi-stamp" id="cfdiStamp">
                                         <div class="mk-stamp-ring"></div>
@@ -196,7 +201,7 @@ const faqSchema = {
                             <div class="mk-cli">
                                 <div class="mk-cli-row cli-item">
                                     <span class="mk-avatar mk-avatar-ez">EZ</span>
-                                    <div class="mk-cli-info"><b>Distribuidora El Zarco</b><i>Raúl Mendoza · DEZ981123QX1</i></div>
+                                    <div class="mk-cli-info"><b>{isEn ? 'El Zarco Distribution' : 'Distribuidora El Zarco'}</b><i>Raúl Mendoza · DEZ981123QX1</i></div>
                                     <div class="mk-term-wrap"><span class="mk-term">Net 30</span></div>
                                     <div class="mk-credit">
                                         <div class="mk-credit-bar"><i style="width: 85%" class="warn-bar"></i></div>
@@ -229,7 +234,7 @@ const faqSchema = {
                                 <div class="mk-ar-head">
                                     <span class="mk-avatar mk-avatar-ez">EZ</span>
                                     <div>
-                                        <b>Distribuidora El Zarco</b>
+                                        <b>{isEn ? 'El Zarco Distribution' : 'Distribuidora El Zarco'}</b>
                                         <i>COT-0131 · $412,300 por cobrar</i>
                                     </div>
                                     <span class="mk-badge mk-ar-overdue">● 47 días vencido</span>
@@ -294,13 +299,13 @@ const faqSchema = {
                                 <div class="mk-intl-pill" id="intlPill">🔒 Tasa blindada</div>
                                 <div class="mk-intl-body">
                                     <div class="mk-rows mk-rows-intl">
-                                        <div class="mk-row mk-row-head"><span>Producto</span><span>Cant.</span><span>Precio USD</span><span>Importe</span></div>
+                                        <div class="mk-row mk-row-head"><span>{isEn ? 'Product' : 'Producto'}</span><span>{isEn ? 'Qty' : 'Cant.'}</span><span>{isEn ? 'Price' : 'Precio'} USD</span><span>{isEn ? 'Amount' : 'Importe'}</span></div>
                                         <div class="mk-row"><span>Válvula industrial 4"</span><span>40</span><span class="editorial">$182.00</span><span class="editorial">$7,280.00</span></div>
                                         <div class="mk-row"><span>Acople bridado 6"</span><span>25</span><span class="editorial">$208.02</span><span class="editorial">$5,200.50</span></div>
                                     </div>
                                     <div class="mk-intl-totals">
-                                        <div class="mk-intl-tot"><span>Total (USD) · presentación</span><b class="editorial">USD 12,480.00</b></div>
-                                        <div class="mk-intl-tot mk-intl-tot-fiscal" id="intlFiscal"><span>Total fiscal (MXN) · se factura</span><b class="editorial">$230,880.00</b></div>
+                                        <div class="mk-intl-tot"><span>{isEn ? 'Total' : 'Total'} (USD) · presentación</span><b class="editorial">USD 12,480.00</b></div>
+                                        <div class="mk-intl-tot mk-intl-tot-fiscal" id="intlFiscal"><span>{isEn ? 'Total' : 'Total'} fiscal (MXN) · se factura</span><b class="editorial">$230,880.00</b></div>
                                         <span class="mk-intl-rate">Tasa 18.50 · congelada 30 días</span>
                                     </div>
                                 </div>
@@ -356,7 +361,7 @@ const faqSchema = {
         <section class="pp-faq">
             <div class="pp-faq-head">
                 <p class="pp-eyebrow reveal">PREGUNTAS FRECUENTES</p>
-                <h2 class="pp-h2 masked-title">Lo que más nos preguntan<br/>sobre {feature.nav.toLowerCase()}.</h2>
+                <h2 class="pp-h2 masked-title">{isEn ? 'Most common questions<br/>about' : 'Lo que más nos preguntan<br/>sobre'} {feature.nav.toLowerCase()}.</h2>
             </div>
             <div class="pp-faq-list">
                 {feature.faqs.map((f, i) => (
@@ -377,7 +382,7 @@ const faqSchema = {
         <section class="pp-more">
             <div class="pp-more-head">
                 <p class="pp-eyebrow reveal">MÁS DE CORD</p>
-                <h2 class="pp-h2 masked-title">Explora el resto<br/>del producto.</h2>
+                <h2 class="pp-h2 masked-title">{isEn ? 'Explore the rest<br/>of the product.' : 'Explora el resto<br/>del producto.'}</h2>
             </div>
             <div class="pp-more-grid">
                 {otros.map((f) => (

@@ -11,13 +11,18 @@ import Footer from '../../components/landing/Footer.astro';
 import PageAnims from '../../components/landing/PageAnims.astro';
 import DevBlockMockup from '../../components/desarrolladores/DevBlockMockup.astro';
 import { DEV_PAGES } from '../../lib/desarrolladores';
+import { DEV_PAGES_EN } from '../../lib/desarrolladores.en';
+import { getLangFromUrl } from '../../i18n/utils';
 
 export function getStaticPaths() {
     return DEV_PAGES.map((p) => ({ params: { slug: p.slug }, props: { page: p } }));
 }
 
-const { page } = Astro.props;
-const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
+const lang = getLangFromUrl(Astro.url);
+const isEn = Astro.props.isEn || lang === 'en';
+const currentPage = Astro.props.page || Astro.props.page;
+const page = isEn && currentPage ? DEV_PAGES_EN.find((p) => p.slug === currentPage.slug) || currentPage : currentPage;
+const otra = (isEn ? DEV_PAGES_EN : DEV_PAGES).find((p) => p.slug !== page.slug)!;
 ---
 
 <Layout title={`${page.nav} — Cord`} description={page.sub}>
@@ -32,7 +37,7 @@ const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
                 <p class="pp-sub reveal">{page.sub}</p>
                 <div class="pp-actions reveal">
                     <a href="/registro" class="pp-btn-primary">
-                        <span>Empezar gratis</span>
+                        <span>{isEn ? 'Start for free' : 'Empezar gratis'}</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </a>
                     <a href="/precios" class="pp-btn-ghost">Ver planes</a>
@@ -49,21 +54,21 @@ const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
                                     <span class="dv-dots"><i></i><i></i><i></i></span>
                                     <span class="dv-method">POST</span>
                                     <span class="dv-endpoint">/api/v1/cotizaciones</span>
-                                    <span class="dv-api-stat" id="apiStat">enviando…</span>
+                                    <span class="dv-api-stat" id="apiStat">{isEn ? 'sending...' : 'enviando…'}</span>
                                 </div>
                                 <div class="dv-api-body">
                                     <div class="dv-api-req"><code><span class="c-prompt">$</span> curl -X POST <span class="c-path">/api/v1/cotizaciones</span> \
   -H <span class="c-str">"Authorization: Bearer </span><span class="dv-keytok">sk_live_8f2a••••</span><span class="c-str">"</span> \
   -d <span class="c-str">'{`{`} "cliente_id": "c_8f2a", "items": [ … ] {`}`}'</span></code></div>
-                                    <div class="dv-api-divider"><span class="dv-api-sending" id="apiSending">●&nbsp;&nbsp;enviando</span></div>
+                                    <div class="dv-api-divider"><span class="dv-api-sending" id="apiSending">●&nbsp;&nbsp;{isEn ? 'sending' : 'enviando'}</span></div>
                                     <pre class="dv-api-res"><code><span class="dv-line">{`{`}</span>
 <span class="dv-line">  <span class="c-key">"id"</span>: <span class="c-str">"q_19a…"</span>,</span>
 <span class="dv-line">  <span class="c-key">"folio"</span>: <span class="c-str">"COT-0149"</span>,</span>
-<span class="dv-line">  <span class="c-key">"cliente"</span>: <span class="c-str">"Distribuidora El Zarco"</span>,</span>
+<span class="dv-line">  <span class="c-key">"cliente"</span>: <span class="c-str">"{isEn ? 'El Zarco Distribution' : 'Distribuidora El Zarco'}"</span>,</span>
 <span class="dv-line">  <span class="c-key">"status"</span>: <span class="c-str">"sent"</span>,</span>
 <span class="dv-line">  <span class="c-key">"total"</span>: <span class="c-num">196469.2</span></span>
 <span class="dv-line">{`}`}</span></code></pre>
-                                    <span class="dv-api-latency" id="apiLatency">142 ms · región MX</span>
+                                    <span class="dv-api-latency" id="apiLatency">142 ms · {isEn ? 'MX region' : 'región MX'}</span>
                                 </div>
                             </div>
                         )}
@@ -72,11 +77,11 @@ const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
                                 <div class="dv-mcp-row">
                                     <div class="dv-node dv-node-ai">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="3.2"/></svg>
-                                        <span>Claude · IA</span>
+                                        <span>{isEn ? 'Claude · AI' : 'Claude · IA'}</span>
                                     </div>
                                     <div class="dv-conn dv-conn-1">
                                         <span class="dv-dot" id="mcpD1"></span>
-                                        <span class="dv-tool-chip" id="mcpChip1">cartera_vencida</span>
+                                        <span class="dv-tool-chip" id="mcpChip1">{isEn ? 'overdue_invoices' : 'cartera_vencida'}</span>
                                     </div>
                                     <div class="dv-node dv-node-cord">
                                         <img src="/imgs/logo-cord-white.png" alt="Cord" />
@@ -85,13 +90,13 @@ const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
                                         <span class="dv-dot dv-dot-r" id="mcpD2"></span>
                                         <i class="dv-check" id="mcpCheck">✓</i>
                                     </div>
-                                    <div class="dv-node dv-node-ext">Tu CRM / ERP</div>
+                                    <div class="dv-node dv-node-ext">{isEn ? 'Your CRM / ERP' : 'Tu CRM / ERP'}</div>
                                 </div>
                                 <div class="dv-mcp-steps" id="mcpSteps">
-                                    <div class="dv-mcp-step"><b>1</b> La IA invoca una de tus 7 herramientas</div>
-                                    <div class="dv-mcp-step"><b>2</b> Cord consulta tu CRM, con permiso</div>
-                                    <div class="dv-mcp-step"><b>3</b> El contexto regresa a la conversación</div>
-                                    <div class="dv-mcp-step"><b>4</b> La IA arma la cotización con ese contexto</div>
+                                    <div class="dv-mcp-step"><b>1</b> {isEn ? 'AI invokes one of your 7 tools' : 'La IA invoca una de tus 7 herramientas'}</div>
+                                    <div class="dv-mcp-step"><b>2</b> {isEn ? 'Cord queries your CRM, with permission' : 'Cord consulta tu CRM, con permiso'}</div>
+                                    <div class="dv-mcp-step"><b>3</b> {isEn ? 'Context returns to the conversation' : 'El contexto regresa a la conversación'}</div>
+                                    <div class="dv-mcp-step"><b>4</b> {isEn ? 'AI builds the quote with that context' : 'La IA arma la cotización con ese contexto'}</div>
                                 </div>
                             </div>
                         )}
@@ -109,15 +114,15 @@ const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
                                         <span class="dv-embed-logo">ACME Industrial</span>
                                         <span class="dv-embed-nav"><i></i><i></i><i></i></span>
                                     </div>
-                                    <p class="dv-embed-h">Tu cotización está lista</p>
+                                    <p class="dv-embed-h">{isEn ? 'Your quote is ready' : 'Tu cotización está lista'}</p>
                                     <div class="dv-embed-mount">
                                         <div class="dv-embed-skel" id="embedSkel"><span></span><span></span><span></span></div>
                                         <div class="dv-embed-card" id="embedCard">
-                                            <div class="dv-embed-cardhead"><span class="dv-embed-brand">MV</span><b>Materiales del Valle</b><span class="dv-embed-badge" id="embedBadge">● Revisar</span></div>
-                                            <div class="dv-embed-line"><span>Cemento gris 50kg × 120</span><span class="editorial">$21,840.00</span></div>
-                                            <div class="dv-embed-line"><span>Varilla 3/8" × 340</span><span class="editorial">$57,290.00</span></div>
-                                            <div class="dv-embed-total"><span>Total con IVA</span><b class="editorial" id="embedTotal">$196,469.20</b></div>
-                                            <div class="dv-embed-approve" id="embedApprove">Aprobar cotización</div>
+                                            <div class="dv-embed-cardhead"><span class="dv-embed-brand">MV</span><b>{isEn ? 'Valle Materials' : 'Materiales del Valle'}</b><span class="dv-embed-badge" id="embedBadge">● {isEn ? 'Review' : 'Revisar'}</span></div>
+                                            <div class="dv-embed-line"><span>{isEn ? 'Grey cement 50kg' : 'Cemento gris 50kg'} × 120</span><span class="editorial">$21,840.00</span></div>
+                                            <div class="dv-embed-line"><span>{isEn ? 'Rebar 3/8"' : 'Varilla 3/8"'} × 340</span><span class="editorial">$57,290.00</span></div>
+                                            <div class="dv-embed-total"><span>{isEn ? 'Total with tax' : 'Total con IVA'}</span><b class="editorial" id="embedTotal">$196,469.20</b></div>
+                                            <div class="dv-embed-approve" id="embedApprove">{isEn ? 'Approve quote' : 'Aprobar cotización'}</div>
                                         </div>
                                         <div class="dv-embed-cursor" id="embedCursor">
                                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 2l12 11.2-5.8.5 3.3 7.3-2.25 1-3.2-7.4-4.4 4.7z"/></svg>
@@ -260,7 +265,8 @@ const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
             ScrollTrigger.create({ trigger: apiHero, start: 'top 82%', once: true,
                 onEnter: () => {
                     const tl = gsap.timeline({ repeat: -1, repeatDelay: 2 });
-                    tl.call(() => { if (stat) { stat.textContent = 'enviando…'; stat.classList.remove('dv-api-ok'); } })
+                    const isEn = document.documentElement.lang === 'en';
+                    tl.call(() => { if (stat) { stat.textContent = isEn ? 'sending...' : 'enviando…'; stat.classList.remove('dv-api-ok'); } })
                       .set(lines, { opacity: 0 })
                       .set(sending, { opacity: 1 })
                       .set(latency, { opacity: 0, y: 4 })
@@ -325,7 +331,7 @@ const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
                       .set(skel, { opacity: 1 })
                       .set(cursor, { opacity: 0, x: 14, y: 16 })
                       .set(evt, { opacity: 0, y: 6 })
-                      .call(() => { if (badge) { badge.textContent = '● Revisar'; badge.style.color = ''; badge.style.background = ''; } obj.v = 0; })
+                      .call(() => { if (badge) { badge.textContent = document.documentElement.lang === 'en' ? '● Review' : '● Revisar'; badge.style.color = ''; badge.style.background = ''; } obj.v = 0; })
                       .to({}, { duration: 1 })
                       .to(skel, { opacity: 0, duration: 0.4 })
                       .to(card, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '<0.12')
@@ -333,7 +339,7 @@ const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
                       .to(cursor, { opacity: 1, duration: 0.3 }, '+=0.3')
                       .to(cursor, { x: -34, y: 0, duration: 0.6, ease: 'power2.inOut' })
                       .to(approve, { scale: 0.96, duration: 0.1, yoyo: true, repeat: 1 })
-                      .call(() => { if (badge) { badge.textContent = '● Aprobada'; badge.style.color = '#10b981'; badge.style.background = 'rgba(16,185,129,0.12)'; } })
+                      .call(() => { if (badge) { badge.textContent = document.documentElement.lang === 'en' ? '● Approved' : '● Aprobada'; badge.style.color = '#10b981'; badge.style.background = 'rgba(16,185,129,0.12)'; } })
                       .fromTo(approve, { boxShadow: '0 0 0 0 rgba(16,185,129,0.5)' }, { boxShadow: '0 0 0 10px rgba(16,185,129,0)', duration: 0.8 })
                       .to(cursor, { opacity: 0, duration: 0.3 }, '<')
                       .fromTo(evt, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.2')
@@ -521,11 +527,11 @@ const otra = DEV_PAGES.find((p) => p.slug !== page.slug)!;
                     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.8 });
                     tl.set(cursor, { x: 14, y: 16, opacity: 0 })
                       .set(evt, { opacity: 0, scale: 0.6 })
-                      .call(() => { if (badge) { badge.textContent = 'Revisar'; badge.style.color = ''; badge.style.background = ''; } })
+                      .call(() => { if (badge) { badge.textContent = document.documentElement.lang === 'en' ? 'Review' : 'Revisar'; badge.style.color = ''; badge.style.background = ''; } })
                       .to(cursor, { opacity: 1, duration: 0.3 })
                       .to(cursor, { x: 0, y: 0, duration: 0.6, ease: 'power2.inOut' })
                       .to(approve, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 })
-                      .call(() => { if (badge) { badge.textContent = 'Aprobada'; badge.style.color = '#10b981'; badge.style.background = 'rgba(16,185,129,0.12)'; } })
+                      .call(() => { if (badge) { badge.textContent = document.documentElement.lang === 'en' ? 'Approved' : 'Aprobada'; badge.style.color = '#10b981'; badge.style.background = 'rgba(16,185,129,0.12)'; } })
                       .fromTo(approve, { boxShadow: '0 0 0 0 rgba(16,185,129,0.5)' }, { boxShadow: '0 0 0 8px rgba(16,185,129,0)', duration: 0.7 })
                       .to(cursor, { opacity: 0, duration: 0.3 }, '<')
                       .to(evt, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.6)' }, '-=0.2')

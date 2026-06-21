@@ -9,7 +9,7 @@ const l = (p: string) => lang === 'es' ? p : `/en${p === '/' ? '' : p}`;
 <section class="features" id="producto">
     <div class="ft-head">
         <p class="ft-eyebrow reveal">{t("ft.eyebrow")}</p>
-        <h2 class="ft-title reveal">{t("ft.title")}</h2>
+        <h2 class="ft-title reveal" set:html={t("ft.title")} />
         <p class="ft-sub reveal">
             {t("ft.sub")}
         </p>

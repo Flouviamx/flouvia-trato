@@ -16,7 +16,7 @@ const money0 = (n: number) => '$' + new Intl.NumberFormat('es-MX').format(n);
 <section class="pricing" id="precios">
     <div class="pr-head">
         <p class="pr-eyebrow reveal">{t("pr.eyebrow")}</p>
-        <h2 class="pr-title reveal">{t("pr.title")}</h2>
+        <h2 class="pr-title reveal" set:html={t("pr.title")} />
         <p class="pr-sub reveal">{t("pr.sub")}</p>
     </div>
 

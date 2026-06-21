@@ -10,13 +10,18 @@ import Footer from '../../components/landing/Footer.astro';
 import PageAnims from '../../components/landing/PageAnims.astro';
 import SolucionBlockMockup from '../../components/soluciones/SolucionBlockMockup.astro';
 import { SOLUCIONES } from '../../lib/solucion';
+import { SOLUCIONES_EN } from '../../lib/solucion.en';
+import { getLangFromUrl } from '../../i18n/utils';
 
 export function getStaticPaths() {
     return SOLUCIONES.map((s) => ({ params: { slug: s.slug }, props: { solucion: s } }));
 }
 
-const { solucion } = Astro.props;
-const otras = SOLUCIONES.filter((s) => s.slug !== solucion.slug);
+const lang = getLangFromUrl(Astro.url);
+const isEn = Astro.props.isEn || lang === 'en';
+const currentSol = Astro.props.solucion || Astro.props.solucion;
+const solucion = isEn && currentSol ? SOLUCIONES_EN.find((s) => s.slug === currentSol.slug) || currentSol : currentSol;
+const otras = (isEn ? SOLUCIONES_EN : SOLUCIONES).filter((s) => s.slug !== solucion.slug);
 
 // ── Datos estructurados (JSON-LD) — FAQPage: lo que extraen los AI Overviews.
 const faqSchema = {
@@ -51,12 +56,12 @@ const faqSchema = {
                 <p class="pp-sub reveal">{solucion.sub}</p>
                 <div class="pp-actions reveal">
                     <a href="/registro" class="pp-btn-primary">
-                        <span>Empezar gratis</span>
+                        <span>{isEn ? 'Start for free' : 'Empezar gratis'}</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </a>
-                    <a href="/q/demo" class="pp-btn-ghost">Ver una cotización real</a>
+                    <a href="/q/demo" class="pp-btn-ghost">{isEn ? 'See a real quote' : 'Ver una cotización real'}</a>
                 </div>
-                <h3 class="pp-dolor reveal"><span>El dolor:</span> {solucion.dolor}</h3>
+                <h3 class="pp-dolor reveal"><span>{isEn ? 'The pain point:' : 'El dolor:'}</span> {solucion.dolor}</h3>
 
                 <!-- Mockup específico de la industria -->
                 <div class="pp-mockup-wrap reveal-mockup">
@@ -67,18 +72,18 @@ const faqSchema = {
                             <div class="mk-window">
                                 <div class="mk-bar">
                                     <span class="mk-dots"><i></i><i></i><i></i></span>
-                                    <span class="mk-bar-title">Precio por cliente · Cemento gris 50kg</span>
-                                    <span class="mk-badge mk-badge-ok">● Lista activa</span>
+                                    <span class="mk-bar-title">{isEn ? 'Price per client' : 'Precio por cliente'} · {isEn ? 'Grey cement 50kg' : 'Cemento gris 50kg'}</span>
+                                    <span class="mk-badge mk-badge-ok">● {isEn ? 'Active list' : 'Lista activa'}</span>
                                 </div>
                                 <div class="mk-rows mk-rows-4">
-                                    <div class="mk-row mk-row-head"><span>Cliente</span><span>Términos</span><span>Tu precio</span><span>vs lista</span></div>
-                                    <div class="mk-row"><span>Distribuidora El Zarco</span><span>Net 30</span><span class="editorial mk-green">$168.50</span><span class="editorial"><i class="mk-chip">−12%</i></span></div>
-                                    <div class="mk-row"><span>Constructora GAMA</span><span>Net 60</span><span class="editorial mk-green">$172.00</span><span class="editorial"><i class="mk-chip">−10%</i></span></div>
-                                    <div class="mk-row"><span>Grupo Ferrex</span><span>Contado</span><span class="editorial">$182.00</span><span class="editorial mk-muted">Lista</span></div>
+                                    <div class="mk-row mk-row-head"><span>{isEn ? 'Client' : 'Cliente'}</span><span>{isEn ? 'Terms' : 'Términos'}</span><span>{isEn ? 'Your price' : 'Tu precio'}</span><span>{isEn ? 'vs list' : 'vs lista'}</span></div>
+                                    <div class="mk-row"><span>{isEn ? 'El Zarco Distribution' : 'Distribuidora El Zarco'}</span><span>Net 30</span><span class="editorial mk-green">$168.50</span><span class="editorial"><i class="mk-chip">−12%</i></span></div>
+                                    <div class="mk-row"><span>{isEn ? 'GAMA Construction' : 'Constructora GAMA'}</span><span>Net 60</span><span class="editorial mk-green">$172.00</span><span class="editorial"><i class="mk-chip">−10%</i></span></div>
+                                    <div class="mk-row"><span>{isEn ? 'Ferrex Group' : 'Grupo Ferrex'}</span><span>{isEn ? 'Cash' : 'Contado'}</span><span class="editorial">$182.00</span><span class="editorial mk-muted">{isEn ? 'List' : 'Lista'}</span></div>
                                 </div>
                                 <div class="mk-totals">
-                                    <span>Precio de lista <b class="editorial">$191.48</b></span>
-                                    <span class="mk-total-final">Margen <b class="editorial">protegido</b></span>
+                                    <span>{isEn ? 'List price' : 'Precio de lista'} <b class="editorial">$191.48</b></span>
+                                    <span class="mk-total-final">{isEn ? 'Margin' : 'Margen'} <b class="editorial">{isEn ? 'protected' : 'protegido'}</b></span>
                                 </div>
                             </div>
                         )}
@@ -87,23 +92,23 @@ const faqSchema = {
                             <div class="mk-window">
                                 <div class="mk-bar">
                                     <span class="mk-dots"><i></i><i></i><i></i></span>
-                                    <span class="mk-bar-title">COT-0148 · Constructora GAMA · Obra Polanco</span>
+                                    <span class="mk-bar-title">COT-0148 · {isEn ? 'GAMA Construction' : 'Constructora GAMA'} · {isEn ? 'Polanco Project' : 'Obra Polanco'}</span>
                                     <span class="mk-badge mk-badge-sent">● Net 60</span>
                                 </div>
                                 <div class="mk-rows mk-rows-con">
-                                    <div class="mk-row mk-row-head"><span>Material</span><span>Cant.</span><span>Precio</span><span>Importe</span></div>
-                                    <div class="mk-row"><span>Cemento gris 50kg</span><span>120 sacos</span><span class="editorial">$182.00</span><span class="editorial">$21,840.00</span></div>
-                                    <div class="mk-row"><span>Varilla 3/8" × 12m</span><span>340 tramos</span><span class="editorial">$168.50</span><span class="editorial">$57,290.00</span></div>
-                                    <div class="mk-row"><span>Arena de río</span><span>45 m³</span><span class="editorial">$420.00</span><span class="editorial">$18,900.00</span></div>
-                                    <div class="mk-row"><span>Block hueco 15×20×40</span><span>2,400 pza</span><span class="editorial">$14.20</span><span class="editorial">$34,080.00</span></div>
+                                    <div class="mk-row mk-row-head"><span>{isEn ? 'Material' : 'Material'}</span><span>{isEn ? 'Qty' : 'Cant.'}</span><span>{isEn ? 'Price' : 'Precio'}</span><span>{isEn ? 'Amount' : 'Importe'}</span></div>
+                                    <div class="mk-row"><span>{isEn ? 'Grey cement 50kg' : 'Cemento gris 50kg'}</span><span>120 {isEn ? 'bags' : 'sacos'}</span><span class="editorial">$182.00</span><span class="editorial">$21,840.00</span></div>
+                                    <div class="mk-row"><span>{isEn ? 'Rebar 3/8" × 12m' : 'Varilla 3/8" × 12m'}</span><span>340 {isEn ? 'pieces' : 'tramos'}</span><span class="editorial">$168.50</span><span class="editorial">$57,290.00</span></div>
+                                    <div class="mk-row"><span>{isEn ? 'River sand' : 'Arena de río'}</span><span>45 m³</span><span class="editorial">$420.00</span><span class="editorial">$18,900.00</span></div>
+                                    <div class="mk-row"><span>{isEn ? 'Hollow block 15×20×40' : 'Block hueco 15×20×40'}</span><span>2,400 {isEn ? 'pcs' : 'pza'}</span><span class="editorial">$14.20</span><span class="editorial">$34,080.00</span></div>
                                 </div>
                                 <div class="mk-totals">
-                                    <span>Subtotal <b class="editorial">$169,370.00</b></span>
-                                    <span>IVA 16% <b class="editorial">$27,099.20</b></span>
-                                    <span class="mk-total-final">Total <b class="editorial">$196,469.20</b></span>
+                                    <span>{isEn ? 'Subtotal' : 'Subtotal'} <b class="editorial">$169,370.00</b></span>
+                                    <span>{isEn ? 'Tax (16%)' : 'IVA 16%'} <b class="editorial">$27,099.20</b></span>
+                                    <span class="mk-total-final">{isEn ? 'Total' : 'Total'} <b class="editorial">$196,469.20</b></span>
                                 </div>
                                 <div class="mk-credit-bar">
-                                    <span>Crédito de GAMA</span>
+                                    <span>{isEn ? 'GAMA Credit' : 'Crédito de GAMA'}</span>
                                     <div class="mk-credit"><i style="width:72%"></i></div>
                                     <b class="editorial">$612k / $850k</b>
                                 </div>
@@ -114,25 +119,25 @@ const faqSchema = {
                             <div class="mk-window">
                                 <div class="mk-bar">
                                     <span class="mk-dots"><i></i><i></i><i></i></span>
-                                    <span class="mk-bar-title">COT-0204 · Ensambles del Norte</span>
-                                    <span class="mk-badge mk-badge-draft">● Borrador</span>
+                                    <span class="mk-bar-title">COT-0204 · {isEn ? 'Northern Assemblies' : 'Ensambles del Norte'}</span>
+                                    <span class="mk-badge mk-badge-draft">● {isEn ? 'Draft' : 'Borrador'}</span>
                                 </div>
                                 <div class="mk-spec">
                                     <div class="mk-spec-line">
-                                        <div><b>Placa de acero A36 · corte láser</b><i>Espesor 6mm · acabado pulido · tolerancia ±0.2mm</i></div>
+                                        <div><b>{isEn ? 'A36 steel plate · laser cut' : 'Placa de acero A36 · corte láser'}</b><i>{isEn ? '6mm thickness · polished finish · tolerance ±0.2mm' : 'Espesor 6mm · acabado pulido · tolerancia ±0.2mm'}</i></div>
                                         <span class="editorial">$1,240.00</span>
                                     </div>
                                     <div class="mk-spec-line">
-                                        <div><b>Maquinado CNC · pieza 4F-22</b><i>Lote mínimo 500 pza · entrega 12 días hábiles</i></div>
+                                        <div><b>{isEn ? 'CNC Machining · part 4F-22' : 'Maquinado CNC · pieza 4F-22'}</b><i>{isEn ? 'MOQ 500 pcs · 12 business days delivery' : 'Lote mínimo 500 pza · entrega 12 días hábiles'}</i></div>
                                         <span class="editorial">$86.50</span>
                                     </div>
                                 </div>
                                 <div class="mk-note">
-                                    <span class="mk-note-label">NOTA DEL LOTE</span>
-                                    <p>MOQ 500 pza · entrega 12 días tras anticipo del 50% · precio sujeto a plano final R3.</p>
+                                    <span class="mk-note-label">{isEn ? 'BATCH NOTE' : 'NOTA DEL LOTE'}</span>
+                                    <p>{isEn ? 'MOQ 500 pcs · 12 days delivery after 50% deposit · price subject to final R3 blueprint.' : 'MOQ 500 pza · entrega 12 días tras anticipo del 50% · precio sujeto a plano final R3.'}</p>
                                 </div>
                                 <div class="mk-totals">
-                                    <span class="mk-total-final">Total del lote <b class="editorial">$44,490.00</b></span>
+                                    <span class="mk-total-final">{isEn ? 'Batch total' : 'Total del lote'} <b class="editorial">$44,490.00</b></span>
                                 </div>
                             </div>
                         )}
@@ -142,13 +147,13 @@ const faqSchema = {
                                 <div class="mk-public-head">
                                     <span class="mk-avatar">DV</span>
                                     <div>
-                                        <b>Despacho Vértice</b>
-                                        <i>te envió una propuesta</i>
+                                        <b>{isEn ? 'Vertice Agency' : 'Despacho Vértice'}</b>
+                                        <i>{isEn ? 'sent you a proposal' : 'te envió una propuesta'}</i>
                                     </div>
                                     <span class="mk-badge mk-badge-sent">● Vista</span>
                                 </div>
                                 <div class="mk-public-total">
-                                    <span>Honorarios del proyecto</span>
+                                    <span>{isEn ? 'Fees' : 'Honorarios'} del proyecto</span>
                                     <b class="editorial">$84,000.00</b>
                                     <i>50% anticipo · vigente al 30 jun 2026</i>
                                 </div>
@@ -243,7 +248,7 @@ const faqSchema = {
         <section class="pp-faq">
             <div class="pp-faq-head">
                 <p class="pp-eyebrow reveal">PREGUNTAS FRECUENTES</p>
-                <h2 class="pp-h2 masked-title">Lo que más nos preguntan<br/>sobre {solucion.nav.toLowerCase()}.</h2>
+                <h2 class="pp-h2 masked-title">{isEn ? 'Most common questions<br/>about' : 'Lo que más nos preguntan<br/>sobre'} {solucion.nav.toLowerCase()}.</h2>
             </div>
             <div class="pp-faq-list">
                 {solucion.faqs.map((f, i) => (
