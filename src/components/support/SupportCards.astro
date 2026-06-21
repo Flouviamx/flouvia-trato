@@ -62,41 +62,40 @@ const faqs = [
         <!-- ── RUTAS RÁPIDAS (AIRY BENTO, SIN LÍNEAS) ── -->
         <h2 class="pr-h2 masked-title">Rutas rápidas</h2>
         <div class="airy-bento reveal">
-            <a href="/soporte/categoria/desarrolladores" class="airy-region bento-devs">
-                <div class="br-header">
-                    <svg class="br-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 8 3 12 7 16"/><polyline points="17 8 21 12 17 16"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
-                    <h3>Portal de Desarrolladores</h3>
-                </div>
-                <p>Guías técnicas para implementar Cord. Aprende a crear integraciones M2M usando nuestra API REST, configurar webhooks para pagos, y desplegar componentes nativos UI.</p>
-                <div class="br-links">
-                    <span>API REST</span>
-                    <span>Webhooks</span>
-                    <span>Componentes</span>
-                </div>
-            </a>
-            <a href="/soporte/categoria/facturacion" class="airy-region">
-                <div class="br-header">
-                    <svg class="br-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M3 9h18M9 21V9" /></svg>
-                    <h3>Para Contadores</h3>
-                </div>
-                <p>Catálogos del SAT, Emisión de Complementos (REP) automáticos y facturación multidivisa (MXN a USD).</p>
-                <span class="br-cta">Guía fiscal &rarr;</span>
-            </a>
-            <a href="/soporte/estructura-cotizacion" class="airy-region">
+            <a href="/soporte/primeros-pasos" class="airy-region bento-hero">
                 <div class="br-header">
                     <svg class="br-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" /></svg>
-                    <h3>Primeros Pasos</h3>
+                    <h3>Cord 101: Primeros Pasos</h3>
                 </div>
-                <p>Domina tu pipeline de ventas. Crea tu primera cotización, añade descuentos y establece términos de crédito.</p>
-                <span class="br-cta">Aprende lo básico &rarr;</span>
+                <p>Acelera tu integración con Cord. Configura tu cuenta empresarial, sube tus certificados del SAT (CSD) y emite tu primer cobro en 5 sencillos pasos.</p>
+                <div class="br-links">
+                    <span>Configurar Cuenta</span>
+                    <span>Emitir Cobro</span>
+                </div>
             </a>
-            <a href="/soporte/cobro-divisas" class="airy-region">
+            <a href="/soporte/glosario-terminos" class="airy-region">
                 <div class="br-header">
-                    <svg class="br-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    <h3>Tesorería B2B</h3>
+                    <svg class="br-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+                    <h3>Glosario B2B</h3>
                 </div>
-                <p>Gestiona tu flujo de efectivo, anticipos y la conciliación bancaria de transferencias masivas.</p>
-                <span class="br-cta">Ver Tesorería &rarr;</span>
+                <p>El traductor entre ingenieros y contadores. Entiende qué es un CFDI PPD vs PUE, Idempotencia y Complementos REP.</p>
+                <span class="br-cta">Leer glosario &rarr;</span>
+            </a>
+            <a href="/soporte/migracion-stripe" class="airy-region">
+                <div class="br-header">
+                    <svg class="br-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path></svg>
+                    <h3>Migrar desde Stripe</h3>
+                </div>
+                <p>Guía para exportar tus clientes e importar tu bóveda de tarjetas (PCI-DSS) a la plataforma de Cord.</p>
+                <span class="br-cta">Ver guía de migración &rarr;</span>
+            </a>
+            <a href="/soporte/categoria/desarrolladores" class="airy-region">
+                <div class="br-header">
+                    <svg class="br-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 8 3 12 7 16"/><polyline points="17 8 21 12 17 16"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
+                    <h3>Portal Devs</h3>
+                </div>
+                <p>Documentación técnica de la API REST, Webhooks y componentes nativos UI (Cord Elements).</p>
+                <span class="br-cta">Ir al portal &rarr;</span>
             </a>
         </div>
 
@@ -192,7 +191,7 @@ const faqs = [
         opacity: 1;
         transform: translateY(-4px);
     }
-    .bento-devs {
+    .bento-hero {
         grid-column: span 3;
         flex-direction: row;
         align-items: center;
@@ -211,7 +210,7 @@ const faqs = [
         height: 32px;
         color: var(--color-blue-deep);
     }
-    .bento-devs .br-icon {
+    .bento-hero .br-icon {
         width: 44px;
         height: 44px;
     }
@@ -222,7 +221,7 @@ const faqs = [
         margin: 0;
         letter-spacing: -0.02em;
     }
-    .bento-devs h3 {
+    .bento-hero h3 {
         font-size: 2rem;
     }
     .airy-region p {
@@ -231,7 +230,7 @@ const faqs = [
         color: var(--color-text-muted);
         margin: 0;
     }
-    .bento-devs p {
+    .bento-hero p {
         font-size: 1.1rem;
         flex: 1;
         max-width: 600px;
@@ -429,13 +428,13 @@ const faqs = [
         .airy-bento {
             grid-template-columns: repeat(2, 1fr);
         }
-        .bento-devs {
+        .bento-hero {
             grid-column: span 2;
             flex-direction: column;
             align-items: flex-start;
             gap: 1.5rem;
         }
-        .bento-devs h3 {
+        .bento-hero h3 {
             font-size: 1.5rem;
         }
         .editorial-grid {
@@ -456,7 +455,7 @@ const faqs = [
             grid-template-columns: 1fr;
             gap: 4rem;
         }
-        .bento-devs {
+        .bento-hero {
             grid-column: span 1;
         }
         .airy-region {
