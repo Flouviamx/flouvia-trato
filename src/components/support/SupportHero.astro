@@ -102,17 +102,22 @@
         font-family: var(--font-sans);
         font-weight: 500;
         color: var(--color-text);
-        border: 1px solid rgba(10,25,47,0.08);
+        border: 1px solid var(--color-border);
         border-radius: 16px;
         outline: none;
-        background: #ffffff;
-        transition: border-color 0.3s ease;
+        background: var(--color-surface, #ffffff);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    :global(html[data-theme="dark"]) .search-input {
+        background: rgba(10,25,47,0.4);
     }
     .search-input:focus {
-        border-color: rgba(10, 25, 47, 0.3);
+        border-color: var(--color-blue-deep);
+        box-shadow: 0 0 0 4px rgba(9, 105, 218, 0.1);
     }
     .search-input::placeholder {
-        color: #99a2af;
+        color: var(--color-text-muted);
+        opacity: 0.6;
         font-weight: 400;
     }
 
@@ -172,10 +177,10 @@
         top: calc(100% + 12px);
         left: 0;
         right: 0;
-        background: #ffffff;
+        background: var(--color-surface, #ffffff);
         border: 1px solid var(--color-border);
         border-radius: 16px;
-        box-shadow: 0 20px 40px rgba(10, 25, 47, 0.12);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
         max-height: 400px;
         overflow-y: auto;
         z-index: 100;
@@ -185,10 +190,14 @@
         transform: translateY(0);
         transition: all 0.3s var(--ease-spring);
     }
+    :global(html[data-theme="dark"]) .search-dropdown {
+        background: #0d1117;
+    }
     .search-dropdown.hidden {
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
+        pointer-events: none;
     }
     .search-result-item {
         display: block;
@@ -210,6 +219,11 @@
         color: var(--color-blue-deep);
         margin-bottom: 4px;
     }
+    .sr-title mark {
+        background: rgba(9,105,218,0.2);
+        color: inherit;
+        border-radius: 2px;
+    }
     .sr-desc {
         font-size: 0.9rem;
         color: var(--color-text-muted);
@@ -218,6 +232,28 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+    }
+    .sr-desc mark {
+        background: rgba(9,105,218,0.2);
+        color: inherit;
+        border-radius: 2px;
+    }
+    .sr-cat {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--color-text-muted);
+        margin-bottom: 6px;
+        font-weight: 700;
+    }
+    .sr-header {
+        padding: 16px 24px 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--color-text-muted);
+        border-bottom: 1px solid var(--color-border);
     }
     .sr-empty {
         padding: 24px;
@@ -236,6 +272,40 @@
         let articles: any[] = [];
         let searchTimeout: any;
 
+        function highlightText(text, term) {
+            if (!term) return text;
+            const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<mark>$1</mark>');
+        }
+
+        function renderArticles(results, term = '', title = '') {
+            if (results.length === 0) {
+                dropdown.innerHTML = `<div class="sr-empty">No se encontraron artículos para "${term}"</div>`;
+                return;
+            }
+
+            const headerHtml = title ? `<div class="sr-header">${title}</div>` : '';
+            const listHtml = results.map((r: any) => `
+                <a href="${r.url}" class="search-result-item">
+                    <div class="sr-cat">${r.category}</div>
+                    <div class="sr-title">${highlightText(r.title, term)}</div>
+                    <div class="sr-desc">${highlightText(r.description, term)}</div>
+                </a>
+            `).join('');
+
+            dropdown.innerHTML = headerHtml + listHtml;
+        }
+
+        // Default suggestions
+        const showSuggestions = () => {
+            if (articles.length === 0) return;
+            // Provide some default suggestions
+            const defaultSlugs = ['emitir-cfdi', 'cobro-divisas', 'cord-elements', 'manejo-disputas'];
+            const suggestions = articles.filter(a => defaultSlugs.some(slug => a.url.includes(slug)));
+            renderArticles(suggestions, '', 'Sugerencias');
+            dropdown.classList.remove('hidden');
+        };
+
         // Fetch index on focus
         input.addEventListener('focus', async () => {
             if (articles.length === 0) {
@@ -246,8 +316,10 @@
                     console.error('Failed to load search index', e);
                 }
             }
-            if (input.value.trim().length > 0) {
-                dropdown.classList.remove('hidden');
+            if (input.value.trim().length === 0) {
+                showSuggestions();
+            } else {
+                input.dispatchEvent(new Event('input')); // Re-trigger search
             }
         });
 
@@ -257,7 +329,7 @@
             clearTimeout(searchTimeout);
 
             if (query.length === 0) {
-                dropdown.classList.add('hidden');
+                showSuggestions();
                 return;
             }
 
@@ -267,19 +339,9 @@
                     a.title.toLowerCase().includes(query) || 
                     a.description.toLowerCase().includes(query) ||
                     a.category.toLowerCase().includes(query)
-                ).slice(0, 5); // Limit to 5 results
+                ).slice(0, 6); // Limit to 6 results
 
-                if (results.length === 0) {
-                    dropdown.innerHTML = '<div class="sr-empty">No se encontraron artículos para "' + query + '"</div>';
-                    return;
-                }
-
-                dropdown.innerHTML = results.map((r: any) => `
-                    <a href="${r.url}" class="search-result-item">
-                        <div class="sr-title">${r.title}</div>
-                        <div class="sr-desc">${r.description}</div>
-                    </a>
-                `).join('');
+                renderArticles(results, query, 'Resultados');
             }, 150); // Debounce
         });
 
