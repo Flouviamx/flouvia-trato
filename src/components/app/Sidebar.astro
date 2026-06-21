@@ -374,11 +374,7 @@ const NAV_GROUPS = [
     :global(.sb-collapsed) .sb-toggle-ico { transform: scaleX(-1); }
     :global(.sb-collapsed) .sb-toggle { margin-left: 0; }
 
-    /* ── Estado COLAPSADO (solo iconos) — solo desktop; en móvil el sidebar es drawer ── */
     @media (min-width: 881px) {
-    :global(.sb-collapsed) .app-shell { --sidebar-w: 68px; }
-    /* Al colapsar, el contenido gana ancho real (no solo se recorre) */
-    :global(.sb-collapsed) { --content-max: 1440px; }
     :global(.sb-collapsed) .sidebar { padding-left: 0; padding-right: 0; align-items: stretch; }
     :global(.sb-collapsed) .sb-nav { gap: 0.9rem; align-items: center; }
     :global(.sb-collapsed) .sb-group { width: 100%; align-items: center; gap: 5px; }

@@ -298,6 +298,12 @@ const { title, page, heading, crumbs = [] } = Astro.props;
         --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
         --sidebar-w: 232px;
         --content-max: 1240px;
+    }
+    
+    /* Estado colapsado global: afecta la estructura principal */
+    html.sb-collapsed {
+        --sidebar-w: 68px;
+        --content-max: 1440px;
 
         /* ── Sidebar (espejo de la topbar): vidrio BLANCO en claro, navy en oscuro.
            Todo el contenido de la sidebar lee estas variables, así que cambia de tema

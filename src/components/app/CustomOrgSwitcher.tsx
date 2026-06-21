@@ -251,9 +251,8 @@ export default function CustomOrgSwitcher() {
           top: calc(100% + 0.5rem);
           left: 0;
           width: 280px;
-          /* SÓLIDO opaco absoluto. Al remover el backdrop-filter evitamos la mezcla visual. */
-          background-color: var(--surface, #ffffff);
-          background-image: var(--sb-menu-bg);
+          /* SÓLIDO opaco absoluto. Al remover el backdrop-filter y el gradiente evitamos la mezcla visual. */
+          background: #ffffff;
           border: 1px solid var(--sb-menu-border);
           border-radius: 16px;
           box-shadow: var(--sb-menu-shadow);
@@ -263,6 +262,10 @@ export default function CustomOrgSwitcher() {
           animation: dropdownFade 0.22s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .sb-collapsed .org-dropdown { width: 250px; }
+        
+        html[data-theme="dark"] .org-dropdown {
+          background: #111823;
+        }
 
         @keyframes dropdownFade {
           from { opacity: 0; transform: translateY(-8px) scale(0.98); }
