@@ -400,11 +400,11 @@ const NAV_GROUPS = [
     :global(.sb-collapsed) .sidebar { padding-left: 0; padding-right: 0; align-items: stretch; }
     :global(.sb-collapsed) .sb-nav { gap: 0.9rem; align-items: center; }
     :global(.sb-collapsed) .sb-group { width: 100%; align-items: center; gap: 5px; }
-    /* Líneas divisorias de grupos en modo colapsado */
-    :global(.sb-collapsed) .sb-group + .sb-group { position: relative; margin-top: 5px; padding-top: 5px; }
+    /* Líneas divisorias de grupos en modo colapsado -> Tiny dot */
+    :global(.sb-collapsed) .sb-group + .sb-group { position: relative; margin-top: 10px; padding-top: 10px; }
     :global(.sb-collapsed) .sb-group + .sb-group::before {
-        content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
-        background: var(--sb-divider); opacity: 0.6;
+        content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%;
+        background: var(--sb-divider); opacity: 0.5;
     }
     /* Fade-out de labels — no display:none para que la transition funcione.
        Los group-labels SÍ colapsan en alto/padding (si no, dejan huecos vacíos). */
@@ -422,19 +422,24 @@ const NAV_GROUPS = [
     :global(.sb-collapsed) .sb-org-switch { justify-content: center; padding: 6px; }
     :global(.sb-collapsed) .sb-org-menu { left: 0; right: auto; width: 210px; top: calc(100% + 4px); bottom: auto; }
     /* Ítems = cuadros uniformes grandes, perfectamente centrados en el rail */
-    :global(.sb-collapsed) .sb-item { justify-content: center; gap: 0; padding: 0; width: 36px; height: 36px; border-radius: 10px; }
-    :global(.sb-collapsed) .sb-item svg { width: 20px; height: 20px; opacity: 0.85; }
-    :global(.sb-collapsed) .sb-item.active svg { opacity: 1; }
-    /* Indicador de vidrio → cuadrado centrado detrás del ícono activo */
-    :global(.sb-collapsed) .sb-indicator { left: 50%; right: auto; width: 36px; margin-left: -18px; border-radius: 10px; }
-    /* Línea vertical izquierda de activo (Notion-style) */
-    :global(.sb-collapsed) .sb-item.active::before {
-        content: ''; position: absolute; left: 0; top: 25%; bottom: 25%; width: 3px;
-        background: var(--color-blue-deep); border-radius: 0 3px 3px 0;
-        box-shadow: 1px 0 8px rgba(59,130,246,0.4);
-    }
+    :global(.sb-collapsed) .sb-item { justify-content: center; gap: 0; padding: 0; width: 42px; height: 42px; border-radius: 12px; margin: 0 auto; transition: transform 0.25s var(--ease-spring), filter 0.25s, color 0.2s; }
+    :global(.sb-collapsed) .sb-item svg { width: 20px; height: 20px; opacity: 0.7; transition: transform 0.4s var(--ease-spring), opacity 0.25s, filter 0.25s; }
+    
+    /* Hover state for icons */
+    :global(.sb-collapsed) .sb-item:hover svg { opacity: 1; transform: scale(1.15) translateY(-1px); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); }
+    
+    /* Active icon gets a glowing blue shadow inside the glass pill */
+    :global(.sb-collapsed) .sb-item.active { box-shadow: inset 0 1px 1px rgba(255,255,255,0.06); }
+    :global(.sb-collapsed) .sb-item.active svg { opacity: 1; filter: drop-shadow(0 2px 8px rgba(59,130,246,0.6)); transform: scale(1.08); }
+    
+    /* Center the Account Avatar perfectly */
+    :global(.sb-collapsed) .sb-org-avatar { width: 42px; height: 42px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    
+    /* Indicador de vidrio → cuadrado perfecto detrás del ícono activo */
+    :global(.sb-collapsed) .sb-indicator { left: 50%; right: auto; width: 42px; margin-left: -21px; border-radius: 12px; box-shadow: inset 0 1px 1px rgba(255,255,255,0.26), inset 0 0 0 0.5px rgba(255,255,255,0.14), 0 8px 16px -4px rgba(0,0,0,0.2); }
+    
     :global(.sb-collapsed) .sb-pin-row { justify-content: center; }
-    :global(.sb-collapsed) .sb-pin-row .sb-item { width: 36px; height: 36px; border-radius: 10px; }
+    :global(.sb-collapsed) .sb-pin-row .sb-item { width: 42px; height: 42px; border-radius: 12px; }
     /* Badge → punto cuando está colapsado (con resplandor) */
     :global(.sb-collapsed) .sb-badge {
         position: absolute; top: 6px; right: 8px; min-width: 0; width: 8px; height: 8px;
@@ -442,23 +447,28 @@ const NAV_GROUPS = [
     }
     :global(.sb-collapsed) .sb-badge.danger { box-shadow: 0 0 6px var(--color-danger); }
     :global(.sb-collapsed) .sb-expand { display: inline-flex; }
-    :global(.sb-collapsed) .sb-footer { justify-content: center; padding-left: 0; }
-    /* Tooltip Premium al hover en modo colapsado */
+    
+    /* Toggle circular abajo */
+    :global(.sb-collapsed) .sb-footer { display: flex; justify-content: center; padding-left: 0; padding-bottom: 0.5rem; }
+    :global(.sb-collapsed) .sb-toggle { margin: 0 auto; width: 42px; height: 42px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    
+    /* Tooltip Premium al hover en modo colapsado - Elastic Spring */
     :global(.sb-collapsed) .sb-item::after {
         content: attr(title); position: absolute; left: calc(100% + 14px); top: 50%; 
-        transform: translate(-12px, -50%) scale(0.96);
+        transform-origin: left center;
+        transform: translate(0, -50%) scale(0.6);
         background: rgba(17, 35, 63, 0.85);
         backdrop-filter: blur(12px) saturate(1.5);
         -webkit-backdrop-filter: blur(12px) saturate(1.5);
         color: #fff; font-size: 0.78rem; font-weight: 650; white-space: nowrap;
         padding: 7px 12px; border-radius: 10px; pointer-events: none; opacity: 0; z-index: 70;
         box-shadow: 0 12px 34px -8px rgba(0,0,0,0.6), inset 0 0 0 0.5px rgba(255,255,255,0.15);
-        transition: opacity 0.15s var(--ease-ios), transform 0.15s var(--ease-ios);
+        transition: opacity 0.15s var(--ease-ios), transform 0.2s var(--ease-ios);
     }
     :global(.sb-collapsed) .sb-item:hover::after { 
         opacity: 1; 
         transform: translate(0, -50%) scale(1); 
-        transition: opacity 0.2s var(--ease-ios) 0.15s, transform 0.4s var(--ease-spring) 0.15s; 
+        transition: opacity 0.2s var(--ease-ios) 0.05s, transform 0.4s var(--ease-spring) 0.05s; 
     }
     }
 
