@@ -1,0 +1,131 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import Nav from '../../../components/landing/Nav.astro';
+import Footer from '../../../components/landing/Footer.astro';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const categories = [
+    { slug: 'pagos', name: 'Pagos y Depósitos' },
+    { slug: 'cotizaciones', name: 'Cotizaciones' },
+    { slug: 'facturacion', name: 'Facturación y CFDI' },
+    { slug: 'cuenta', name: 'Cuenta y Equipo' },
+    { slug: 'desarrolladores', name: 'Desarrolladores' },
+    { slug: 'seguridad', name: 'Seguridad y Privacidad' },
+  ];
+  return categories.map(cat => ({
+    params: { categoria: cat.slug },
+    props: { name: cat.name },
+  }));
+}
+
+const { categoria } = Astro.params;
+const { name } = Astro.props;
+const allArticles = await getCollection('support');
+const categoryArticles = allArticles.filter(a => a.data.category === name);
+---
+
+<Layout title={`${name} - Soporte Cord`} description={`Artículos de ayuda sobre ${name}`}>
+    <Nav />
+    <main class="cat-page-layout">
+        <div class="cat-container reveal">
+            <a href="/soporte" class="back-link">← Volver al Centro de Ayuda</a>
+            <h1 class="cat-title">{name}</h1>
+            <p class="cat-desc">Explora todas las guías y artículos relacionados con este tema.</p>
+            
+            <div class="cat-articles-list">
+                {categoryArticles.length > 0 ? (
+                    categoryArticles.map(article => (
+                        <a href={`/soporte/${article.id}`} class="article-item">
+                            <h3>{article.data.title}</h3>
+                            <p>{article.data.description}</p>
+                        </a>
+                    ))
+                ) : (
+                    <div class="empty-state">
+                        <p>Aún no hay artículos publicados en esta categoría.</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    </main>
+    <Footer ctaTitle="¿No encuentras lo que buscas?" ctaSub="Contacta a nuestro equipo de soporte." />
+</Layout>
+
+<style>
+    .cat-page-layout {
+        padding: 140px 5% 100px;
+        background-color: var(--color-bg);
+        min-height: 80vh;
+    }
+    .cat-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .back-link {
+        display: inline-block;
+        margin-bottom: 2rem;
+        color: var(--color-text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: color 0.2s;
+    }
+    .back-link:hover {
+        color: var(--color-blue-deep);
+    }
+    .cat-title {
+        font-size: clamp(2.5rem, 4vw, 3.5rem);
+        font-weight: 800;
+        color: var(--color-text);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.03em;
+    }
+    .cat-desc {
+        font-size: 1.15rem;
+        color: var(--color-text-muted);
+        margin-bottom: 3rem;
+    }
+    
+    .cat-articles-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .article-item {
+        display: block;
+        padding: 1.5rem 2rem;
+        background: #ffffff;
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        text-decoration: none;
+        transition: all 0.3s var(--ease-spring);
+    }
+    .article-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px -10px rgba(10, 25, 47, 0.1);
+        border-color: rgba(10, 25, 47, 0.15);
+    }
+    .article-item h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-blue-deep);
+        margin: 0 0 0.5rem 0;
+    }
+    .article-item p {
+        font-size: 1rem;
+        color: var(--color-text-muted);
+        margin: 0;
+        line-height: 1.5;
+    }
+    .empty-state {
+        padding: 3rem;
+        text-align: center;
+        background: var(--color-bg-soft);
+        border-radius: 16px;
+        border: 1px dashed var(--color-border);
+        color: var(--color-text-muted);
+    }
+</style>

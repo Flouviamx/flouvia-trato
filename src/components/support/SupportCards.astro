@@ -59,7 +59,7 @@ const faqs = [
                     <li><a href="#">Manejo de disputas y contracargos</a></li>
                     <li><a href="#">Emitir reembolsos a clientes</a></li>
                 </ul>
-                <a href="#" class="cat-view-all">Ver todos (12) →</a>
+                <a href="/soporte/categoria/pagos" class="cat-view-all">Ver todos (12) →</a>
             </div>
 
             <!-- Categoria 2 -->
@@ -82,7 +82,7 @@ const faqs = [
                     <li><a href="#">Añadir términos de crédito (Net 30/60)</a></li>
                     <li><a href="#">Seguimiento y notificaciones de lectura</a></li>
                 </ul>
-                <a href="#" class="cat-view-all">Ver todos (8) →</a>
+                <a href="/soporte/categoria/cotizaciones" class="cat-view-all">Ver todos (8) →</a>
             </div>
 
             <!-- Categoria 3 -->
@@ -102,7 +102,7 @@ const faqs = [
                     <li><a href="#">Complementos de pago (REP)</a></li>
                     <li><a href="#">Cancelar facturas y notas de crédito</a></li>
                 </ul>
-                <a href="#" class="cat-view-all">Ver todos (15) →</a>
+                <a href="/soporte/categoria/facturacion" class="cat-view-all">Ver todos (15) →</a>
             </div>
 
             <!-- Categoria 4 -->
@@ -122,7 +122,7 @@ const faqs = [
                     <li><a href="#">Actualizar datos bancarios (CLABE)</a></li>
                     <li><a href="#">Cambiar plan de suscripción Cord</a></li>
                 </ul>
-                <a href="#" class="cat-view-all">Ver todos (9) →</a>
+                <a href="/soporte/categoria/cuenta" class="cat-view-all">Ver todos (9) →</a>
             </div>
 
             <!-- Categoria 5 -->
@@ -142,7 +142,7 @@ const faqs = [
                     <li><a href="#">Cord Elements (Componentes UI embebibles)</a></li>
                     <li><a href="#">Límites de peticiones (Rate limits)</a></li>
                 </ul>
-                <a href="#" class="cat-view-all">Ver todos (14) →</a>
+                <a href="/soporte/categoria/desarrolladores" class="cat-view-all">Ver todos (14) →</a>
             </div>
 
             <!-- Categoria 6 -->
@@ -162,12 +162,12 @@ const faqs = [
                     <li><a href="#">Reportar vulnerabilidades</a></li>
                     <li><a href="#">Acuerdos de confidencialidad (NDA)</a></li>
                 </ul>
-                <a href="#" class="cat-view-all">Ver todos (5) →</a>
+                <a href="/soporte/categoria/seguridad" class="cat-view-all">Ver todos (5) →</a>
             </div>
         </div>
 
         <!-- ── PREGUNTAS FRECUENTES (FAQ) ── -->
-        <h2 class="pr-h2 masked-title mt-32">Preguntas frecuentes</h2>
+        <h2 class="pr-h2 masked-title mt-32 text-center">Preguntas frecuentes</h2>
         <div class="pr-faq-list reveal">
             {faqs.map((f) => (
                 <details class="pr-faq-item">
@@ -346,11 +346,15 @@ const faqs = [
     }
 
     /* ── FAQ ── */
+    .text-center {
+        text-align: center;
+    }
     .pr-faq-list {
         display: flex;
         flex-direction: column;
         gap: 0.7rem;
         max-width: 860px;
+        margin: 0 auto;
     }
     .pr-faq-item {
         background: var(--color-bg-soft);
