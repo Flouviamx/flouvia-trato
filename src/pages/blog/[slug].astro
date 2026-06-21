@@ -63,10 +63,6 @@ const authorAvatar = entry.data.authorAvatar || 'https://images.unsplash.com/pho
                     </div>
                 </div>
             </div>
-            
-            <div class="article-hero-image reveal" style="transition-delay: 400ms">
-                <img src={entry.data.img} alt={entry.data.title} fetchpriority="high" />
-            </div>
         </header>
 
         <!-- LAYOUT DE 3 COLUMNAS -->
@@ -302,14 +298,14 @@ const authorAvatar = entry.data.authorAvatar || 'https://images.unsplash.com/pho
        HERO DEL ARTÍCULO
        ========================================================== */
     .article-hero {
-        width: 100%; max-width: 1000px; margin: 0 auto 4rem;
-        padding: 4rem 5% 0; display: flex; flex-direction: column; align-items: center;
-        text-align: center;
+        width: 100%; max-width: 800px; margin: 0 auto 3rem;
+        padding: 4rem 5% 0; display: flex; flex-direction: column; align-items: flex-start;
+        text-align: left;
     }
 
     .article-meta {
-        display: flex; align-items: center; justify-content: center; gap: 0.8rem;
-        margin-bottom: 2rem;
+        display: flex; align-items: center; justify-content: flex-start; gap: 0.8rem;
+        margin-bottom: 1.5rem;
     }
     .category-badge {
         font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
@@ -320,33 +316,26 @@ const authorAvatar = entry.data.authorAvatar || 'https://images.unsplash.com/pho
     .dot { color: #d1d5db; }
 
     .article-title {
-        font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 800; line-height: 1.05;
-        letter-spacing: -0.04em; color: #111827; margin: 0 0 2rem;
-        max-width: 900px;
+        font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; line-height: 1.1;
+        letter-spacing: -0.04em; color: #111827; margin: 0 0 1.5rem;
+        max-width: 100%;
     }
     :global(html[data-theme="dark"]) .article-title { color: #fff; }
 
     .article-excerpt {
-        font-size: 1.25rem; color: #4b5563; line-height: 1.6;
-        max-width: 700px; margin: 0 auto 3rem;
+        font-size: 1.15rem; color: #4b5563; line-height: 1.6;
+        max-width: 100%; margin: 0 0 2.5rem;
     }
     :global(html[data-theme="dark"]) .article-excerpt { color: #d1d5db; }
 
     .article-author {
-        display: flex; align-items: center; justify-content: center; gap: 1rem;
-        margin-bottom: 4rem;
+        display: flex; align-items: center; justify-content: flex-start; gap: 1rem;
+        margin-bottom: 2rem;
     }
-    .article-author img { width: 50px; height: 50px; border-radius: 50%; }
+    .article-author img { width: 44px; height: 44px; border-radius: 50%; }
     .author-details { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-    .author-details strong { font-size: 1rem; font-weight: 700; color: #111827; }
+    .author-details strong { font-size: 0.95rem; font-weight: 700; color: #111827; }
     :global(html[data-theme="dark"]) .author-details strong { color: #fff; }
-
-    .article-hero-image {
-        width: 100%; max-width: 1200px; aspect-ratio: 2/1;
-        border-radius: 24px; overflow: hidden; margin: 0 auto;
-        box-shadow: 0 30px 60px -30px rgba(0,0,0,0.15);
-    }
-    .article-hero-image img { width: 100%; height: 100%; object-fit: cover; }
 
     /* ==========================================================
        PROSE (MARKDOWN BODY)
