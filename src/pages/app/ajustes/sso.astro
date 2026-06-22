@@ -35,54 +35,42 @@ const isManaged = !canEdit;
             ) : (
                 <div class="sso-actions">
                     <a href="/app/ajustes/sso/configuracion" class="btn-primary" style="text-decoration: none;">Empezar configuración</a>
-                    <a href="/soporte/configuracion-sso" target="_blank" class="btn-secondary" style="text-decoration: none;">Documentación</a>
+                    <a href="/soporte/sso-empresarial" target="_blank" class="btn-secondary" style="text-decoration: none;">Documentación</a>
                 </div>
             )}
         </div>
         
         <div class="sso-graphic-wrap">
-            <div class="sso-graphic">
-                
-                <!-- Proveedor de Identidad -->
-                <div class="sso-box">
-                    <div class="sso-box-header">
-                        <div class="sso-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        </div>
-                        <span>Proveedor de identidad</span>
-                    </div>
-                    <div class="sso-users-row">
-                        <div class="sso-branch"></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                    </div>
+            <div class="sso-graphic-bg"></div>
+            
+            <div class="sso-nodes">
+                <!-- Proveedor -->
+                <div class="sso-node">
+                    <div class="sso-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                    <span>Proveedor de identidad</span>
                 </div>
                 
-                <div class="sso-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                <!-- Connection -->
+                <div class="sso-connection">
+                    <div class="sso-line"></div>
+                    <div class="sso-arrow-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
                 </div>
-                
+
                 <!-- Cord -->
-                <div class="sso-box">
-                    <div class="sso-box-header">
-                        <div class="sso-icon cord-blue" style="background:#4f46e5;">
-                            <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style="width:22px; height:22px;"><path d="M4 12l8-8 8 8-8 8-8-8z" fill="white"/></svg>
-                        </div>
-                        <span>Cord</span>
-                    </div>
-                    <div class="sso-users-row">
-                        <div class="sso-branch"></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                        <div class="sso-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                    </div>
+                <div class="sso-node">
+                    <div class="sso-node-icon cord-accent"><img src="/imgs/logo-cord-navy.png" alt="Cord" /></div>
+                    <span>Cord</span>
                 </div>
-                
+            </div>
+
+            <!-- Users Box -->
+            <div class="sso-users-pill">
+                <div class="sso-avatars">
+                    <div class="user-avatar" style="background-image: url('https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=e0f2fe');"></div>
+                    <div class="user-avatar" style="background-image: url('https://api.dicebear.com/7.x/notionists/svg?seed=Aneka&backgroundColor=dbeafe');"></div>
+                    <div class="user-avatar" style="background-image: url('https://api.dicebear.com/7.x/notionists/svg?seed=Jude&backgroundColor=f3e8ff');"></div>
+                </div>
+                <span class="sso-users-label">Acceso seguro y centralizado para tu equipo</span>
             </div>
         </div>
     </div>
@@ -125,56 +113,69 @@ const isManaged = !canEdit;
         background: #e2e8f0; color: #94a3b8; box-shadow: none; cursor: not-allowed;
     }
     
-    .btn-secondary {
-        display: inline-flex; align-items: center; justify-content: center;
-        background: transparent; color: var(--color-text);
-        padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; font-size: 0.95rem;
+    .sso-graphic-wrap {
+        background: #f8fafc; /* Clean subtle background */
+        border-radius: 24px; padding: 3.5rem 2rem; 
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        position: relative; overflow: hidden; gap: 2.5rem;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
         border: 1px solid var(--color-border);
     }
-    
-    .sso-graphic-wrap { 
-        background: linear-gradient(135deg, #e0f2fe 0%, #e9d5ff 100%); 
-        border-radius: 20px; padding: 3.5rem 2rem; display: flex; justify-content: center; 
-        position: relative; overflow: hidden; 
-    }
-    
-    .sso-graphic { display: flex; flex-direction: column; gap: 1.25rem; width: 100%; max-width: 400px; align-items: center; z-index: 2; }
-    
-    .sso-box { 
-        background: #fff;
-        width: 100%; border-radius: 16px; padding: 1.5rem 1.75rem; 
-        display: flex; flex-direction: column; gap: 1.25rem; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-    }
-    .sso-box-header { display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 1.15rem; color: #1e293b; letter-spacing: -0.3px; justify-content: flex-start; }
-    
-    .sso-icon { width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #e2e8f0; display: flex; align-items: center; justify-content: center; color: #475569; background: #ffffff; }
-    .sso-icon svg { width: 22px; height: 22px; }
-    .sso-icon.cord-blue { border-color: transparent; }
-    
-    .sso-arrow { color: #475569; margin: 0; }
-    .sso-arrow svg { width: 28px; height: 28px; }
-
-    .sso-users-row {
-        display: flex; align-items: center; gap: 10px; position: relative; margin-top: 0;
-        padding-left: 21px; /* Center of the 44px icon is 22px */
-    }
-    
-    .sso-branch {
-        position: absolute;
-        left: 21px; /* Align with center of icon above */
-        top: -24px; /* Go up to connect with the header */
-        bottom: 50%;
-        width: 16px;
-        border-left: 1.5px solid #cbd5e1;
-        border-bottom: 1.5px solid #cbd5e1;
-        border-bottom-left-radius: 8px;
+    .sso-graphic-bg {
+        position: absolute; inset: 0; pointer-events: none;
+        background: radial-gradient(circle at 50% -20%, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
     }
 
-    .sso-user {
-        width: 44px; height: 44px; border-radius: 10px; border: 1.5px solid #e2e8f0;
-        display: flex; align-items: center; justify-content: center;
-        background: #fff; color: #475569; position: relative; z-index: 2;
+    .sso-nodes {
+        display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; z-index: 2;
     }
-    .sso-user svg { width: 20px; height: 20px; }
+
+    .sso-node {
+        background: #fff; border-radius: 16px; padding: 1.25rem 1rem;
+        display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+        width: 140px; text-align: center;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .sso-node:hover { transform: translateY(-4px); }
+
+    .sso-node span { font-size: 0.85rem; font-weight: 600; color: #1e293b; line-height: 1.3; }
+
+    .sso-node-icon {
+        width: 48px; height: 48px; border-radius: 12px; background: #f1f5f9;
+        display: flex; align-items: center; justify-content: center; color: #64748b;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .sso-node-icon svg { width: 24px; height: 24px; }
+    .sso-node-icon.cord-accent { background: #fff; border-color: rgba(10, 25, 47, 0.08); box-shadow: 0 4px 12px rgba(10, 25, 47, 0.06); }
+    .sso-node-icon.cord-accent img { height: 16px; margin-top: 2px; }
+
+    .sso-connection {
+        display: flex; align-items: center; position: relative; width: 60px;
+    }
+    @media (min-width: 1100px) { .sso-connection { width: 90px; } }
+    .sso-line {
+        height: 2px; width: 100%; background: #cbd5e1; border-radius: 2px;
+    }
+    .sso-arrow-head {
+        color: #94a3b8; position: absolute; right: -8px; display: flex; align-items: center; background: #f8fafc;
+    }
+    .sso-arrow-head svg { width: 20px; height: 20px; }
+
+    .sso-users-pill {
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 100px;
+        padding: 0.6rem 1.25rem 0.6rem 0.6rem; display: flex; align-items: center; gap: 1rem;
+        box-shadow: 0 8px 24px -6px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.02);
+        z-index: 2;
+    }
+
+    .sso-avatars { display: flex; align-items: center; margin-right: -4px; }
+    .user-avatar {
+        width: 34px; height: 34px; border-radius: 50%; background-color: #e2e8f0; border: 2px solid #fff;
+        margin-right: -10px; background-size: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    .user-avatar:last-child { margin-right: 0; }
+
+    .sso-users-label { font-size: 0.85rem; font-weight: 500; color: #475569; letter-spacing: -0.1px; }
 </style>
