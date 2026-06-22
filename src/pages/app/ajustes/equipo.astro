@@ -90,7 +90,13 @@ const ROL_LABEL: Record<string, string> = {
                 </div>
             ))}
             {members.length === 0 && (
-                <div class="tm-empty">No hay miembros en esta vista.</div>
+                <div class="tm-empty-state">
+                    <div class="tm-empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <h4>Tu equipo está vacío</h4>
+                    <p>Agrega miembros para colaborar en las cotizaciones y cobranza.</p>
+                </div>
             )}
         </div>
     </div>
@@ -179,20 +185,30 @@ const ROL_LABEL: Record<string, string> = {
 </SettingsShell>
 
 <style>
-    .tm-header { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; margin-bottom: 1.5rem; background: var(--color-bg-soft); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--color-border); }
+    .tm-header { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; margin-bottom: 1.5rem; background: var(--color-bg-soft); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--color-border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .tm-desc { font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
     
-    .tm-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-    .tm-tabs { display: flex; gap: 4px; background: var(--color-bg-soft); padding: 4px; border-radius: 8px; border: 1px solid var(--color-border); }
+    .tm-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 1rem; }
+    .tm-tabs { display: flex; gap: 4px; background: var(--color-bg-soft); padding: 4px; border-radius: 10px; border: 1px solid var(--color-border); box-shadow: inset 0 1px 3px rgba(0,0,0,0.02); }
     .tm-tab { background: transparent; border: none; font-size: 0.8rem; font-weight: 600; color: var(--color-text-muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; font-family: var(--font-sans); }
     .tm-tab:hover { color: var(--color-text); }
     .tm-tab.active { background: var(--surface); color: var(--color-blue-deep); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
     
-    .tm-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--color-bg); padding: 0 6px; border-radius: 10px; font-size: 0.65rem; min-width: 18px; height: 18px; color: var(--color-text-muted); border: 1px solid var(--color-border); }
+    .tm-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--color-bg); padding: 0 6px; border-radius: 10px; font-size: 0.65rem; min-width: 18px; height: 18px; color: var(--color-text-muted); border: 1px solid var(--color-border); font-weight: 600; }
     .tm-tab.active .tm-badge { background: rgba(10,25,47,0.08); color: var(--color-blue-deep); border-color: transparent; }
     
-    .tm-tools { display: flex; gap: 0.5rem; }
-    .tm-tools .btn-secondary svg { width: 14px; height: 14px; margin-right: 4px; }
+    .tm-tools { display: flex; gap: 0.75rem; align-items: center; }
+    
+    /* Buttons Custom CSS Flouvia */
+    .btn-primary { background: linear-gradient(135deg, var(--color-blue-deep) 0%, #17325c 100%); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; font-family: var(--font-sans); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(10, 25, 47, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1); text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(10, 25, 47, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2); background: linear-gradient(135deg, #0d1f3b 0%, var(--color-blue-deep) 100%); }
+    .btn-primary:active { transform: translateY(0) scale(0.98); box-shadow: 0 1px 2px rgba(10, 25, 47, 0.2); }
+    
+    .btn-secondary { background: var(--surface); color: var(--color-text); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; font-family: var(--font-sans); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .btn-secondary:hover { background: var(--color-bg-soft); border-color: #cbd5e1; transform: translateY(-1px); box-shadow: 0 3px 6px rgba(0,0,0,0.04); color: var(--color-blue-deep); }
+    .btn-secondary:active { transform: translateY(0) scale(0.98); }
+    .btn-secondary svg { width: 14px; height: 14px; margin-right: 6px; opacity: 0.7; transition: opacity 0.2s; }
+    .btn-secondary:hover svg { opacity: 1; }
     
     .tm-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
     .tm-thead { display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 50px; padding: 12px 16px; background: var(--color-bg-soft); border-bottom: 1px solid var(--color-border); }
@@ -225,23 +241,36 @@ const ROL_LABEL: Record<string, string> = {
     .tm-dd-danger { color: var(--color-warn); }
     .tm-dd-danger:hover { background: rgba(239, 68, 68, 0.1); }
     
-    .tm-empty { padding: 3rem 1rem; text-align: center; font-size: 0.85rem; color: var(--color-text-muted); }
-    .tm-footer-count { font-size: 0.8rem; color: var(--color-text-muted); margin: 0; }
+    .tm-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1rem; text-align: center; }
+    .tm-empty-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--color-bg-soft); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); margin-bottom: 1.2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .tm-empty-icon svg { width: 24px; height: 24px; opacity: 0.8; }
+    .tm-empty-state h4 { font-size: 1.05rem; font-weight: 600; color: var(--color-text); margin: 0 0 0.5rem 0; }
+    .tm-empty-state p { font-size: 0.85rem; color: var(--color-text-muted); margin: 0; max-width: 300px; line-height: 1.5; }
+    .tm-footer-count { font-size: 0.8rem; color: var(--color-text-muted); margin: 0; padding-top: 0.5rem; }
     
     /* MODALS */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; }
     .modal-overlay[hidden] { display: none; }
     .modal-card { background: var(--surface); width: 100%; max-width: 440px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid var(--color-border); overflow: hidden; animation: modIn 0.3s var(--ease-spring); }
     @keyframes modIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--color-border); background: var(--color-bg-soft); }
-    .modal-title { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
-    .modal-close { background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; }
-    .modal-close:hover { background: var(--color-border); color: var(--color-text); }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); background: var(--color-bg-soft); }
+    .modal-title { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--color-text); letter-spacing: -0.3px; }
+    .modal-close { background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: rgba(0,0,0,0.05); color: var(--color-text); transform: scale(1.05); }
     .modal-close svg { width: 18px; height: 18px; }
     .modal-body { padding: 1.5rem; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 2rem; }
-    .btn-danger { background: var(--color-warn); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.84rem; font-family: var(--font-sans); }
-    .btn-danger:hover { background: #dc2626; }
+    
+    /* Forms */
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.25rem; }
+    .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--color-text); }
+    .form-control { width: 100%; padding: 10px 12px; font-size: 0.88rem; color: var(--color-text); background: var(--surface); border: 1px solid var(--color-border); border-radius: 8px; font-family: var(--font-sans); transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02); box-sizing: border-box; }
+    .form-control:focus { outline: none; border-color: var(--color-blue-deep); box-shadow: 0 0 0 3px rgba(10, 25, 47, 0.1); background: #fff; }
+    .form-control::placeholder { color: #94a3b8; }
+    
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2rem; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.84rem; font-family: var(--font-sans); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1); text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
+    .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2); background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+    .btn-danger:active { transform: translateY(0) scale(0.98); }
 </style>
 
 <script>
