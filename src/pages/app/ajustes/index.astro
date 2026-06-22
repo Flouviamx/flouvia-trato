@@ -97,9 +97,8 @@ const dash = C * (SETUP.pct / 100);
     .idx-row-ico { width: 20px; height: 20px; color: var(--color-blue-deep); flex-shrink: 0; }
     .idx-row-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
     .idx-row-title { font-size: 0.98rem; font-weight: 600; color: var(--color-text); }
-    .idx-row-desc { font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.45; }
+    .idx-row-desc { display: none; font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.45; }
+    @media (min-width: 561px) { .idx-row-desc { display: block; } }
     .idx-row-arrow { width: 16px; height: 16px; color: #c4cad3; flex-shrink: 0; opacity: 0; transform: translateX(-4px); transition: opacity 0.25s, transform 0.25s var(--ease-spring); }
     .idx-row:hover .idx-row-arrow { opacity: 1; transform: translateX(0); color: var(--color-blue-deep); }
-
-    @media (max-width: 560px) { .idx-row-desc { display: none; } }
 </style>
