@@ -176,7 +176,7 @@ const incidents = [
                                 {service.history.map(day => (
                                     <div 
                                         class={`st-bar ${day.status}`} 
-                                        title={day.tooltip}
+                                        data-tooltip={day.tooltip}
                                     ></div>
                                 ))}
                             </div>
@@ -459,7 +459,61 @@ const incidents = [
         border-radius: 2px;
         transition: opacity 0.2s, transform 0.2s;
         cursor: pointer;
+        position: relative;
     }
+    
+    /* ════════ CUSTOM PREMIUM TOOLTIP ════════ */
+    .st-bar::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%) translateY(4px) scale(0.95);
+        background: #111827;
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+        z-index: 100;
+    }
+    .st-bar::before {
+        content: '';
+        position: absolute;
+        bottom: calc(100% + 4px);
+        left: 50%;
+        transform: translateX(-50%) translateY(4px);
+        border-width: 4px;
+        border-style: solid;
+        border-color: #111827 transparent transparent transparent;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 100;
+    }
+    .st-bar:hover::after,
+    .st-bar:hover::before {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+    
+    /* Prevenir que los tooltips de los extremos se corten */
+    .st-bar:nth-child(-n+10)::after { left: 0; transform: translateX(0) translateY(4px) scale(0.95); }
+    .st-bar:nth-child(-n+10):hover::after { transform: translateX(0) translateY(0) scale(1); }
+    .st-bar:nth-child(-n+10)::before { left: 10px; }
+
+    .st-bar:nth-last-child(-n+10)::after { left: auto; right: 0; transform: translateX(0) translateY(4px) scale(0.95); }
+    .st-bar:nth-last-child(-n+10):hover::after { transform: translateX(0) translateY(0) scale(1); }
+    .st-bar:nth-last-child(-n+10)::before { left: auto; right: 10px; transform: translateX(0) translateY(4px); }
+    .st-bar:nth-last-child(-n+10):hover::before { transform: translateX(0) translateY(0); }
+
     .st-bar:hover {
         opacity: 0.8;
         transform: scaleY(1.1);
