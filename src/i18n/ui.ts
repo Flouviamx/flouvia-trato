@@ -67,8 +67,8 @@ export const ui = {
     'nav.mega.rec.2.desc': 'Lo que tu cliente recibe',
     'nav.mega.rec.3.title': 'Centro de ayuda',
     'nav.mega.rec.3.desc': 'Artículos, guías y resolución de problemas',
-    'nav.mega.rec.4.title': 'Planes de soporte',
-    'nav.mega.rec.4.desc': 'Soporte técnico y planes premium',
+    'nav.mega.rec.4.title': 'Roadmap',
+    'nav.mega.rec.4.desc': 'Lo que estamos construyendo',
     'nav.mega.rec.foot': 'Conoce Flouvia, la casa de Cord',
 
     'nav.mobile.menu': 'Menú',
@@ -263,8 +263,8 @@ export const ui = {
     'nav.mega.rec.2.desc': 'What your client receives',
     'nav.mega.rec.3.title': 'Help center',
     'nav.mega.rec.3.desc': 'Articles, guides, and troubleshooting',
-    'nav.mega.rec.4.title': 'Support plans',
-    'nav.mega.rec.4.desc': 'Technical support and premium plans',
+    'nav.mega.rec.4.title': 'Roadmap',
+    'nav.mega.rec.4.desc': 'See what we are building',
     'nav.mega.rec.foot': 'Meet Flouvia, the home of Cord',
 
     'nav.mobile.menu': 'Menu',
