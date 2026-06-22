@@ -66,9 +66,9 @@ const statusMap = {
                     </div>
 
                     <label class="rd-toggle-wrap">
+                        <span class="rd-toggle-label">Mostrar solo integrables (API)</span>
                         <input type="checkbox" class="rd-toggle-input" id="filter-api" />
                         <span class="rd-toggle-slider"></span>
-                        <span class="rd-toggle-label">Mostrar solo integrables (API)</span>
                     </label>
                 </div>
                 </div>
@@ -161,10 +161,7 @@ const statusMap = {
         border: 1px solid var(--color-border);
         border-radius: 24px;
         padding: 2.2rem;
-        box-shadow: 
-            0 4px 6px -1px rgba(0,0,0,0.02),
-            0 20px 40px -8px rgba(0,0,0,0.06),
-            0 40px 80px -12px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         position: relative;
     }
     .rd-sidebar-card::before {
@@ -179,33 +176,36 @@ const statusMap = {
 
     .rd-tabs {
         display: flex;
-        background: var(--color-bg-soft);
-        padding: 5px;
-        border-radius: 14px;
-        margin-bottom: 2.5rem;
-        border: 1px solid var(--color-border);
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        gap: 2rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--color-border);
     }
     .rd-tab {
-        flex: 1;
         background: none;
         border: none;
-        padding: 0.7rem 0;
+        padding: 0 0 1rem;
         font-family: inherit;
-        font-size: 0.9rem;
-        font-weight: 600;
+        font-size: 1.15rem;
+        font-weight: 800;
         color: var(--color-text-muted);
         cursor: pointer;
-        border-radius: 10px;
-        transition: all 0.3s;
+        position: relative;
+        transition: color 0.3s;
     }
     .rd-tab:hover {
         color: var(--color-text);
     }
     .rd-tab.is-active {
-        background: var(--color-bg);
         color: var(--color-text);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .rd-tab.is-active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--color-text);
     }
 
     .rd-filters-title {
@@ -259,6 +259,7 @@ const statusMap = {
     .rd-toggle-wrap {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 0.8rem;
         cursor: pointer;
         margin-top: 1rem;
@@ -270,7 +271,7 @@ const statusMap = {
         position: relative;
         width: 44px;
         height: 24px;
-        background: var(--color-border);
+        background: #e5e7eb;
         border-radius: 100px;
         transition: background 0.3s;
         flex-shrink: 0;
@@ -285,10 +286,9 @@ const statusMap = {
         top: 3px;
         left: 3px;
         transition: transform 0.3s var(--ease-spring);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .rd-toggle-input:checked + .rd-toggle-slider {
-        background: var(--color-blue-deep);
+        background: #34c759;
     }
     .rd-toggle-input:checked + .rd-toggle-slider::before {
         transform: translateX(20px);
@@ -403,14 +403,10 @@ const statusMap = {
     @media (prefers-color-scheme: dark) {
         .rd-sidebar-card {
             background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-            box-shadow: 0 32px 64px -12px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .rd-sidebar-card::before {
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-        }
-        .rd-tab.is-active {
-            background: rgba(255,255,255,0.08);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .status-live { color: #34d399; }
         .status-beta { color: #fbbf24; }
