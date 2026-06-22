@@ -6,7 +6,7 @@ import CustomSignUp from '../components/auth/CustomSignUp';
 <Layout title="Registro B2B - Cord">
     <div class="auth-page">
         <a href="/" class="auth-logo">
-            <img src="/imgs/logo-cord-white.png" alt="Cord" height="26" />
+            <img src="/imgs/logo-cord-navy.png" alt="Cord" height="26" />
         </a>
 
         <CustomSignUp client:only="react" />
@@ -22,9 +22,7 @@ import CustomSignUp from '../components/auth/CustomSignUp';
 
     .auth-page {
         min-height: 100vh;
-        background:
-            radial-gradient(ellipse 80% 60% at 50% -10%, rgba(30,72,140,0.22) 0%, transparent 60%),
-            radial-gradient(ellipse at 50% 120%, #0c1f3d 0%, #0a192f 55%, #060f1f 100%);
+        background: #ffffff;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -36,7 +34,7 @@ import CustomSignUp from '../components/auth/CustomSignUp';
 
     .auth-logo {
         display: block;
-        opacity: 0.92;
+        opacity: 0.95;
         transition: opacity 0.2s ease;
     }
     .auth-logo:hover { opacity: 1; }
@@ -44,7 +42,7 @@ import CustomSignUp from '../components/auth/CustomSignUp';
 
     .auth-page-footer {
         font-size: 0.72rem;
-        color: rgba(255,255,255,0.28);
+        color: #b4bcc7;
         font-weight: 500;
         letter-spacing: 0.02em;
         margin: 0;
@@ -69,14 +67,14 @@ import CustomSignUp from '../components/auth/CustomSignUp';
     .auth-title {
         font-size: 1.5rem;
         font-weight: 600;
-        color: #ffffff;
+        color: #0a192f;
         margin: 0 0 0.4rem;
         letter-spacing: -0.025em;
     }
 
     .auth-subtitle {
         font-size: 0.9rem;
-        color: rgba(255,255,255,0.45);
+        color: #6b7686;
         margin: 0;
         font-weight: 400;
     }
@@ -102,44 +100,43 @@ import CustomSignUp from '../components/auth/CustomSignUp';
     .form-group label {
         font-size: 0.78rem;
         font-weight: 500;
-        color: rgba(255,255,255,0.6);
+        color: #4a5567;
         letter-spacing: 0.01em;
     }
 
     .forgot-link {
         font-size: 0.76rem;
-        color: rgba(255,255,255,0.55);
+        color: #6b7686;
         text-decoration: none;
         font-weight: 500;
         transition: color 0.2s;
     }
-    .forgot-link:hover { color: #ffffff; }
+    .forgot-link:hover { color: #0a192f; }
 
     .form-input {
         width: 100%;
         box-sizing: border-box;
         padding: 0.72rem 0.9rem;
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid #e4e8ee;
         border-radius: 10px;
         font-size: 0.95rem;
-        color: #ffffff;
-        background: rgba(255,255,255,0.04);
+        color: #0a192f;
+        background: #ffffff;
         transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         outline: none;
     }
-    .form-input::placeholder { color: rgba(255,255,255,0.3); }
-    .form-input:hover { border-color: rgba(255,255,255,0.18); }
+    .form-input::placeholder { color: #aab2bf; }
+    .form-input:hover { border-color: #cdd4dd; }
     .form-input:focus {
-        border-color: rgba(120,160,230,0.6);
-        background: rgba(255,255,255,0.06);
-        box-shadow: 0 0 0 3px rgba(80,130,220,0.15);
+        border-color: #0a192f;
+        box-shadow: 0 0 0 3px rgba(10,25,47,0.08);
     }
 
     .btn-primary {
         width: 100%;
         margin-top: 0.6rem;
-        background: #ffffff;
-        color: #0a192f;
+        background: #0a192f;
+        color: #ffffff;
         border: none;
         padding: 0.78rem 1rem;
         border-radius: 10px;
@@ -150,20 +147,20 @@ import CustomSignUp from '../components/auth/CustomSignUp';
         transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .btn-primary:hover:not(:disabled) {
-        background: rgba(255,255,255,0.9);
+        background: #112444;
         transform: translateY(-1px);
-        box-shadow: 0 8px 24px -6px rgba(0,0,0,0.5);
+        box-shadow: 0 8px 22px -8px rgba(10,25,47,0.4);
     }
     .btn-primary:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
     .auth-error {
         font-size: 0.82rem;
-        color: #fca5a5;
-        background: rgba(220,38,38,0.1);
+        color: #dc2626;
+        background: #fef2f2;
         padding: 0.7rem 0.875rem;
         border-radius: 8px;
-        border: 1px solid rgba(248,113,113,0.25);
+        border: 1px solid #fecaca;
     }
 
     .auth-divider {
@@ -176,13 +173,13 @@ import CustomSignUp from '../components/auth/CustomSignUp';
         position: absolute;
         top: 50%; left: 0; right: 0;
         height: 1px;
-        background: rgba(255,255,255,0.1);
+        background: #ebeef2;
     }
     .auth-divider span {
         position: relative;
-        background: #0a192f;
+        background: #ffffff;
         padding: 0 0.875rem;
-        color: rgba(255,255,255,0.4);
+        color: #aab2bf;
         font-size: 0.74rem;
         font-weight: 500;
     }
@@ -194,20 +191,20 @@ import CustomSignUp from '../components/auth/CustomSignUp';
         align-items: center;
         justify-content: center;
         gap: 0.7rem;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.1);
+        background: #ffffff;
+        border: 1px solid #e4e8ee;
         padding: 0.72rem 1rem;
         border-radius: 10px;
         font-size: 0.9rem;
         font-weight: 500;
-        color: rgba(255,255,255,0.92);
+        color: #1e293b;
         cursor: pointer;
         transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         width: 100%;
     }
     .btn-social:hover:not(:disabled) {
-        border-color: rgba(255,255,255,0.22);
-        background: rgba(255,255,255,0.07);
+        border-color: #cdd4dd;
+        background: #fafbfc;
     }
     .btn-social:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -215,11 +212,11 @@ import CustomSignUp from '../components/auth/CustomSignUp';
         margin-top: 1.75rem;
         text-align: center;
         font-size: 0.85rem;
-        color: rgba(255,255,255,0.45);
+        color: #6b7686;
     }
     .auth-footer a {
-        color: #ffffff;
-        font-weight: 500;
+        color: #0a192f;
+        font-weight: 600;
         text-decoration: none;
     }
     .auth-footer a:hover { text-decoration: underline; }

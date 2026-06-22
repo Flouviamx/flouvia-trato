@@ -661,19 +661,21 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
    sutil cuadrícula punteada (radial-gradient mesh) en `#0a192f`. Se reemplazó el texto por logotipos reales.
    Los inputs y botones (`.btn-primary`) adoptan el Cord Navy puro (`#0a192f`), con sombras escalonadas y
    levantamientos `translateY(-1px)`.
-✅ **Auth pages — layout split premium (jun 2026)** — `/sign-in` y `/sign-up` rediseñadas con layout
-   de dos columnas estilo Linear/Stripe en vez de card centrada sobre fondo blanco (que lucía plana porque
-   las sombras/bordes estaban a opacidad 0.05–0.06 = invisibles). Estructura:
-   • **Panel izquierdo navy** (`#0a192f`, 50%): logo Cord white, eyebrow "PLATAFORMA B2B", headline +
-     subtítulo de valor, 3 bullets con checkmarks SVG verdes, footer "Hecho en México · Datos cifrados".
-     Dos orbes radiales de profundidad (`::before`/`::after`). Se oculta en mobile (≤768px).
-   • **Panel derecho** (`#f8f9fb` + cuadrícula punteada 0.045 opacidad, visible sobre el fondo gris):
-     `auth-card` blanca con sombra real en 3 capas (0.04/0.12/0.08 opacidad), border 1px 0.1 opacidad,
-     inputs con border 1.5px + focus ring navy, botón navy con sombra real.
-   • **CSS compartido en cada página** (mismo bloque `<style is:global>`). Mobile: card sin sombra ni
-     border, fondo blanco puro (sin cuadrícula).
-   • **`client:only="react"`** en ambas páginas (corregido de `client:load`; Clerk requiere contexto
-     de cliente — ver bug documentado más abajo sobre pantalla blanca).
+✅ **Auth pages — minimalista tipo Linear (jun 2026)** — `/sign-in` y `/sign-up` rediseñadas a petición
+   de André ("minimalista tipo Linear pero esencia Cord, fondo blanco"). Se descartó tanto la card centrada
+   original (lucía plana: sombras/bordes a opacidad 0.05 = invisibles) como un intento de layout split de
+   dos columnas. Diseño final:
+   • **Fondo blanco limpio, todo centrado en columna** (sin panel lateral, sin card chrome — `.auth-card`
+     es `transparent`, sin borde ni sombra). El formulario flota sobre el blanco al estilo Linear, pero en
+     claro y con navy Cord. Estructura: logo Cord navy → formulario (Custom*) → footer "Hecho en México ·
+     Datos cifrados".
+   • **Estética Cord:** título navy `#0a192f` peso 600 tracking −0.025em, inputs border 1px sutil + focus
+     ring navy `rgba(10,25,47,0.08)`, botón primario navy sólido full-width con hover `translateY(-1px)`,
+     sociales blancos con border sutil. Inter, mucho aire (`gap: 2.25rem`), fade-in suave.
+   • **CSS compartido idéntico en cada página** (mismo bloque `<style is:global>`; clases consumidas por
+     `CustomSignIn`/`CustomSignUp`). `body:has(.auth-page)` oculta nav/footer de la landing.
+   • **`client:only="react"`** en ambas páginas (corregido de `client:load`; Clerk requiere contexto de
+     cliente — ver bug documentado más abajo sobre pantalla blanca).
 ✅ **OrgSwitcher "Linear-Style" (jun 2026)** — El `CustomOrgSwitcher.tsx` se rediseñó para operar en
    **Modo Oscuro Nativo** y acoplarse perfectamente al sidebar navy (`#0a192f`). El botón base es transparente
    con texto blanco semi-translúcido, y el menú desplegable flota con fondo `#0a192f` y bordes finos de alto
