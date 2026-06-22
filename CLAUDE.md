@@ -632,8 +632,8 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
    nativos `<SignIn/>`/`<SignUp/>` de Clerk** para los flujos de auth — usa **islas React
    propias** basadas en nanostores (`CustomSignIn`, `CustomSignUp`, `CustomOrgSwitcher`,
    `ForgotPassword`, `VerifyEmail`, `CreateWorkspace`) que escuchan la instancia global
-   `$clerkStore`/`$userStore` inyectada por `@clerk/astro`. Sí se usan nativos para
-   `<OrganizationProfile/>` (Ajustes › Equipo) y `<UserProfile/>` (Ajustes › Cuenta). Las
+   `$clerkStore`/`$userStore` inyectada por `@clerk/astro`. Sí se usa el nativo para
+   `<UserProfile/>` (Ajustes › Cuenta). Las
    entradas de abajo que dicen "componentes nativos/oficiales de Clerk" reflejan un intento
    que se revirtió a los `Custom*`. **El "Entorno de prueba" (`testMode.ts` / `cord_test_mode`)
    es COSMÉTICO**: solo cambia el prefijo de API key mostrado en Ajustes › Developers; NO
@@ -641,7 +641,7 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
    componentes nuevos sin commitear en `src/components/auth/` (`SignInForm.tsx`, etc.).
 ✅ **Clerk Premium UI & Nativos (jun 2026)** — Retorno a los componentes oficiales de Clerk (`<SignIn />`, `<SignUp />`, `<OrganizationSwitcher />`, `<OrganizationProfile />`) estilizados globalmente vía `appearance` con un diseño oscuro premium estilo Stripe/Linear (`src/lib/clerk-theme.ts`), eliminando código React manual redundante.
    • **Flujos de Autenticación**: Las rutas `/sign-in` y `/sign-up` montan los componentes nativos de `@clerk/astro` con redirecciones server-side desde `/login` y `/registro` en `astro.config.mjs`.
-   • **Motor B2B (Organizations)**: Todo el control de equipo (invitaciones, roles, accesos) se centralizó en `<OrganizationProfile />` (en `/app/ajustes/equipo`), eliminando componentes y pestañas de invitaciones sueltos.
+   • **Motor B2B (Organizations)**: El control de equipo (invitaciones, roles, accesos) opera mediante una **interfaz 100% custom y nativa estilo Stripe** (en `/app/ajustes/equipo`) que consume nuestros webhooks (`/api/equipo`), reemplazando definitivamente a `<OrganizationProfile />` por razones de diseño y control UX "Quiet Luxury".
    • **Componentes B2B**: El selector de espacios de trabajo se reemplazó por el `<OrganizationSwitcher />` nativo en el sidebar de `AppLayout.astro`. El onboarding usa `<CreateOrganization />`.
 ✅ **Colaboración en Tiempo Real y Firmas Nativas (jun 2026)** —
    • **Hilos de negociación embebidos**: Comentarios interactivos por cada línea de la cotización (`cotizacion_comentarios`). Los clientes pueden debatir partidas específicas y llegar a un acuerdo granular en la misma vista pública de la cotización (`QuoteCard.astro` y `/api/q/[token].ts`).
@@ -691,7 +691,7 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
    • **Nanostore de Test Mode:** Se introdujo `testMode.ts` (estado global sincronizado con `localStorage` como `cord_test_mode`) y se acopló al interruptor "Entorno de prueba" en el `CustomOrgSwitcher.tsx`.
    • **Rediseño "Quiet Luxury" en Desarrolladores:** Se eliminó la dependencia de `DeveloperUI.css` (estilo Stripe morado/blanco) en `/app/ajustes/api.astro`. La interfaz ahora usa clases nativas de Cord (`.api-btn-solid`, `.api-btn-ghost`) asegurando un Modo Oscuro perfecto.
    • **Org Switcher UI Fix:** Corrección de contraste de texto y recortes `text-overflow` (`min-width: 0` + `ellipsis`) para nombres de usuario/emails largos.
-✅ **Integración Visual Nivel App (Clerk) (jun 2026)** — El componente `<OrganizationProfile>` (Ajustes de Equipo) ahora se integra de forma transparente en el layout claro de la App (`equipo.astro`) mediante un nuevo `clerkAppAppearance` definido en `clerk-theme.ts`, eliminando el choque visual del modo oscuro forzado.
+✅ **Reescritura Custom de Equipo y Roles (jun 2026)** — Se removió el componente "enlatado" `<OrganizationProfile>` de Clerk en favor de una vista `equipo.astro` 100% nativa. El nuevo diseño (inspirado en Stripe) introduce filtros estilo "píldora" fluidos, botones primarios con efectos glassmorphism/gradient, y modales nativos para invitar, editar roles y revocar accesos (conectados a `/api/equipo`), garantizando fidelidad total al "Dark Mode" del SaaS.
 ✅ **Cableado real de features "andamiaje" (jun 2026)** — auditoría que conectó al
    flujo real varias features que existían como tablas+clases pero NO se invocaban:
    • **Fix de dependencia (zod):** `@modelcontextprotocol/sdk` rompía en runtime por
