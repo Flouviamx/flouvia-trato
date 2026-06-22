@@ -27,108 +27,195 @@ import PageAnims from '../../components/landing/PageAnims.astro';
 
         <!-- ── CONTENIDO ROADMAP ── -->
         <div class="rd-layout">
-            <!-- Sidebar Navigation -->
+            <!-- Sidebar: Filters -->
             <aside class="rd-sidebar reveal">
-                <nav class="rd-nav">
-                    <a href="#quotes" class="rd-nav-link is-active">
-                        <span class="rd-nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
-                        Quotes & Sales
-                    </a>
-                    <a href="#finance" class="rd-nav-link">
-                        <span class="rd-nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
-                        Finance & Credit
-                    </a>
-                    <a href="#compliance" class="rd-nav-link">
-                        <span class="rd-nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
-                        Tax & Compliance
-                    </a>
-                </nav>
+                <div class="rd-tabs">
+                    <button class="rd-tab is-active">Roadmap</button>
+                    <button class="rd-tab">Shipped</button>
+                </div>
+                
+                <div class="rd-filters">
+                    <p class="rd-filters-title">Filter by</p>
+                    
+                    <div class="rd-filter-group">
+                        <select class="rd-select" id="filter-area" aria-label="Product area">
+                            <option value="all">Product area</option>
+                            <option value="quotes">Quotes & Sales</option>
+                            <option value="finance">Finance & Credit</option>
+                            <option value="compliance">Tax & Compliance</option>
+                        </select>
+                        <i class="rd-select-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></i>
+                    </div>
+
+                    <div class="rd-filter-group">
+                        <select class="rd-select" id="filter-status" aria-label="Availability">
+                            <option value="all">Availability</option>
+                            <option value="live">Live</option>
+                            <option value="beta">In beta</option>
+                            <option value="next">Coming soon</option>
+                        </select>
+                        <i class="rd-select-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></i>
+                    </div>
+
+                    <label class="rd-toggle-wrap">
+                        <input type="checkbox" class="rd-toggle-input" id="filter-api" />
+                        <span class="rd-toggle-slider"></span>
+                        <span class="rd-toggle-label">Show only API integrable</span>
+                    </label>
+                </div>
             </aside>
 
-            <!-- Secciones -->
+            <!-- Lista de Productos (Rows) -->
             <div class="rd-content">
-                
-                <!-- 1. Cotizaciones -->
-                <section id="quotes" class="rd-section">
-                    <h2 class="rd-h2 reveal">Quotes & Sales</h2>
-                    <p class="rd-section-desc reveal">Build commercial proposals your clients can't refuse. The modern B2B buying experience, from first contact to closing.</p>
+                <div class="rd-list" id="roadmap-list">
                     
-                    <div class="rd-grid">
-                        <div class="rd-card reveal">
-                            <div class="rd-card-status status-live">Live</div>
-                            <h3>Quote Editor</h3>
-                            <p>Negotiated prices line by line. Drag and drop products, apply volume discounts, and adjust margins in real time with live tax calculations.</p>
+                    <!-- Item 1 -->
+                    <article class="rd-row reveal" data-area="quotes" data-status="live" data-api="true">
+                        <div class="rd-row-status status-live">Live</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>Quote Editor</h3>
+                                <p>Negotiated prices line by line. Drag and drop products, apply volume discounts, and adjust margins in real time with live tax calculations.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
                         </div>
-                        <div class="rd-card reveal">
-                            <div class="rd-card-status status-live">Live</div>
-                            <h3>Interactive Public Link</h3>
-                            <p>Your client approves in one click from their phone. Forget about static PDFs. Deliver a professional and digital brand experience.</p>
+                    </article>
+
+                    <!-- Item 2 -->
+                    <article class="rd-row reveal" data-area="quotes" data-status="live" data-api="false">
+                        <div class="rd-row-status status-live">Live</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>Interactive Public Link</h3>
+                                <p>Your client approves in one click from their phone. Forget about static PDFs. Deliver a professional and digital brand experience.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
                         </div>
-                        <div class="rd-card reveal">
-                            <div class="rd-card-status status-live">Live</div>
-                            <h3>Live Tracking</h3>
-                            <p>Push notifications the exact moment your client opens the quote. Call them when they are most interested and close more deals.</p>
+                    </article>
+
+                    <!-- Item 3 -->
+                    <article class="rd-row reveal" data-area="quotes" data-status="live" data-api="true">
+                        <div class="rd-row-status status-live">Live</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>Live Tracking</h3>
+                                <p>Push notifications the exact moment your client opens the quote. Call them when they are most interested and close more deals.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
                         </div>
-                        <div class="rd-card rd-card-future reveal">
-                            <div class="rd-card-status status-beta">In Beta</div>
-                            <h3>Cord Elements</h3>
-                            <p>Embed our quoting engine directly into your company portal or B2B website. Let your clients build quotes on their own.</p>
+                    </article>
+
+                    <!-- Item 4 -->
+                    <article class="rd-row reveal" data-area="quotes" data-status="beta" data-api="true">
+                        <div class="rd-row-status status-beta">In beta</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>Cord Elements</h3>
+                                <p>Embed our quoting engine directly into your company portal or B2B website. Let your clients build quotes on their own.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
                         </div>
+                    </article>
+
+                    <!-- Item 5 -->
+                    <article class="rd-row reveal" data-area="finance" data-status="live" data-api="true">
+                        <div class="rd-row-status status-live">Live</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>Clients & Credit (Net 30/60)</h3>
+                                <p>Assign credit limits and payment terms per client. Cord blocks new quotes if the client exceeds their limit or has overdue invoices.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Item 6 -->
+                    <article class="rd-row reveal" data-area="finance" data-status="live" data-api="false">
+                        <div class="rd-row-status status-live">Live</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>Multi-currency & FX</h3>
+                                <p>Quote in USD, charge in MXN. Exchange rates updated in real-time based on the Central Bank (Banxico). Protect your margins from volatility.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Item 7 -->
+                    <article class="rd-row reveal" data-area="finance" data-status="next" data-api="false">
+                        <div class="rd-row-status status-next">Coming soon</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>AI Collections</h3>
+                                <p>An intelligent agent that sends polite payment reminders via email and WhatsApp to your overdue accounts, adapting its tone to the relationship with each client.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Item 8 -->
+                    <article class="rd-row reveal" data-area="compliance" data-status="live" data-api="true">
+                        <div class="rd-row-status status-live">Live</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>Automated CFDI 4.0 Stamping</h3>
+                                <p>Directly to the SAT. When a quote is approved, it becomes an order and the PUE or PPD invoice is stamped automatically. No retyping required.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Item 9 -->
+                    <article class="rd-row reveal" data-area="compliance" data-status="live" data-api="true">
+                        <div class="rd-row-status status-live">Live</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>RFC & Tax ID Validation</h3>
+                                <p>Automatic reading of your clients' tax situation certificates via OCR. Avoid stamping errors due to incorrect zip codes or tax regimes.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Item 10 -->
+                    <article class="rd-row reveal" data-area="compliance" data-status="beta" data-api="true">
+                        <div class="rd-row-status status-beta">In beta</div>
+                        <div class="rd-row-main">
+                            <div class="rd-row-copy">
+                                <h3>International Invoicing</h3>
+                                <p>Issue foreign trade invoices with local compliance regulations for sales in the US and Latin America. Global tax architecture.</p>
+                            </div>
+                            <div class="rd-row-arrow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Empty state para filtros -->
+                    <div id="rd-empty" class="rd-empty" style="display: none;">
+                        <p>No products match your selected filters.</p>
+                        <button id="rd-clear-filters" class="rd-btn-ghost">Clear filters</button>
                     </div>
-                </section>
 
-                <hr class="rd-divider" />
-
-                <!-- 2. Finanzas -->
-                <section id="finance" class="rd-section">
-                    <h2 class="rd-h2 reveal">Finance & Credit</h2>
-                    <p class="rd-section-desc reveal">Control commercial terms, credit lines, and automatically chase overdue invoices.</p>
-                    
-                    <div class="rd-grid">
-                        <div class="rd-card reveal">
-                            <div class="rd-card-status status-live">Live</div>
-                            <h3>Clients & Credit (Net 30/60)</h3>
-                            <p>Assign credit limits and payment terms per client. Cord blocks new quotes if the client exceeds their limit or has overdue invoices.</p>
-                        </div>
-                        <div class="rd-card reveal">
-                            <div class="rd-card-status status-live">Live</div>
-                            <h3>Multi-currency & FX</h3>
-                            <p>Quote in USD, charge in MXN. Exchange rates updated in real-time based on the Central Bank (Banxico). Protect your margins from volatility.</p>
-                        </div>
-                        <div class="rd-card rd-card-future reveal">
-                            <div class="rd-card-status status-next">Coming Soon</div>
-                            <h3>AI Collections</h3>
-                            <p>An intelligent agent that sends polite payment reminders via email and WhatsApp to your overdue accounts, adapting its tone to the relationship with each client.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <hr class="rd-divider" />
-
-                <!-- 3. Fiscal -->
-                <section id="compliance" class="rd-section">
-                    <h2 class="rd-h2 reveal">Tax & Compliance</h2>
-                    <p class="rd-section-desc reveal">Robust architecture to comply with tax authorities without ever leaving the platform.</p>
-                    
-                    <div class="rd-grid">
-                        <div class="rd-card reveal">
-                            <div class="rd-card-status status-live">Live</div>
-                            <h3>Automated CFDI 4.0 Stamping</h3>
-                            <p>Directly to the SAT. When a quote is approved, it becomes an order and the PUE or PPD invoice is stamped automatically. No retyping required.</p>
-                        </div>
-                        <div class="rd-card reveal">
-                            <div class="rd-card-status status-live">Live</div>
-                            <h3>RFC & Tax ID Validation</h3>
-                            <p>Automatic reading of your clients' tax situation certificates via OCR. Avoid stamping errors due to incorrect zip codes or tax regimes.</p>
-                        </div>
-                        <div class="rd-card rd-card-future reveal">
-                            <div class="rd-card-status status-beta">In Beta</div>
-                            <h3>International Invoicing</h3>
-                            <p>Issue foreign trade invoices with local compliance regulations for sales in the US and Latin America. Global tax architecture.</p>
-                        </div>
-                    </div>
-                </section>
-
+                </div>
             </div>
         </div>
 
@@ -172,136 +259,233 @@ import PageAnims from '../../components/landing/PageAnims.astro';
     /* Layout principal */
     .rd-layout {
         display: grid;
-        grid-template-columns: 240px 1fr;
-        gap: 4rem;
+        grid-template-columns: 280px 1fr;
+        gap: 5rem;
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 5% 5rem;
         align-items: start;
     }
 
-    /* Sidebar */
+    /* Sidebar & Filters */
     .rd-sidebar {
         position: sticky;
         top: 6rem;
     }
-    .rd-nav {
+    
+    .rd-tabs {
+        display: flex;
+        gap: 1.5rem;
+        border-bottom: 1px solid var(--color-border);
+        margin-bottom: 2.5rem;
+        padding-bottom: 0px;
+    }
+    .rd-tab {
+        background: none;
+        border: none;
+        padding: 0 0 0.8rem;
+        font-family: inherit;
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        position: relative;
+        transition: color 0.3s;
+    }
+    .rd-tab:hover {
+        color: var(--color-text);
+    }
+    .rd-tab.is-active {
+        color: var(--color-text);
+    }
+    .rd-tab.is-active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--color-blue-deep);
+    }
+
+    .rd-filters-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin: 0 0 1rem;
+    }
+    .rd-filters {
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
+        gap: 1rem;
     }
-    .rd-nav-link {
+
+    .rd-filter-group {
+        position: relative;
+    }
+    .rd-select {
+        width: 100%;
+        appearance: none;
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 0.85rem 2.5rem 0.85rem 1rem;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--color-text);
+        cursor: pointer;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .rd-select:focus {
+        outline: none;
+        border-color: var(--color-blue-deep);
+        box-shadow: 0 0 0 3px rgba(10,25,47,0.08);
+    }
+    .rd-select-ico {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: var(--color-text-muted);
+    }
+    .rd-select-ico svg { width: 16px; height: 16px; }
+
+    /* Toggle Switch */
+    .rd-toggle-wrap {
         display: flex;
         align-items: center;
         gap: 0.8rem;
-        padding: 0.8rem 1rem;
-        border-radius: 12px;
-        color: var(--color-text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-top: 1rem;
     }
-    .rd-nav-link:hover {
-        background: var(--color-bg-soft);
+    .rd-toggle-input {
+        display: none;
+    }
+    .rd-toggle-slider {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        background: var(--color-border);
+        border-radius: 100px;
+        transition: background 0.3s;
+        flex-shrink: 0;
+    }
+    .rd-toggle-slider::before {
+        content: '';
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.3s var(--ease-spring);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .rd-toggle-input:checked + .rd-toggle-slider {
+        background: var(--color-blue-deep);
+    }
+    .rd-toggle-input:checked + .rd-toggle-slider::before {
+        transform: translateX(20px);
+    }
+    .rd-toggle-label {
+        font-size: 0.9rem;
         color: var(--color-text);
+        line-height: 1.4;
     }
-    .rd-nav-link.is-active {
-        background: rgba(10, 37, 64, 0.05);
+
+    /* List & Rows */
+    .rd-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .rd-row {
+        display: flex;
+        flex-direction: column;
+        padding: 2.2rem 0;
+        border-top: 1px solid var(--color-border);
+        cursor: pointer;
+        transition: opacity 0.3s, transform 0.3s;
+    }
+    /* Primer elemento sin borde top para alinear con título de sidebar */
+    .rd-row:first-child {
+        border-top: none;
+        padding-top: 0;
+    }
+
+    .rd-row:hover .rd-row-copy h3 {
         color: var(--color-blue-deep);
     }
-    .rd-nav-ico {
-        display: flex;
-        color: inherit;
-    }
-    .rd-nav-ico svg { width: 18px; height: 18px; }
-
-    /* Content & Sections */
-    .rd-section {
-        padding-top: 1rem;
-        margin-bottom: 2rem;
-    }
-    .rd-h2 {
-        font-size: 2rem;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        margin: 0 0 1rem;
-        color: var(--color-text);
-    }
-    .rd-section-desc {
-        font-size: 1.1rem;
-        line-height: 1.6;
-        color: var(--color-text-muted);
-        margin-bottom: 3rem;
-        max-width: 700px;
-    }
-
-    /* Cards Grid */
-    .rd-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 1.5rem;
-    }
-    .rd-card {
-        background: var(--color-bg);
-        border: 1px solid var(--color-border);
-        border-radius: 16px;
-        padding: 2rem;
-        transition: transform 0.4s var(--ease-spring), box-shadow 0.4s ease, border-color 0.4s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    .rd-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05);
-        border-color: rgba(10, 37, 64, 0.15);
-    }
-    .rd-card-future {
-        background: var(--color-bg-soft);
-        border-style: dashed;
-    }
-    .rd-card h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin: 1.2rem 0 0.8rem;
-        letter-spacing: -0.02em;
-        color: var(--color-text);
-    }
-    .rd-card p {
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: var(--color-text-muted);
-        margin: 0;
+    .rd-row:hover .rd-row-arrow {
+        transform: translateX(4px);
+        color: var(--color-blue-deep);
     }
 
     /* Status Badges */
-    .rd-card-status {
-        display: inline-flex;
-        align-items: center;
-        font-size: 0.75rem;
-        font-weight: 700;
+    .rd-row-status {
+        display: inline-block;
+        font-size: 0.65rem;
+        font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 1px;
-        padding: 4px 10px;
-        border-radius: 100px;
+        margin-bottom: 0.8rem;
     }
-    .status-live {
-        background: rgba(16, 185, 129, 0.1);
-        color: #059669;
-    }
-    .status-beta {
-        background: rgba(245, 158, 11, 0.1);
-        color: #d97706;
-    }
-    .status-next {
-        background: rgba(99, 102, 241, 0.1);
-        color: #4f46e5;
+    .status-live { color: #059669; }
+    .status-beta { color: #d97706; }
+    .status-next { color: #4f46e5; }
+
+    .rd-row-main {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 2rem;
     }
 
-    .rd-divider {
-        border: none;
-        border-top: 1px solid var(--color-border);
-        margin: 4rem 0;
+    .rd-row-copy h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        letter-spacing: -0.01em;
+        color: var(--color-text);
+        transition: color 0.3s;
+    }
+    .rd-row-copy p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--color-text-muted);
+        margin: 0;
+        max-width: 650px;
+    }
+
+    .rd-row-arrow {
+        flex-shrink: 0;
+        color: var(--color-text-muted);
+        transition: transform 0.3s var(--ease-spring), color 0.3s;
+        margin-top: 0.2rem;
+    }
+    .rd-row-arrow svg { width: 22px; height: 22px; }
+
+    .rd-empty {
+        text-align: center;
+        padding: 4rem 0;
+        color: var(--color-text-muted);
+    }
+    .rd-empty p { margin-bottom: 1rem; }
+    .rd-btn-ghost {
+        background: none;
+        border: 1px solid var(--color-border);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        color: var(--color-text);
+        cursor: pointer;
+    }
+    .rd-btn-ghost:hover {
+        background: var(--color-bg-soft);
     }
 
     /* CTA Bottom */
@@ -340,23 +524,14 @@ import PageAnims from '../../components/landing/PageAnims.astro';
 
     /* Dark mode support */
     @media (prefers-color-scheme: dark) {
-        .rd-nav-link.is-active {
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-        }
-        .rd-card {
-            background: rgba(255,255,255,0.02);
-        }
-        .rd-card:hover {
-            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3);
-            border-color: rgba(255,255,255,0.15);
-        }
-        .rd-card-future {
-            background: rgba(0,0,0,0.2);
-        }
-        .status-live { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-        .status-beta { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-        .status-next { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+        .rd-tab.is-active::after { background: #fff; }
+        .rd-select { background: rgba(255,255,255,0.03); }
+        .rd-row:hover .rd-row-copy h3 { color: #fff; }
+        .rd-row:hover .rd-row-arrow { color: #fff; }
+        .status-live { color: #34d399; }
+        .status-beta { color: #fbbf24; }
+        .status-next { color: #818cf8; }
+        .rd-toggle-slider { background: rgba(255,255,255,0.15); }
     }
 
     /* Responsive */
@@ -368,64 +543,61 @@ import PageAnims from '../../components/landing/PageAnims.astro';
         .rd-sidebar {
             position: relative;
             top: 0;
-            overflow-x: auto;
-            padding-bottom: 1rem;
-        }
-        .rd-nav {
-            flex-direction: row;
-            width: max-content;
-        }
-    }
-    @media (max-width: 600px) {
-        .rd-grid {
-            grid-template-columns: 1fr;
+            z-index: 10;
         }
     }
 </style>
 
 <script>
-    // Intersection Observer for scroll spy on sidebar
     document.addEventListener('DOMContentLoaded', () => {
-        const sections = document.querySelectorAll('.rd-section');
-        const navLinks = document.querySelectorAll('.rd-nav-link');
+        const selectArea = document.getElementById('filter-area') as HTMLSelectElement;
+        const selectStatus = document.getElementById('filter-status') as HTMLSelectElement;
+        const toggleApi = document.getElementById('filter-api') as HTMLInputElement;
+        const rows = document.querySelectorAll('.rd-row');
+        const emptyState = document.getElementById('rd-empty');
+        const btnClear = document.getElementById('rd-clear-filters');
 
-        const observerOptions = {
-            root: null,
-            rootMargin: '-20% 0px -70% 0px',
-            threshold: 0
+        const filterRows = () => {
+            const area = selectArea?.value;
+            const status = selectStatus?.value;
+            const needsApi = toggleApi?.checked;
+            let visibleCount = 0;
+
+            rows.forEach((row) => {
+                const el = row as HTMLElement;
+                const rArea = el.dataset.area;
+                const rStatus = el.dataset.status;
+                const rApi = el.dataset.api === 'true';
+
+                let show = true;
+                if (area && area !== 'all' && rArea !== area) show = false;
+                if (status && status !== 'all' && rStatus !== status) show = false;
+                if (needsApi && !rApi) show = false;
+
+                if (show) {
+                    el.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+
+            if (emptyState) {
+                emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
         };
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const id = entry.target.getAttribute('id');
-                    navLinks.forEach(link => {
-                        link.classList.remove('is-active');
-                        if (link.getAttribute('href') === `#${id}`) {
-                            link.classList.add('is-active');
-                        }
-                    });
-                }
-            });
-        }, observerOptions);
+        selectArea?.addEventListener('change', filterRows);
+        selectStatus?.addEventListener('change', filterRows);
+        toggleApi?.addEventListener('change', filterRows);
 
-        sections.forEach(section => {
-            observer.observe(section);
-        });
-
-        // Smooth scroll for nav links
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href');
-                if (targetId) {
-                    const targetEl = document.querySelector(targetId);
-                    if (targetEl) {
-                        const top = targetEl.getBoundingClientRect().top + window.scrollY - 100;
-                        window.scrollTo({ top, behavior: 'smooth' });
-                    }
-                }
+        if (btnClear) {
+            btnClear.addEventListener('click', () => {
+                if (selectArea) selectArea.value = 'all';
+                if (selectStatus) selectStatus.value = 'all';
+                if (toggleApi) toggleApi.checked = false;
+                filterRows();
             });
-        });
+        }
     });
 </script>
