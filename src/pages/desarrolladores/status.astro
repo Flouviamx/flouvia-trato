@@ -25,7 +25,7 @@ const isEn = lang === 'en';
 const today = new Date();
 const daysCount = 90;
 
-function generateHistory(seedErrorIndices: { index: number, status: string, tooltip: string }[]) {
+function generateHistory(seedErrorIndices: { index: number, status: string, tooltip: string, pct: string }[]) {
     return Array.from({ length: daysCount }).map((_, i) => {
         const date = new Date(today);
         date.setDate(date.getDate() - (daysCount - 1 - i));
@@ -33,12 +33,12 @@ function generateHistory(seedErrorIndices: { index: number, status: string, tool
         const formattedDate = date.toLocaleDateString(isEn ? 'en-US' : 'es-MX', { month: 'short', day: 'numeric', year: 'numeric' });
         
         let status = 'ok';
-        let tooltip = `${formattedDate} — ${isEn ? 'No downtime recorded' : 'Sin tiempo de inactividad'}`;
+        let tooltip = `${formattedDate} — 100% ${isEn ? 'uptime' : 'operativo'} (${isEn ? 'No downtime recorded' : 'Sin tiempo de inactividad'})`;
         
         const seed = seedErrorIndices.find(s => s.index === i);
         if (seed) {
             status = seed.status;
-            tooltip = `${formattedDate} — ${seed.tooltip}`;
+            tooltip = `${formattedDate} — ${seed.pct} ${isEn ? 'uptime' : 'operativo'} (${seed.tooltip})`;
         }
         
         return {
@@ -56,7 +56,7 @@ const services = [
         uptime: '99.99%',
         lat: '42ms',
         history: generateHistory([
-            { index: 85, status: 'warn', tooltip: isEn ? 'Elevated error rates (15m)' : 'Tasa de errores elevada (15m)' }
+            { index: 85, status: 'warn', tooltip: isEn ? 'Elevated error rates (15m)' : 'Tasa de errores elevada (15m)', pct: '99.8%' }
         ])
     },
     {
@@ -65,8 +65,8 @@ const services = [
         uptime: '99.95%',
         lat: '110ms',
         history: generateHistory([
-            { index: 45, status: 'warn', tooltip: isEn ? 'Degraded performance (45m)' : 'Rendimiento degradado (45m)' },
-            { index: 46, status: 'danger', tooltip: isEn ? 'Partial outage (1h 20m)' : 'Caída parcial (1h 20m)' }
+            { index: 45, status: 'warn', tooltip: isEn ? 'Degraded performance (45m)' : 'Rendimiento degradado (45m)', pct: '99.6%' },
+            { index: 46, status: 'danger', tooltip: isEn ? 'Partial outage (1h 20m)' : 'Caída parcial (1h 20m)', pct: '98.5%' }
         ])
     },
     {
@@ -82,7 +82,7 @@ const services = [
         uptime: '99.98%',
         lat: '18ms',
         history: generateHistory([
-            { index: 22, status: 'danger', tooltip: isEn ? 'Routing issues (2h)' : 'Problemas de enrutamiento (2h)' }
+            { index: 22, status: 'danger', tooltip: isEn ? 'Routing issues (2h)' : 'Problemas de enrutamiento (2h)', pct: '99.1%' }
         ])
     }
 ];
