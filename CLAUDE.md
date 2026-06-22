@@ -185,10 +185,7 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
    • **Pendiente de esta tanda** (mismo patrón, ya probado): páginas de **Multi-divisa FX**,
      **Fiscal internacional (US/MX)** y **Cord Elements** en `/desarrolladores`; actualizar el copy
      de la página MCP a **MCP bidireccional + gobernanza de agentes**.
-   • ⚠️ **npm:** el `package.json` RAÍZ (`flouvia-cord`) se publicó por accidente a npm público
-     (no tiene `"private": true` → subió todo el código fuente). Conviene
-     `npm unpublish flouvia-cord@0.0.1` + agregar `"private": true` a la raíz. `@flouviahq/elements`
-     local ya está en **0.2.0** pero npm muestra **0.1.0** → re-publicar desde `packages/elements/`.
+   • ✅ **npm:** se agregó `"private": true` al `package.json` RAÍZ y se ejecutó `npm unpublish flouvia-cord@0.0.1 --force` para evitar la fuga del código fuente. Pendiente: re-publicar `@flouviahq/elements` a la versión **0.2.0** desde `packages/elements/`.
 
 ✅ **Sidebar themed + Developers separado + onboarding ampliado (jun 2026)** — iteración de UI a
    petición de André:
@@ -251,9 +248,8 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
    `localStorage cord.theme`. ⚠️ **Actualizado (jun 2026):** el sidebar y el org switcher YA NO son
    navy fijo — ahora son blancos en claro / navy en oscuro vía las variables `--sb-*` (ver la
    entrada "Sidebar themed" arriba).
-   ⚠️ **Pendiente** (follow-up): migrar los `#fff` hardcodeados de Ajustes (`/app/ajustes/*`),
-   editores (`cotizaciones/nueva`/`editar`) y checkout; el resto del flujo (dashboard,
-   cotizaciones, clientes, productos, analítica, CFO, cobranza) ya es dark-safe.
+   ✅ **Completado:** se migraron todos los `#fff` hardcodeados de Ajustes (`/app/ajustes/*`),
+   editores (`cotizaciones/nueva`/`editar`) y checkout a la variable `var(--surface)`. Ahora todo el flujo es 100% dark-safe.
 ✅ **Dashboard con analíticas nuevas + páginas sin cards (jun 2026)** —
    • Dashboard (`src/pages/app/index.astro`) cablea `getCFO()`+`getAnalytics()` (Promise.all) y
      agrega 4 widgets HAIRLINE: **Salud del pipeline** (DSO/concentración con semáforo),
@@ -915,9 +911,8 @@ owner = override total). Helpers en queries.ts: `getMembers`, `getMyMembership`,
 `/app/ajustes/equipo` → comparte `/unirse/{token}` → la persona inicia sesión
 (login/registro honran `?redirect_url=`) y acepta vía `/api/equipo/join`. **Gating:
 invitar requiere plan Negocio** (`planTieneEquipo`, hoy `['pro','business','negocio']`).
-Pendiente: ocultar controles en el FRONT por permiso (hoy el gate es backend; un
-vendedor ve el botón pero recibe 403), org switcher (un usuario activo = 1 org),
-y migrar a Clerk Organizations nativo si se quiere SSO/switch nativo. NOTA: el
+Pendiente: org switcher (un usuario activo = 1 org),
+y migrar a Clerk Organizations nativo si se quiere SSO/switch nativo. (✅ Se completó ocultar los controles en el FRONT para no mostrar botones a usuarios sin el permiso adecuado). NOTA: el
 "approach Clerk Organizations" elegido se implementó como **membresía propia** porque
 habilitar Organizations es config del dashboard de Clerk (no codeable aquí); la
 identidad sigue siendo Clerk (userId), solo la membresía/permiso es nuestra.

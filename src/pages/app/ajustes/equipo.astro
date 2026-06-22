@@ -1,14 +1,411 @@
 ---
 import SettingsShell from '../../../components/app/SettingsShell.astro';
-import { OrganizationProfile } from '@clerk/astro/components';
-import { clerkAppAppearance } from '../../../lib/clerk-theme';
+import { getOrg, getMembers, getMyMembership, memberCan } from '../../../lib/queries';
+
+const [ORG, ME, members] = await Promise.all([getOrg(), getMyMembership(), getMembers()]);
+const canEdit = memberCan(ME, 'equipo');
+
+const activos = members.filter(m => m.estado === 'activo');
+const pendientes = members.filter(m => m.estado === 'invitado');
+const inactivos = members.filter(m => m.estado === 'revocado');
+
+// Mapeo amigable de roles
+const ROL_LABEL: Record<string, string> = {
+    owner: 'Súper administrador',
+    admin: 'Administrador',
+    vendedor: 'Vendedor',
+    lectura: 'Solo lectura'
+};
 ---
 
 <SettingsShell title="Equipo y roles — Ajustes" tab="equipo"
     intro="Administra quién tiene acceso a la agencia y define roles de Administrador o Miembro.">
-    
-    <div style="margin-top: 2rem;">
-        <OrganizationProfile appearance={clerkAppAppearance} routing="hash" />
+
+    <div class="tm-header">
+        <p class="tm-desc">Otros miembros del equipo de {ORG?.nombre} también tienen acceso a esta cuenta.</p>
+        <div class="tm-actions">
+            <a href="#" class="btn-link" style="font-size:0.8rem; font-weight:600;">Ver miembros del equipo &rarr;</a>
+        </div>
     </div>
-    
+
+    <div class="tm-controls">
+        <div class="tm-tabs" id="teamTabs">
+            <button class="tm-tab active" data-filter="all">Todos los miembros <span class="tm-badge">{members.length}</span></button>
+            <button class="tm-tab" data-filter="activo">Miembros activos <span class="tm-badge">{activos.length}</span></button>
+            <button class="tm-tab" data-filter="invitado">Invitaciones pendientes <span class="tm-badge">{pendientes.length}</span></button>
+            <button class="tm-tab" data-filter="revocado">Miembros inactivos <span class="tm-badge">{inactivos.length}</span></button>
+        </div>
+        <div class="tm-tools">
+            <button class="btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Exportar
+            </button>
+            {canEdit && (
+                <button class="btn-primary" id="btnInvite">+ Agregar miembro</button>
+            )}
+        </div>
+    </div>
+
+    <div class="tm-table-wrap hairline-card">
+        <div class="tm-thead">
+            <div class="tm-th">Nombre</div>
+            <div class="tm-th">Correo electrónico</div>
+            <div class="tm-th">Funciones</div>
+            <div class="tm-th">Último inicio de sesión</div>
+            <div class="tm-th tm-th-action"></div>
+        </div>
+        <div class="tm-tbody" id="teamList">
+            {members.map(m => (
+                <div class="tm-row" data-status={m.estado}>
+                    <div class="tm-col tm-col-name">
+                        <div class="tm-avatar">{m.inicial}</div>
+                        <div class="tm-name-meta">
+                            <span class="tm-name">{m.nombre}</span>
+                            {m.esYo && <span class="tm-pill">Tú</span>}
+                            {m.rol === 'owner' && <span class="tm-pill">Titular</span>}
+                        </div>
+                    </div>
+                    <div class="tm-col tm-col-email">{m.email || '—'}</div>
+                    <div class="tm-col tm-col-role">{ROL_LABEL[m.rol] || 'Miembro'}</div>
+                    <div class="tm-col tm-col-date">
+                        {m.estado === 'invitado' ? 'Invitación pendiente' : `Desde ${m.desde}`}
+                    </div>
+                    <div class="tm-col tm-col-action">
+                        {canEdit && !m.esYo && m.rol !== 'owner' && (
+                            <div class="tm-menu-wrap">
+                                <button class="tm-btn-more" aria-label="Opciones" data-id={m.id} data-rol={m.rol}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                                </button>
+                                <div class="tm-dropdown" hidden>
+                                    <button class="tm-dd-item act-edit" data-id={m.id} data-rol={m.rol}>Editar funciones</button>
+                                    {m.estado === 'invitado' && m.token && (
+                                        <button class="tm-dd-item act-link" data-link={`/unirse/${m.token}`}>Copiar link de invitación</button>
+                                    )}
+                                    <button class="tm-dd-item tm-dd-danger act-revoke" data-id={m.id}>Revocar acceso</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ))}
+            {members.length === 0 && (
+                <div class="tm-empty">No hay miembros en esta vista.</div>
+            )}
+        </div>
+    </div>
+    <p class="tm-footer-count" id="tmFooterCount">Viendo {members.length} de {members.length} resultados</p>
+
+    <!-- ── MODAL: INVITAR ── -->
+    <div class="modal-overlay" id="modInvite" hidden>
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3 class="modal-title">Agregar miembro del equipo</h3>
+                <button class="modal-close" data-close="modInvite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:0.8rem; color:var(--color-text-muted); margin-bottom:1.5rem;">Se enviará una invitación por correo electrónico para que se unan a {ORG?.nombre}.</p>
+                <form id="frmInvite">
+                    <div class="form-group">
+                        <label for="invEmail">Correo electrónico</label>
+                        <input type="email" id="invEmail" class="form-control" required placeholder="ejemplo@empresa.com" />
+                    </div>
+                    <div class="form-group">
+                        <label for="invRole">Funciones (Rol)</label>
+                        <select id="invRole" class="form-control" required>
+                            <option value="vendedor">Vendedor (cotiza y envía)</option>
+                            <option value="admin">Administrador (acceso total)</option>
+                            <option value="lectura">Solo lectura</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" data-close="modInvite">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="btnSubmitInvite">Enviar invitación</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MODAL: EDITAR ── -->
+    <div class="modal-overlay" id="modEdit" hidden>
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3 class="modal-title">Editar funciones</h3>
+                <button class="modal-close" data-close="modEdit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <form id="frmEdit">
+                    <input type="hidden" id="editId" />
+                    <div class="form-group">
+                        <label for="editRole">Nuevo rol</label>
+                        <select id="editRole" class="form-control" required>
+                            <option value="vendedor">Vendedor</option>
+                            <option value="admin">Administrador</option>
+                            <option value="lectura">Solo lectura</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" data-close="modEdit">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="btnSubmitEdit">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MODAL: REVOCAR ── -->
+    <div class="modal-overlay" id="modRevoke" hidden>
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3 class="modal-title">Revocar acceso</h3>
+                <button class="modal-close" data-close="modRevoke"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:0.86rem; color:var(--color-text); margin-bottom:1.5rem;">
+                    ¿Estás seguro de que deseas revocar el acceso de este miembro? Ya no podrá entrar a la organización.
+                </p>
+                <form id="frmRevoke">
+                    <input type="hidden" id="revokeId" />
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" data-close="modRevoke">Cancelar</button>
+                        <button type="submit" class="btn-danger" id="btnSubmitRevoke">Revocar acceso</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </SettingsShell>
+
+<style>
+    .tm-header { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; margin-bottom: 1.5rem; background: var(--color-bg-soft); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--color-border); }
+    .tm-desc { font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
+    
+    .tm-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+    .tm-tabs { display: flex; gap: 4px; background: var(--color-bg-soft); padding: 4px; border-radius: 8px; border: 1px solid var(--color-border); }
+    .tm-tab { background: transparent; border: none; font-size: 0.8rem; font-weight: 600; color: var(--color-text-muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; font-family: var(--font-sans); }
+    .tm-tab:hover { color: var(--color-text); }
+    .tm-tab.active { background: var(--surface); color: var(--color-blue-deep); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    
+    .tm-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--color-bg); padding: 0 6px; border-radius: 10px; font-size: 0.65rem; min-width: 18px; height: 18px; color: var(--color-text-muted); border: 1px solid var(--color-border); }
+    .tm-tab.active .tm-badge { background: rgba(10,25,47,0.08); color: var(--color-blue-deep); border-color: transparent; }
+    
+    .tm-tools { display: flex; gap: 0.5rem; }
+    .tm-tools .btn-secondary svg { width: 14px; height: 14px; margin-right: 4px; }
+    
+    .tm-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+    .tm-thead { display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 50px; padding: 12px 16px; background: var(--color-bg-soft); border-bottom: 1px solid var(--color-border); }
+    .tm-th { font-size: 0.7rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .tm-tbody { display: flex; flex-direction: column; }
+    .tm-row { display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 50px; padding: 12px 16px; align-items: center; border-bottom: 1px solid var(--color-border); transition: background 0.2s; }
+    .tm-row:last-child { border-bottom: none; }
+    .tm-row:hover { background: var(--color-bg-soft); }
+    .tm-row.hidden { display: none; }
+    
+    .tm-col { font-size: 0.82rem; color: var(--color-text); }
+    .tm-col-email, .tm-col-role, .tm-col-date { color: var(--color-text-muted); }
+    
+    .tm-col-name { display: flex; align-items: center; gap: 10px; }
+    .tm-avatar { width: 28px; height: 28px; background: var(--color-bg-soft); border: 1px solid var(--color-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--color-text-muted); }
+    .tm-name-meta { display: flex; align-items: center; gap: 6px; }
+    .tm-name { font-weight: 600; color: var(--color-text); }
+    .tm-pill { font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: var(--color-bg-soft); border: 1px solid var(--color-border); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+    
+    .tm-col-action { display: flex; justify-content: flex-end; position: relative; }
+    .tm-btn-more { background: transparent; border: none; color: var(--color-text-muted); cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s; }
+    .tm-btn-more:hover { background: var(--color-bg-soft); color: var(--color-text); }
+    .tm-btn-more svg { width: 16px; height: 16px; }
+    
+    .tm-dropdown { position: absolute; top: 100%; right: 0; background: var(--surface); border: 1px solid var(--color-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 4px; min-width: 180px; z-index: 10; display: flex; flex-direction: column; gap: 2px; }
+    .tm-dropdown[hidden] { display: none; }
+    .tm-dd-item { background: transparent; border: none; font-size: 0.8rem; text-align: left; padding: 8px 12px; border-radius: 4px; cursor: pointer; color: var(--color-text); transition: background 0.2s; font-family: var(--font-sans); }
+    .tm-dd-item:hover { background: var(--color-bg-soft); }
+    .tm-dd-danger { color: var(--color-warn); }
+    .tm-dd-danger:hover { background: rgba(239, 68, 68, 0.1); }
+    
+    .tm-empty { padding: 3rem 1rem; text-align: center; font-size: 0.85rem; color: var(--color-text-muted); }
+    .tm-footer-count { font-size: 0.8rem; color: var(--color-text-muted); margin: 0; }
+    
+    /* MODALS */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; }
+    .modal-overlay[hidden] { display: none; }
+    .modal-card { background: var(--surface); width: 100%; max-width: 440px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid var(--color-border); overflow: hidden; animation: modIn 0.3s var(--ease-spring); }
+    @keyframes modIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--color-border); background: var(--color-bg-soft); }
+    .modal-title { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
+    .modal-close { background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; }
+    .modal-close:hover { background: var(--color-border); color: var(--color-text); }
+    .modal-close svg { width: 18px; height: 18px; }
+    .modal-body { padding: 1.5rem; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 2rem; }
+    .btn-danger { background: var(--color-warn); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.84rem; font-family: var(--font-sans); }
+    .btn-danger:hover { background: #dc2626; }
+</style>
+
+<script>
+    import { toast } from '../../../components/app/toast';
+
+    // Toggle tabs
+    const tabs = document.querySelectorAll('.tm-tab');
+    const rows = document.querySelectorAll('.tm-row');
+    const footerCount = document.getElementById('tmFooterCount');
+    const totalRows = rows.length;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const filter = (tab as HTMLElement).dataset.filter;
+            let visible = 0;
+            rows.forEach(row => {
+                const status = (row as HTMLElement).dataset.status;
+                const match = filter === 'all' || status === filter;
+                (row as HTMLElement).classList.toggle('hidden', !match);
+                if (match) visible++;
+            });
+            if (footerCount) footerCount.textContent = `Viendo ${visible} de ${totalRows} resultados`;
+        });
+    });
+
+    // Modals
+    const btnInvite = document.getElementById('btnInvite');
+    const modInvite = document.getElementById('modInvite');
+    const modEdit = document.getElementById('modEdit');
+    const modRevoke = document.getElementById('modRevoke');
+
+    document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = (btn as HTMLElement).dataset.close;
+            document.getElementById(id!)!.hidden = true;
+        });
+    });
+
+    if (btnInvite) {
+        btnInvite.addEventListener('click', () => {
+            (document.getElementById('frmInvite') as HTMLFormElement).reset();
+            modInvite!.hidden = false;
+        });
+    }
+
+    // Dropdowns
+    document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const btnMore = target.closest('.tm-btn-more');
+        
+        // Close all dropdowns first
+        document.querySelectorAll('.tm-dropdown').forEach(dd => {
+            if (!btnMore || dd !== btnMore.nextElementSibling) {
+                (dd as HTMLElement).hidden = true;
+            }
+        });
+
+        if (btnMore) {
+            const dd = btnMore.nextElementSibling as HTMLElement;
+            dd.hidden = !dd.hidden;
+        }
+
+        // Actions
+        if (target.matches('.act-link')) {
+            const link = new URL(target.dataset.link || '', window.location.href).toString();
+            navigator.clipboard.writeText(link);
+            toast('Enlace copiado al portapapeles');
+        }
+        if (target.matches('.act-edit')) {
+            const id = target.dataset.id;
+            const rol = target.dataset.rol;
+            (document.getElementById('editId') as HTMLInputElement).value = id || '';
+            (document.getElementById('editRole') as HTMLSelectElement).value = rol || 'vendedor';
+            modEdit!.hidden = false;
+        }
+        if (target.matches('.act-revoke')) {
+            const id = target.dataset.id;
+            (document.getElementById('revokeId') as HTMLInputElement).value = id || '';
+            modRevoke!.hidden = false;
+        }
+    });
+
+    // Submits
+    const frmInvite = document.getElementById('frmInvite') as HTMLFormElement;
+    if (frmInvite) {
+        frmInvite.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitInvite') as HTMLButtonElement;
+            btn.disabled = true; btn.textContent = 'Enviando...';
+            
+            const email = (document.getElementById('invEmail') as HTMLInputElement).value;
+            const preset = (document.getElementById('invRole') as HTMLSelectElement).value;
+
+            try {
+                const res = await fetch('/api/equipo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, preset })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al invitar');
+                
+                toast('Invitación enviada');
+                setTimeout(() => location.reload(), 800);
+            } catch (err: any) {
+                toast(err.message, 'error');
+                btn.disabled = false; btn.textContent = 'Enviar invitación';
+            }
+        });
+    }
+
+    const frmEdit = document.getElementById('frmEdit') as HTMLFormElement;
+    if (frmEdit) {
+        frmEdit.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitEdit') as HTMLButtonElement;
+            btn.disabled = true; btn.textContent = 'Guardando...';
+            
+            const id = (document.getElementById('editId') as HTMLInputElement).value;
+            const rol = (document.getElementById('editRole') as HTMLSelectElement).value;
+
+            try {
+                const res = await fetch('/api/equipo', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, rol })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al actualizar');
+                
+                toast('Funciones actualizadas');
+                setTimeout(() => location.reload(), 800);
+            } catch (err: any) {
+                toast(err.message, 'error');
+                btn.disabled = false; btn.textContent = 'Guardar cambios';
+            }
+        });
+    }
+
+    const frmRevoke = document.getElementById('frmRevoke') as HTMLFormElement;
+    if (frmRevoke) {
+        frmRevoke.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitRevoke') as HTMLButtonElement;
+            btn.disabled = true; btn.textContent = 'Revocando...';
+            
+            const id = (document.getElementById('revokeId') as HTMLInputElement).value;
+
+            try {
+                const res = await fetch('/api/equipo', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al revocar');
+                
+                toast('Acceso revocado');
+                setTimeout(() => location.reload(), 800);
+            } catch (err: any) {
+                toast(err.message, 'error');
+                btn.disabled = false; btn.textContent = 'Revocar acceso';
+            }
+        });
+    }
+</script>
