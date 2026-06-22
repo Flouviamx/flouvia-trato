@@ -1,5 +1,5 @@
 ---
-// Página de Status de la API — inspirada en Stripe Status, estética Cord.
+// Página de Status de la API — inspirada en estética Cord "Quiet Luxury"
 export const prerender = true;
 
 import Layout from '../../layouts/Layout.astro';
@@ -11,28 +11,28 @@ import { getLangFromUrl } from '../../i18n/utils';
 const lang = getLangFromUrl(Astro.url);
 const isEn = lang === 'en';
 
-// Generador de datos "reales" (mock realista) para los últimos 60 días
+// Generador de datos "reales" simulados (mock realista) para los últimos 90 días
 const today = new Date();
-const daysCount = 60;
+const daysCount = 90;
 
-function generateHistory(seedErrorIndices: number[]) {
+function generateHistory(seedErrorIndices: { index: number, status: string, tooltip: string }[]) {
     return Array.from({ length: daysCount }).map((_, i) => {
         const date = new Date(today);
         date.setDate(date.getDate() - (daysCount - 1 - i));
         
-        let status = 'ok';
-        let tooltip = 'No downtime recorded';
+        const formattedDate = date.toLocaleDateString(isEn ? 'en-US' : 'es-MX', { month: 'short', day: 'numeric', year: 'numeric' });
         
-        if (seedErrorIndices.includes(i)) {
-            status = 'warn';
-            tooltip = 'Degraded performance (45m)';
-        } else if (seedErrorIndices.includes(i + 100)) { // Truco para 'danger'
-            status = 'danger';
-            tooltip = 'Partial outage (1h 20m)';
+        let status = 'ok';
+        let tooltip = `${formattedDate} — ${isEn ? 'No downtime recorded' : 'Sin tiempo de inactividad'}`;
+        
+        const seed = seedErrorIndices.find(s => s.index === i);
+        if (seed) {
+            status = seed.status;
+            tooltip = `${formattedDate} — ${seed.tooltip}`;
         }
         
         return {
-            date: date.toLocaleDateString(isEn ? 'en-US' : 'es-MX', { month: 'short', day: 'numeric' }),
+            date: formattedDate,
             status,
             tooltip
         };
@@ -41,24 +41,39 @@ function generateHistory(seedErrorIndices: number[]) {
 
 const services = [
     {
+        id: 'api',
         name: isEn ? 'Core API' : 'API Principal',
         uptime: '99.99%',
-        history: generateHistory([]) // Todo verde
+        lat: '42ms',
+        history: generateHistory([
+            { index: 85, status: 'warn', tooltip: isEn ? 'Elevated error rates (15m)' : 'Tasa de errores elevada (15m)' }
+        ])
     },
     {
+        id: 'dash',
         name: isEn ? 'Dashboard & App' : 'Dashboard y App',
         uptime: '99.95%',
-        history: generateHistory([45]) // Un degraded
+        lat: '110ms',
+        history: generateHistory([
+            { index: 45, status: 'warn', tooltip: isEn ? 'Degraded performance (45m)' : 'Rendimiento degradado (45m)' },
+            { index: 46, status: 'danger', tooltip: isEn ? 'Partial outage (1h 20m)' : 'Caída parcial (1h 20m)' }
+        ])
     },
     {
+        id: 'webhooks',
         name: isEn ? 'Webhooks' : 'Webhooks',
         uptime: '100.00%',
+        lat: '12ms',
         history: generateHistory([]) 
     },
     {
+        id: 'cdn',
         name: isEn ? 'CDN & Files' : 'CDN y Archivos',
         uptime: '99.98%',
-        history: generateHistory([22 + 100]) // Un danger (outage)
+        lat: '18ms',
+        history: generateHistory([
+            { index: 22, status: 'danger', tooltip: isEn ? 'Routing issues (2h)' : 'Problemas de enrutamiento (2h)' }
+        ])
     }
 ];
 
@@ -92,11 +107,11 @@ const incidents = [
         <!-- Hero de Status -->
         <header class="st-hero">
             <div class="st-hero-inner reveal">
-                <div class="st-badge">
+                <div class="st-badge hairline-border">
                     <span class="st-dot pulse"></span>
                     {isEn ? 'All systems operational' : 'Todos los sistemas operativos'}
                 </div>
-                <h1 class="st-title">
+                <h1 class="st-title masked-title">
                     {isEn ? 'System Status' : 'Estado del Sistema'}
                 </h1>
                 <p class="st-sub">
@@ -108,35 +123,55 @@ const incidents = [
         <!-- Container principal -->
         <section class="st-container">
             
-            <!-- Bloque de 60 días -->
-            <div class="st-card reveal">
-                <div class="st-card-header">
-                    <h2>{isEn ? 'Uptime (last 60 days)' : 'Disponibilidad (últimos 60 días)'}</h2>
+            <!-- Switch tipo Blog (Glass Pill) -->
+            <div class="st-sticky-nav reveal">
+                <div class="st-filters-glass" id="status-filters">
+                    {services.map((service, i) => (
+                        <button class={`filter-btn ${i === 0 ? 'active' : ''}`} data-target={service.id}>
+                            {service.name}
+                        </button>
+                    ))}
                 </div>
-                <div class="st-services">
-                    {services.map(service => (
-                        <div class="st-service">
-                            <div class="st-service-info">
-                                <span class="st-service-name">{service.name}</span>
-                                <span class="st-service-uptime editorial">{service.uptime}</span>
+            </div>
+
+            <!-- Panel de Gráficos (Solo se ve uno a la vez) -->
+            <div class="st-chart-wrapper reveal" id="chart-wrapper">
+                {services.map((service, i) => (
+                    <div class={`st-service-panel ${i === 0 ? 'active' : ''}`} id={`panel-${service.id}`}>
+                        <div class="st-panel-header">
+                            <div>
+                                <h2 class="st-panel-title">{service.name}</h2>
+                                <p class="st-panel-meta">{isEn ? 'Uptime over the past 90 days.' : 'Disponibilidad de los últimos 90 días.'}</p>
                             </div>
-                            <div class="st-bars-container">
-                                <div class="st-bars">
-                                    {service.history.map(day => (
-                                        <div 
-                                            class={`st-bar ${day.status}`} 
-                                            title={`${day.date} — ${day.tooltip}`}
-                                        ></div>
-                                    ))}
+                            <div class="st-panel-stats">
+                                <div class="st-stat">
+                                    <span class="st-stat-label">{isEn ? 'Uptime' : 'Disponibilidad'}</span>
+                                    <span class="st-stat-val editorial">{service.uptime}</span>
                                 </div>
-                                <div class="st-bars-legend">
-                                    <span>60 {isEn ? 'days ago' : 'días atrás'}</span>
-                                    <span>{isEn ? 'Today' : 'Hoy'}</span>
+                                <div class="st-stat">
+                                    <span class="st-stat-label">{isEn ? 'Latency' : 'Latencia'}</span>
+                                    <span class="st-stat-val editorial">{service.lat}</span>
                                 </div>
                             </div>
                         </div>
-                    ))}
-                </div>
+
+                        <div class="st-bars-container">
+                            <div class="st-bars">
+                                {service.history.map(day => (
+                                    <div 
+                                        class={`st-bar ${day.status}`} 
+                                        title={day.tooltip}
+                                    ></div>
+                                ))}
+                            </div>
+                            <div class="st-bars-legend">
+                                <span>90 {isEn ? 'days ago' : 'días atrás'}</span>
+                                <span class="st-legend-line"></span>
+                                <span>{isEn ? 'Today' : 'Hoy'}</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             <!-- Incidentes pasados -->
@@ -147,12 +182,12 @@ const incidents = [
                     {incidents.map(inc => (
                         <div class="st-incident">
                             <h3 class="st-incident-date">{inc.date}</h3>
-                            <div class="st-incident-card">
+                            <div class="st-incident-card hairline-border">
                                 <h4 class="st-incident-title">{inc.title}</h4>
                                 <div class="st-updates">
                                     {inc.updates.map(upd => (
                                         <div class="st-update">
-                                            <span class="st-update-time">{upd.time}</span>
+                                            <span class="st-update-time editorial">{upd.time}</span>
                                             <span class="st-update-text">{upd.text}</span>
                                         </div>
                                     ))}
@@ -169,39 +204,72 @@ const incidents = [
     <PageAnims />
 </Layout>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const filters = document.querySelectorAll('#status-filters .filter-btn');
+        const panels = document.querySelectorAll('.st-service-panel');
+
+        if (!filters.length || !panels.length) return;
+
+        filters.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Actualizar botones
+                filters.forEach(f => f.classList.remove('active'));
+                btn.classList.add('active');
+
+                const targetId = btn.getAttribute('data-target');
+
+                // Actualizar paneles
+                panels.forEach(panel => {
+                    if (panel.id === `panel-${targetId}`) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+            });
+        });
+    });
+</script>
+
 <style>
-    /* Diseño premium Cord, inspirado en Stripe */
+    /* Diseño premium Cord "Quiet Luxury" */
     .status-page {
         min-height: 100vh;
-        background: var(--color-bg-soft);
-        padding-top: 80px; /* offset por nav */
-        padding-bottom: 6rem;
+        background: #fdfdfd;
+        padding-top: 80px; 
+        padding-bottom: 8rem;
+    }
+
+    /* Bordes sutiles tipo blog */
+    .hairline-border {
+        border: none !important;
+        box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.08), 0 20px 40px -20px rgba(0,0,0,0.04);
     }
 
     /* ════════ HERO ════════ */
     .st-hero {
-        padding: 5rem 5% 3rem;
+        padding: 5rem 5% 2rem;
         display: flex;
         justify-content: center;
-        background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-soft) 100%);
-        border-bottom: 1px solid var(--color-border);
+        background: linear-gradient(180deg, var(--color-bg) 0%, #fdfdfd 100%);
     }
     .st-hero-inner {
         max-width: 800px;
         width: 100%;
+        text-align: center;
     }
     .st-badge {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(16, 185, 129, 0.1);
+        background: rgba(16, 185, 129, 0.05);
         color: #047857;
-        padding: 6px 14px;
+        padding: 8px 16px;
         border-radius: 100px;
         font-size: 0.85rem;
         font-weight: 600;
         margin-bottom: 1.5rem;
-        border: 1px solid rgba(16, 185, 129, 0.2);
     }
     .st-dot {
         width: 8px;
@@ -209,21 +277,11 @@ const incidents = [
         border-radius: 50%;
         background-color: var(--color-ok);
     }
-    .pulse {
-        animation: st-pulse 2s infinite;
-    }
+    .pulse { animation: st-pulse 2s infinite; }
     @keyframes st-pulse {
         0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
         70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
         100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
-    .st-title {
-        font-size: clamp(2.2rem, 5vw, 3.2rem);
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        color: var(--color-blue-deep);
-        margin: 0 0 0.8rem;
-        line-height: 1.1;
     }
     .st-sub {
         font-size: clamp(1rem, 3vw, 1.15rem);
@@ -233,87 +291,127 @@ const incidents = [
 
     /* ════════ CONTENEDOR ════════ */
     .st-container {
-        max-width: 800px;
-        margin: -2rem auto 0; /* Solapamos un poco el hero */
+        max-width: 900px;
+        margin: 0 auto;
         padding: 0 5%;
         display: flex;
         flex-direction: column;
-        gap: 3rem;
         position: relative;
         z-index: 10;
     }
 
-    /* ════════ TARJETA SERVICIOS ════════ */
-    .st-card {
-        background: #ffffff;
-        border: 1px solid var(--color-border);
-        border-radius: 16px;
-        box-shadow: 0 12px 30px -15px rgba(0,0,0,0.05);
-        overflow: hidden;
+    /* ════════ FILTROS (GLASS PILL) ════════ */
+    .st-sticky-nav {
+        display: flex; justify-content: center;
+        margin-top: 1rem; margin-bottom: 3rem;
     }
-    .st-card-header {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid var(--color-border);
-        background: rgba(250, 250, 250, 0.5);
+    .st-filters-glass {
+        display: inline-flex; gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        padding: 6px; border-radius: 100px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06), inset 0 0 0 0.5px rgba(0,0,0,0.08);
+        overflow-x: auto; scrollbar-width: none;
     }
-    .st-card-header h2 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin: 0;
-        color: var(--color-blue-deep);
+    .st-filters-glass::-webkit-scrollbar { display: none; }
+
+    .filter-btn {
+        background: transparent; border: none;
+        padding: 8px 18px; border-radius: 100px;
+        font-size: 0.85rem; font-weight: 600; color: #4b5563;
+        cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap;
+    }
+    .filter-btn:hover { color: #111827; background: rgba(0,0,0,0.04); }
+    .filter-btn.active { background: #111827; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    /* ════════ PANELES DE SERVICIO ════════ */
+    .st-chart-wrapper {
+        position: relative;
+        min-height: 250px;
+        margin-bottom: 4rem;
+    }
+    .st-service-panel {
+        display: none;
+        flex-direction: column;
+        gap: 2rem;
+        animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .st-service-panel.active {
+        display: flex;
     }
 
-    .st-services {
-        display: flex;
-        flex-direction: column;
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-    .st-service {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid var(--color-border);
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    .st-service:last-child {
-        border-bottom: none;
-    }
-    .st-service-info {
+
+    .st-panel-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        padding-bottom: 1rem;
+        gap: 1rem;
+        flex-wrap: wrap;
     }
-    .st-service-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--color-text);
+    .st-panel-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--color-blue-deep);
+        margin: 0 0 0.2rem;
+        letter-spacing: -0.02em;
     }
-    .st-service-uptime {
-        font-size: 0.95rem;
-        color: var(--color-text-muted);
+    .st-panel-meta {
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin: 0;
+    }
+    
+    .st-panel-stats {
+        display: flex;
+        gap: 2rem;
+    }
+    .st-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    .st-stat-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #9ca3af;
+        margin-bottom: 0.2rem;
+    }
+    .st-stat-val {
+        font-size: 1.4rem;
+        color: var(--color-blue-deep);
     }
 
     /* ════════ BARRAS (CHART) ════════ */
     .st-bars-container {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
     }
     .st-bars {
         display: flex;
-        gap: 3px;
-        height: 36px;
+        gap: 4px;
+        height: 60px; /* Barras más grandes y vistosas */
         width: 100%;
         align-items: stretch;
     }
     .st-bar {
         flex: 1;
-        border-radius: 2px;
+        border-radius: 4px;
         transition: opacity 0.2s, transform 0.2s;
         cursor: pointer;
+        opacity: 0.85;
     }
     .st-bar:hover {
-        opacity: 0.8;
-        transform: scaleY(1.1);
+        opacity: 1;
+        transform: scaleY(1.15);
     }
     .st-bar.ok { background-color: var(--color-ok); }
     .st-bar.warn { background-color: var(--color-warn); }
@@ -321,9 +419,16 @@ const incidents = [
 
     .st-bars-legend {
         display: flex;
-        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
         font-size: 0.75rem;
-        color: var(--color-text-muted);
+        color: #9ca3af;
+        font-weight: 500;
+    }
+    .st-legend-line {
+        flex-grow: 1;
+        height: 1px;
+        background: rgba(0,0,0,0.06);
     }
 
     /* ════════ INCIDENTES ════════ */
@@ -352,47 +457,46 @@ const incidents = [
         color: var(--color-text);
         margin: 0;
         padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--color-border);
+        border-bottom: 1px solid rgba(0,0,0,0.06);
     }
     .st-incident-card {
         background: #ffffff;
-        border: 1px solid var(--color-border);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
     }
     .st-incident-title {
         font-size: 1.1rem;
         font-weight: 700;
         color: var(--color-blue-deep);
-        margin: 0 0 1rem;
+        margin: 0 0 1.5rem;
     }
     .st-updates {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.5rem;
     }
     .st-update {
         display: flex;
         flex-direction: column;
-        gap: 0.3rem;
-        font-size: 0.9rem;
+        gap: 0.4rem;
+        font-size: 0.95rem;
     }
     .st-update-time {
         font-weight: 600;
         color: var(--color-text);
+        font-size: 0.85rem;
     }
     .st-update-text {
-        color: var(--color-text-muted);
-        line-height: 1.5;
+        color: #4b5563;
+        line-height: 1.6;
     }
 
     /* ════════ RESPONSIVE ════════ */
     @media (min-width: 768px) {
         .st-hero { padding: 6rem 5% 4rem; }
-        .st-container { gap: 4rem; margin-top: -3rem; }
-        .st-update { flex-direction: row; gap: 1rem; }
-        .st-update-time { min-width: 80px; }
-        .st-bar { gap: 4px; border-radius: 3px; }
+        .st-update { flex-direction: row; gap: 2rem; }
+        .st-update-time { min-width: 90px; }
+        .st-bars { gap: 6px; height: 80px; }
+        .st-bar { border-radius: 6px; }
     }
 </style>
