@@ -1331,6 +1331,7 @@ El Centro de Ayuda (`/soporte`) es un sistema de documentación *Stripe-level* i
   - `src/pages/soporte/categoria/[categoria].astro`: Índice de categoría en formato de lista minimalista (diseño cardless corporativo).
 - **Buscador Client-Side:** El autocompletado en `SupportHero.astro` consulta `/api/support-search.json.ts` y filtra en el cliente para latencia cero.
 - **Diseño sin Emojis:** Todos los íconos de soporte utilizan SVGs estilo Lucide en lugar de emojis de texto. Todo el estilo "tarjeta" pesado fue removido en favor de fondos transparentes, divisores sutiles y estética corporativa.
+- **Rutas Rápidas (Quick Links):** Se eliminó el diseño "Bento grid" asimétrico, reemplazándolo por una lista vertical minimalista (Simple Hairline List) que ocupa el 100% del ancho, alineada visualmente con las FAQs y el bloque editorial.
 
 ---
 
