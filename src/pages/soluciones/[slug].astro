@@ -887,7 +887,7 @@ const faqSchema = {
                                 const tl = gsap.timeline({ repeat: -1, repeatDelay: 2.8 });
                                 const u = { v: 0 };
                                 tl.set(terms, { opacity: 0, scale: 0.5 })
-                                  .set(fill, { width: '0%', clearProps: 'backgroundColor' })
+                                  .set(fill, { width: '0%', clearProps: 'background' })
                                   .call(() => { used.textContent = '0'; avail.textContent = '$500k'; })
                                   .set(avail, { clearProps: 'color' })
                                   .set(push, { opacity: 0, y: -20, scale: 0.95 })
@@ -897,7 +897,7 @@ const faqSchema = {
                                   .call(() => { avail.textContent = '$158k'; }, null, '<+=1.1')
                                   .to(push, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.5)' }, '+=0.7')
                                   .to(push, { x: -3, duration: 0.05, yoyo: true, repeat: 3 }, '+=0.1')
-                                  .to(fill, { width: '50%', backgroundColor: '#34d399', duration: 0.7, ease: 'power2.out' }, '+=0.3')
+                                  .to(fill, { width: '50%', background: 'linear-gradient(90deg,#10b981,#34d399)', duration: 0.7, ease: 'power2.out' }, '+=0.3')
                                   .call(() => { used.textContent = '252'; avail.textContent = '$248k'; })
                                   .to(avail, { color: '#34d399', duration: 0.3 }, '<')
                                   .to(push, { opacity: 0, y: -12, duration: 0.5 }, '+=2');
