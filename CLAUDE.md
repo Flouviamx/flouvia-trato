@@ -1351,3 +1351,7 @@ El blog público (`/blog`) emplea un diseño sin imágenes (image-less) fuerteme
 - **Flouvia Gradients:** Se usa una paleta tech/B2B estricta (navy, cyan, teal, silver glass) a través de clases `.gradient-1` a `.gradient-5`.
 - **Íconos Vectoriales Abstractos:** Las portadas inyectan SVG minimalistas translúcidos mapeados dinámicamente a la categoría del artículo (Finanzas, Ventas B2B, Fiscal, Tecnología, etc.), flotando sobre los gradientes con sombra (`drop-shadow`).
 - **Avatares Minimalistas:** Los avatares de autor utilizan un componente de inicial estilizada (`.fc-author-initial`) en lugar de fotografías reales. Es un círculo con gradiente azul corporativo y texto en blanco, garantizando un aspecto "Quiet Luxury" y limpio sin importar qué autor publique.
+
+### Navbar & Mobile UX
+- **Mobile Navbar Refinements:** Se corrigieron los estilos del language switcher (ES/EN) en la vista móvil (Glassmorphism + dark text en selección). Se ajustó la posición para no saturar la cabecera y se reubicó arriba del footer.
+- **Autenticación (CTAs):** Se invirtieron las acciones primarias en la navegación móvil con sesión activa. Ahora el Dashboard es la acción principal a la izquierda, logrando más fluidez para los usuarios recurrentes.
