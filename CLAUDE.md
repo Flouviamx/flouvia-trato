@@ -576,9 +576,10 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
      UI: bloque Slack con input de Incoming Webhook + guardar (`/api/org/prefs`) + "Enviar
      prueba" (`/api/integraciones/slack-test`). Nuevas cols `orgs`: portal_*/email_* (7).
 ✅ **Páginas de desarrolladores (jun 2026)** — `/desarrolladores/[slug]` (prerender, mismo
-   sistema visual que `/producto/*`): `/desarrolladores/api` (terminal con curl + JSON response)
-   y `/desarrolladores/mcp` (chat UI con tool call `cartera_vencida`). Contenido en
-   `src/lib/desarrolladores.ts`. Animaciones `PageAnims`, masked-titles, count-ups, reveals.
+   sistema visual que `/producto/*`): `/desarrolladores/api` (terminal con curl + JSON response),
+   `/desarrolladores/mcp` (chat UI con tool call `cartera_vencida`), y **`/desarrolladores/status`** 
+   (página de estado y monitoreo "Quiet Luxury" con switch de componentes, historial a 90 días, leyendas y UI realista).
+   Contenido en `src/lib/desarrolladores.ts`. Animaciones `PageAnims`, masked-titles, count-ups, reveals.
 ✅ **Navbar v3 (jun 2026)** — nuevo megamenú DESARROLLADORES entre SOLUCIONES y RECURSOS:
    paneles API REST · MCP para IA · Cord Elements. PRECIOS movido al final como link simple.
    Orden: PRODUCTO · SOLUCIONES · DESARROLLADORES · RECURSOS · PRECIOS.
