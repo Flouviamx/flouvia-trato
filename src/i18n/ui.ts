@@ -59,6 +59,8 @@ export const ui = {
     'nav.mega.dev.2.desc': 'Que una IA lea y cotice por ti',
     'nav.mega.dev.3.title': 'Cord Elements',
     'nav.mega.dev.3.desc': 'Embebe el cotizador en tu sitio',
+    'nav.mega.dev.4.title': 'Estado de la API',
+    'nav.mega.dev.4.desc': 'Monitoreo y métricas de servicio',
     'nav.mega.dev.foot': 'Genera tu API key gratis',
 
     'nav.mega.rec.1.title': 'Blog',
@@ -255,6 +257,8 @@ export const ui = {
     'nav.mega.dev.2.desc': 'Let an AI read and quote for you',
     'nav.mega.dev.3.title': 'Cord Elements',
     'nav.mega.dev.3.desc': 'Embed the quoting tool on your site',
+    'nav.mega.dev.4.title': 'API Status',
+    'nav.mega.dev.4.desc': 'Service monitoring and metrics',
     'nav.mega.dev.foot': 'Generate your API key for free',
 
     'nav.mega.rec.1.title': 'Blog',
