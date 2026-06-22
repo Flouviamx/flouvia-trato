@@ -15,13 +15,12 @@ const canEdit = memberCan(ME, 'equipo');
             <h2>Configura el inicio de sesión único</h2>
             <p>El Inicio de sesión único (SSO) permite a tus empleados acceder a Cord usando las credenciales de tu empresa (Google Workspace, Microsoft Entra, Okta, etc.), mejorando la seguridad y centralizando el acceso.</p>
             <div class="sso-actions">
-                <button class="btn-primary" style="padding: 10px 20px; font-size:0.9rem;">Empezar configuración</button>
-                <button class="btn-secondary" style="padding: 10px 20px; font-size:0.9rem;">Documentación</button>
+                <a href="mailto:soporte@flouvia.com?subject=Activar%20SSO%20Empresarial" class="s-save" style="text-decoration: none; display: inline-flex; width: auto; margin: 0; padding: 12px 24px;">Contactar a ventas</a>
+                <a href="https://clerk.com/docs/authentication/saml/overview" target="_blank" class="btn-secondary" style="text-decoration: none; padding: 11px 20px;">Documentación</a>
             </div>
         </div>
         
         <div class="sso-graphic-wrap">
-            <div class="sso-glow"></div>
             <div class="sso-graphic">
                 <div class="sso-box">
                     <div class="sso-box-header">
@@ -46,7 +45,7 @@ const canEdit = memberCan(ME, 'equipo');
                 <div class="sso-box">
                     <div class="sso-box-header">
                         <div class="sso-icon cord-blue">
-                            <img src="/imgs/logo-cord-navy.png" alt="Cord" style="height: 14px;" />
+                            <img src="/imgs/logo-cord-navy.png" alt="Cord" style="height: 14px; margin-top:2px;" />
                         </div>
                         <span>Cord</span>
                     </div>
@@ -72,35 +71,30 @@ const canEdit = memberCan(ME, 'equipo');
     .sso-actions { display: flex; gap: 1rem; align-items: center; }
     
     .sso-graphic-wrap { 
-        background: linear-gradient(135deg, #0a192f 0%, #17325c 100%); 
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
         border-radius: 20px; padding: 2.5rem; display: flex; justify-content: center; 
         position: relative; overflow: hidden; 
-        box-shadow: 0 20px 40px rgba(10, 25, 47, 0.15), inset 0 1px 0 rgba(255,255,255,0.1); 
-    }
-    .sso-glow {
-        position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-        background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 50%);
-        pointer-events: none;
+        box-shadow: inset 0 2px 10px rgba(255,255,255,0.8); 
     }
     
     .sso-graphic { display: flex; flex-direction: column; gap: 1.2rem; width: 100%; max-width: 340px; align-items: center; z-index: 2; }
     
     .sso-box { 
-        background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         width: 100%; border-radius: 14px; padding: 1.25rem 1.5rem; 
         display: flex; flex-direction: column; gap: 1.2rem; 
-        border: 1px solid rgba(255,255,255,0.08); 
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,255,255,0.9); 
+        box-shadow: 0 8px 32px rgba(0,0,0,0.05);
     }
-    .sso-box-header { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.9rem; color: #fff; letter-spacing: 0.2px; }
-    .sso-icon { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: #cbd5e1; background: rgba(0,0,0,0.2); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1); }
-    .sso-icon.cord-blue { background: #fff; color: var(--color-blue-deep); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+    .sso-box-header { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.9rem; color: var(--color-text); letter-spacing: 0.2px; }
+    .sso-icon { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .sso-icon.cord-blue { background: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(10, 25, 47, 0.08); }
     
     .sso-users { display: flex; gap: 8px; justify-content: space-between; }
-    .sso-u { width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); background: rgba(0,0,0,0.2); transition: all 0.3s ease; }
-    .sso-u.cord-u { border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+    .sso-u { width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; color: #cbd5e1; background: #f8fafc; transition: all 0.3s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .sso-u.cord-u { border-color: var(--color-border); color: var(--color-blue-deep); background: #ffffff; }
     .sso-u svg { width: 16px; height: 16px; }
     
-    .sso-arrow { color: rgba(255,255,255,0.4); margin: 0; }
+    .sso-arrow { color: #94a3b8; margin: 0; }
     .sso-arrow svg { width: 20px; height: 20px; }
 </style>
