@@ -79,6 +79,60 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
 
 ## Estado actual (jun 2026)
 
+✅ **Simplificación de navegación — "menos es más" (jun 2026)** — primera tanda del track de
+   intuitividad (decisión de André: la app tiene MÁS features de las que el vendedor típico usa;
+   el salto de UX es enfocar y esconder, no agregar):
+   • **Sidebar reagrupado a lenguaje plano** (`src/components/app/Sidebar.astro`, `NAV_GROUPS`):
+     antes `Principal · Dinero(Cobranza/CFO Dashboard/Analítica) · Tesorería IA(Flujo predictivo/
+     Agentes) · Catálogo`. Ahora `Principal(Inicio·Cotizaciones) · Clientes y productos · Mi dinero
+     (Cobranza·Cobranza con IA·Flujo de caja) · Inteligencia(Finanzas·Analítica)`. Se eliminó la
+     jerga ("CFO Dashboard"→Finanzas, "Tesorería IA"/"Flujo predictivo"→Flujo de caja, "Agentes de
+     cobranza"→Cobranza con IA, "Dashboard"→Inicio). NO se borraron páginas ni rutas; los `id`/`href`
+     siguen igual (estados activos intactos). Headings de página y Cmd+K alineados (en Cmd+K se
+     conservó "CFO"/"tesorería" como keyword en la descripción para que la búsqueda los siga
+     encontrando).
+   • **Pestañas de sección (Stripe-style)** que unifican cada cluster sin fusionar páginas: las 3
+     páginas de "Mi dinero" (`/app/cobranza`, `/app/tesoreria/cobranza`, `/app/tesoreria/flujo`) y
+     las 2 de "Inteligencia" (`/app/cfo`, `/app/analitica`) comparten una barra de tabs (slot
+     `page-tabs` + clase `.ph-tab`/`.ph-tab.active` que ya existía en `AppLayout` y nadie usaba).
+   • **"Modo desarrollador" en Ajustes** (`/app/ajustes/index.astro`): la categoría **Developers**
+     (API·Webhooks·MCP·Agentes·Embebible) queda **oculta por defecto** (CSS, sin flash) y se revela
+     con un toggle que persiste en `localStorage cord.devmode` — esconde el ruido técnico al vendedor
+     típico sin bloquear el acceso directo por URL (misma filosofía que SSO).
+   • **FIX latente:** `/app/tesoreria/flujo` y `/app/tesoreria/cobranza` leían el org con
+     `getMyMembership()?.org_id` — pero `Membership` NO tiene `org_id`, así que `orgId` era siempre
+     `undefined` y **ambas páginas salían SIEMPRE vacías**. Corregido a `getActiveOrgId()` (de `db.ts`);
+     ahora cargan datos reales. Regla: para el org en un page usar `getActiveOrgId()`, no exprimir el
+     membership.
+
+✅ **Auditoría y reescritura de exactitud de Soporte/Blog/Roadmap (jun 2026)** — André pidió revisar
+   que el contenido dijera la verdad. Hallazgo: buena parte de Soporte documentaba una **API/SDK y
+   features ficticias estilo Stripe** que Cord NO tiene. Se reescribieron 45 archivos (ES+EN):
+   • **API/SDK real:** los artículos de Desarrolladores citaban un SDK inexistente (`cord-node`/
+     `@flouviamx/cord`/`@cord/*`), montos en **centavos**, `customer_id`/`line_items`/`hosted_url`,
+     `/v1/charges`, `/v1/invoices`, formato de error anidado y rate-limits "100 req/s". Se reescribieron
+     contra la API REAL: `cord.flouvia.com/api/v1`, Bearer `sk_test_`/`sk_live_`, montos en **pesos**,
+     endpoints reales (`me`/`cotizaciones`/`clientes`/`productos`/`cobranza`), error plano `{error,code}`,
+     y rate-limit real (~500/min por IP, ventana de 60s; el público v1 solo tiene el piso global del
+     middleware). No hay SDK oficial → `node-sdk` ahora enseña REST con `fetch`; `react-sdk` apunta al
+     paquete REAL `@flouviahq/elements`.
+   • **Webhooks:** los artículos citaban eventos de Stripe (`charge.succeeded`, `invoice.created`) y
+     header `Cord-Signature` con timestamp. Corregido a los eventos REALES (`quote.sent/viewed/approved/
+     rejected/paid/invoiced`) y la firma REAL: `X-Cord-Signature: sha256=<hmac del cuerpo crudo>` (+
+     `X-Cord-Event`), sin timestamp.
+   • **Suscripciones/planes:** `planes-suscripcion` describía un "motor de suscripciones" inexistente;
+     reescrito a los planes reales (MXN en ES, USD en EN) + Customer Portal. `facturacion-anual`: "ahorra
+     20%" → "2 meses gratis" (anual = 10 meses). Se quitó el "sandbox aislado" (no existe: las llaves
+     test no aíslan datos, solo no cuentan para facturación). `primeros-pasos`: quitados pasos
+     inexistentes ("Cobranza > Métodos de Pago"/"Links de Pago").
+   • **Roadmap** (`src/lib/roadmap-data.ts`): estados falsos corregidos — `validacion-constancia`
+     `live`→`next` (OCR/EFOS no existen), `facturacion-internacional` `beta`→`next` (provider US es
+     stub), `cobranza-ia` `next`→`beta` (sí está implementado), y se quitó la promesa de REP automático
+     en `cfdi-automatico` (no implementado).
+   • **Bug menor real:** se corrigieron 2 artículos huérfanos (`primeros-pasos`/`glosario-terminos`
+     tenían `category: "Cuenta"`/`"Account"` en vez de `"Cuenta y Equipo"`/`"Account & Team"` → no
+     aparecían en su categoría del hub). **El Blog quedó intacto: está correcto.**
+
 ✅ **Internacionalización del Centro de Ayuda (Support Center) (jun 2026)** — Se añadió soporte bilingüe (`/soporte` y `/en/support`).
    • **Arquitectura y Artículos:** Se crearon wrappers en `src/pages/en/support` que re-utilizan los templates de español pasando la bandera `isEn`. Los 66 artículos base en `src/content/support/en/` fueron **completamente traducidos al inglés B2B profesional** (retirando emojis y ajustando todos los enlaces internos). El build genera 132 rutas estáticas sin error.
    • **Componentes Dinámicos:** Los componentes `SupportHero`, `SupportCards`, `SupportSearch` y `FeedbackWidget` ahora tienen copys estáticos en ambos idiomas y renderizan dinámicamente según la ruta.

@@ -1,10 +1,8 @@
 ---
 import AppLayout from '../../../../layouts/AppLayout.astro';
-import { getMyMembership } from '../../../../lib/queries';
-import { sql } from '../../../../lib/db';
+import { sql, getActiveOrgId } from '../../../../lib/db';
 
-const ME = await getMyMembership();
-const orgId = ME?.org_id;
+const orgId = await getActiveOrgId();
 
 let conversaciones: any[] = [];
 let activa = false;
@@ -28,6 +26,11 @@ const money = (n: any) => '$' + new Intl.NumberFormat('es-MX', { minimumFraction
 <AppLayout title="Cobranza con IA — Cord" page="ai-ar" heading="Cobranza con IA">
   <p slot="page-sub">Supervisa las negociaciones autónomas de tu agente de cobranza con clientes morosos.</p>
   <button slot="topbar-actions" class="ac-run" id="runBtn">Forzar ejecución del agente</button>
+  <div slot="page-tabs">
+    <a href="/app/cobranza" class="ph-tab">Cobranza</a>
+    <a href="/app/tesoreria/cobranza" class="ph-tab active">Cobranza con IA</a>
+    <a href="/app/tesoreria/flujo" class="ph-tab">Flujo de caja</a>
+  </div>
 
   {!activa && (
     <div class="ac-banner">

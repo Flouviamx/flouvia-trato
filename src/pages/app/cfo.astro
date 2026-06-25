@@ -27,6 +27,10 @@ const rankClientesConAncho = D.rankClientes.map(c => ({
 
 <AppLayout title="Finanzas — Cord" page="cfo" heading="Finanzas">
     <slot slot="page-sub">Proyección financiera basada en historial real de cierre y cobro por cliente.</slot>
+    <div slot="page-tabs">
+        <a href="/app/cfo" class="ph-tab active">Finanzas</a>
+        <a href="/app/analitica" class="ph-tab">Analítica</a>
+    </div>
 
     {!hayDatos && (
         <section class="empty">

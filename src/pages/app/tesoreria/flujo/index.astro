@@ -1,10 +1,10 @@
 ---
 import AppLayout from '../../../../layouts/AppLayout.astro';
-import { getMyMembership, money } from '../../../../lib/queries';
+import { money } from '../../../../lib/queries';
+import { getActiveOrgId } from '../../../../lib/db';
 import { getCashFlowPrediction } from '../../../../lib/analytics/cashflow';
 
-const ME = await getMyMembership();
-const orgId = ME?.org_id;
+const orgId = await getActiveOrgId();
 
 let predictions: any[] = [];
 let aiSummary = '';
@@ -23,6 +23,11 @@ const fmtFecha = (d: any) => new Date(d).toLocaleDateString('es-MX', { weekday: 
 
 <AppLayout title="Flujo de caja — Cord" page="flujo-caja" heading="Flujo de caja">
   <p slot="page-sub">Estimación de ingresos a 90 días, cruzando tu pipeline con el historial real de pago de cada cliente.</p>
+  <div slot="page-tabs">
+    <a href="/app/cobranza" class="ph-tab">Cobranza</a>
+    <a href="/app/tesoreria/cobranza" class="ph-tab">Cobranza con IA</a>
+    <a href="/app/tesoreria/flujo" class="ph-tab active">Flujo de caja</a>
+  </div>
 
   <!-- KPI hero -->
   <div class="tf-kpis">
