@@ -79,6 +79,16 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
 
 ## Estado actual (jun 2026)
 
+✅ **Core loop: la IA como puerta de entrada del editor (jun 2026)** — track de "core loop mágico".
+   En `/app/cotizaciones/nueva` el bloque "Armar con IA" (que ya iba primero pero se veía secundario:
+   caja de borde punteado) se elevó a un **hero navy premium** (gradiente `#0d2038→#0a192f` + glow azul,
+   estilo del card de salud de Ajustes): título "Arma la cotización con IA — la forma más rápida",
+   textarea translúcida sobre el navy, botón blanco sólido prominente, y un divisor **"o créala
+   manualmente"** antes del Paso 1. Así el camino con IA (pega el pedido del cliente → empareja tu
+   catálogo) se lee como EL camino primario y los pasos manuales como alternativa. Se cambió el emoji
+   `✦` por un **SVG de sparkle** (regla: NADA de emojis; las banderas 🇲🇽🇺🇸🇪🇺 del selector de divisa
+   siguen siendo la excepción aprobada). Sin cambios al backend `ai-draft` ni a la lógica.
+
 ✅ **Simplificación de navegación — "menos es más" (jun 2026)** — primera tanda del track de
    intuitividad (decisión de André: la app tiene MÁS features de las que el vendedor típico usa;
    el salto de UX es enfocar y esconder, no agregar):

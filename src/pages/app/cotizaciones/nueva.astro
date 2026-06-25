@@ -19,21 +19,25 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
     <div class="editor-grid">
         <!-- ── Columna principal ── -->
         <div class="ed-main">
-            <!-- Armar con IA -->
+            <!-- Armar con IA — la forma rápida (puerta de entrada) -->
             <section class="ed-block ai-block">
                 <div class="ai-head">
-                    <span class="ai-spark">✦</span>
+                    <span class="ai-spark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M19 14.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7.7-1.8z"/></svg>
+                    </span>
                     <div>
-                        <h2 class="ai-title">Armar con IA</h2>
-                        <p class="ai-sub">Pega el pedido del cliente (WhatsApp, correo…) y la IA arma las líneas con tu catálogo.</p>
+                        <h2 class="ai-title">Arma la cotización con IA</h2>
+                        <p class="ai-sub">La forma más rápida. Pega el pedido del cliente (WhatsApp, correo…) y la IA arma las líneas con tu catálogo.</p>
                     </div>
                 </div>
-                <textarea id="aiText" class="ed-textarea" rows="3" placeholder="Ej. Hola, necesito 200 sacos de cemento gris, 50 varillas de 3/8 y 2 m³ de arena. ¿Me pasas precio?"></textarea>
+                <textarea id="aiText" class="ed-textarea ai-textarea" rows="3" placeholder="Ej. Hola, necesito 200 sacos de cemento gris, 50 varillas de 3/8 y 2 m³ de arena. ¿Me pasas precio?"></textarea>
                 <div class="ai-actions">
                     <button class="ai-btn" id="aiBtn"><span class="ai-btn-label">Armar cotización con IA</span></button>
                     <span class="ai-status" id="aiStatus"></span>
                 </div>
             </section>
+
+            <div class="ed-or"><span>o créala manualmente</span></div>
 
             <!-- Cliente -->
             <section class="ed-block">
@@ -565,20 +569,35 @@ const VIGENCIAS = [...new Set([15, 30, 60, ORG.vigenciaDefaultDias])].sort((a, b
     .opt { font-size: 0.75rem; font-weight: 400; color: var(--color-text-muted); }
 
     /* AI Block */
-    .ai-block { padding: 1.2rem; border: 1px dashed var(--color-border); border-radius: 12px; background: rgba(250,251,252,0.5); }
+    /* Hero IA: la puerta de entrada del editor (card navy premium) */
+    .ai-block { padding: 1.5rem; border: none; border-radius: 16px; position: relative; overflow: hidden;
+        background:
+            radial-gradient(120% 140% at 0% 0%, rgba(59,130,246,0.16), transparent 60%),
+            linear-gradient(135deg, #0d2038, #0a192f);
+        box-shadow: 0 24px 50px -30px rgba(10,25,47,0.65), inset 0 1px 0 rgba(255,255,255,0.06); }
     .ai-head { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 0.9rem; }
-    .ai-spark { font-size: 0.9rem; color: var(--color-blue-deep); background: rgba(10,25,47,0.06); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .ai-title { font-size: 0.9rem; font-weight: 600; margin: 0 0 2px; }
-    .ai-sub { font-size: 0.8rem; color: var(--color-text-muted); margin: 0; line-height: 1.4; }
-    .ai-actions { display: flex; align-items: center; gap: 1rem; margin-top: 0.7rem; flex-wrap: wrap; }
+    .ai-spark { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+        color: #fff; background: rgba(255,255,255,0.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); }
+    .ai-spark svg { width: 19px; height: 19px; }
+    .ai-title { font-size: 1.02rem; font-weight: 650; margin: 0 0 3px; color: #fff; letter-spacing: -0.01em; }
+    .ai-sub { font-size: 0.82rem; color: rgba(255,255,255,0.62); margin: 0; line-height: 1.45; }
+    .ai-block .ed-textarea.ai-textarea { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); color: #fff; }
+    .ai-block .ed-textarea.ai-textarea::placeholder { color: rgba(255,255,255,0.4); }
+    .ai-block .ed-textarea.ai-textarea:focus { border-color: rgba(255,255,255,0.5); box-shadow: 0 0 0 2px rgba(255,255,255,0.1); }
+    .ai-actions { display: flex; align-items: center; gap: 1rem; margin-top: 0.8rem; flex-wrap: wrap; }
     .ai-btn {
-        font-family: var(--font-sans); font-size: 0.82rem; font-weight: 500; cursor: pointer;
-        background: var(--surface); color: var(--color-text); border: 1px solid var(--color-border); border-radius: 6px; padding: 6px 14px;
-        transition: background 0.2s;
+        font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; cursor: pointer;
+        background: #fff; color: #0a192f; border: none; border-radius: 9px; padding: 9px 18px;
+        transition: transform 0.2s var(--ease-spring), box-shadow 0.2s, opacity 0.2s;
     }
-    .ai-btn:hover { background: var(--color-bg-soft); }
+    .ai-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 24px -10px rgba(0,0,0,0.5); }
     .ai-btn:disabled { opacity: 0.6; cursor: wait; }
-    .ai-status { font-size: 0.78rem; color: var(--color-text-muted); font-weight: 400; }
+    .ai-status { font-size: 0.78rem; color: rgba(255,255,255,0.7); font-weight: 400; }
+
+    /* Divisor "o créala manualmente" */
+    .ed-or { display: flex; align-items: center; gap: 1rem; margin: 0.3rem 0; color: var(--color-text-muted); }
+    .ed-or::before, .ed-or::after { content: ''; flex: 1; height: 1px; background: var(--color-border); }
+    .ed-or span { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; white-space: nowrap; }
 
     /* Client Row */
     .client-row { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
