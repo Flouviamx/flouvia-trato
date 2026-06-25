@@ -89,6 +89,52 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
    `✦` por un **SVG de sparkle** (regla: NADA de emojis; las banderas 🇲🇽🇺🇸🇪🇺 del selector de divisa
    siguen siendo la excepción aprobada). Sin cambios al backend `ai-draft` ni a la lógica.
 
+⬜ **PENDIENTES PRIORIZADOS — UX + Landing (jun 2026)** — la hoja de ruta para "la mejor app":
+
+   **Track UX / core loop (3 cosas):**
+   1. **Onboarding con cotización de ejemplo** — al primer login precargar 1 cotización demo (revivir
+      `src/lib/onboarding.ts` + `/api/onboarding/seed`, hoy código muerto) para que la primera pantalla
+      NO esté vacía; + tour de 60s cuyo aha-moment es ver el badge "Vista" encenderse. Auto-descartar al
+      completar `getSetupProgress()`. ⚠️ Toca datos → hacerlo con cuidado (marcar la demo como borrable).
+   2. **Reforzar los puntos de entrada al flujo IA** — "Nueva cotización" del dashboard, la lista, el
+      menú "Crear" y el quick-add deben llevar/invitar al editor con el hero de IA al frente. Hoy solo el
+      editor lo destaca.
+   3. **Pulido fino del drawer móvil** — ya hereda `NAV_GROUPS` (Mi dinero/Inteligencia); falta pasada de
+      espaciados/tap-targets y que las tabs de sección se sientan nativas en celular.
+
+   **Track Landing — que represente TODO lo nuevo:**
+   Inventario actual: `/producto/*` (editor·link-publico·seguimiento·cfdi·clientes-credito·cobranza-ia·
+   divisas·internacional), `/soluciones/*` (distribuidoras·construccion·manufactura·servicios),
+   `/desarrolladores/*` (api·mcp·elements·status). Lo que la app YA hace y la landing NO vende:
+
+   • **FIX de inconsistencias (rápido):**
+     - El **megamenú MÓVIL** de `Nav.astro` (bloques `m-sub`) lista producto solo de editor→cobranza-ia:
+       **faltan `divisas` e `internacional`** (sí están en el megamenú desktop). Agregarlas.
+     - Actualizar el copy de **`/desarrolladores/mcp`** a "MCP bidireccional + gobernanza de agentes"
+       (el server inbound HTTP/SSE en `/api/mcp/sse|message`, el cliente outbound `McpClientManager` y
+       `agentes_permisos` ya existen, pero la página solo cuenta el MCP de lectura).
+   • **Páginas nuevas de /producto (features reales sin representación en landing):**
+     - **`/producto/finanzas`** — "Tu CFO con IA": flujo de caja a 90 días, DSO con semáforo, concentración
+       de riesgo, forecast ponderado, AI CFO Insight. **Es el hueco más grande**: CFO/Analítica/Tesorería
+       (3 pantallas reales de la app) no tienen NINGUNA página de producto.
+     - **`/producto/aprobaciones`** — "Control de márgenes y aprobaciones": umbrales de descuento/monto/
+       margen, el **Auditor Silencioso** (margen mínimo con costo snapshoteado en `cotizacion_items`),
+       flujo de aprobación gerencial y audit log inmutable. Diferenciador enterprise sin página.
+     - **`/producto/equipo`** — "Equipo, roles y multi-empresa": multi-usuario con permisos por sección
+       (`permissions.ts`), multi-org (Clerk Organizations) y SSO (próximamente). El B2B se vende por esto.
+     - (Opcional) **`/producto/negociacion`** — versiones inmutables, contraoferta/chat por línea,
+       **aprobación parcial por línea** y **firma legal SHA-256**. Hoy se toca de refilón en editor/link-publico.
+   • **Home index (`index.astro` / `Features.astro`):** refrescar el bento para incluir lo nuevo y "mágico":
+     **Armado con IA** (la nueva puerta de entrada del editor), **Cobranza con IA**, **Multi-divisa con
+     cobertura** y **Finanzas/CFO**. Evaluar mostrar el armado-con-IA dentro del demo interactivo del hero.
+   • **Soluciones (menor prioridad):** enriquecer las 4 industrias con las features nuevas (finanzas/
+     aprobaciones) en sus block-mockups; evaluar 1-2 verticales nuevas solo si hay narrativa real.
+   • **Regla de construcción:** toda página nueva de producto usa la plantilla de `/producto/[slug]`
+     (contenido en `producto.ts`, hero mockup en `[slug].astro`, block mockups en `BlockMockup.astro`),
+     animada con `PageAnims` (settle, masked-titles, reveals) — SIN exploded-view/tilt/partículas/flip.
+     Cablear cada una en el megamenú de `Nav.astro` (**desktop Y móvil**) y en `Footer.astro`. Versión EN
+     en `producto.en.ts` + `/en/producto/[slug]`.
+
 ✅ **Simplificación de navegación — "menos es más" (jun 2026)** — primera tanda del track de
    intuitividad (decisión de André: la app tiene MÁS features de las que el vendedor típico usa;
    el salto de UX es enfocar y esconder, no agregar):
