@@ -1,0 +1,68 @@
+---
+// src/components/soluciones/MockupCFDI.astro
+---
+<div class="mock-ui mock-ui-3">
+    <div class="mock-chart-container">
+        <div class="mock-chart-header">
+            <div class="mock-metric">
+                <span>CFDIs Timbrados</span>
+                <b>+1,204 <span class="mock-trend positive">+18%</span></b>
+            </div>
+            <div class="mock-badge sat">Sincronizado con SAT</div>
+        </div>
+        <div class="mock-bars">
+            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:35%"></div></div>
+            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:60%"></div></div>
+            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:45%"></div></div>
+            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:80%"></div></div>
+            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:100%"></div></div>
+            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:85%"></div></div>
+            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:70%"></div></div>
+        </div>
+        <div class="mock-chart-footer">
+            <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+        </div>
+    </div>
+    <div class="mock-log-container">
+        <div class="mock-log-header">Eventos de API</div>
+        <div class="mock-log">
+            <div class="mock-log-line"><code><span class="log-time">10:42:01</span> <span class="log-hook">[Webhook]</span> Payment confirmed: #INV-0012</code></div>
+            <div class="mock-log-line"><code><span class="log-time">10:42:02</span> <span class="log-sys">[CFDI 4.0]</span> Stamp success. UUID: A8B4-9F...</code></div>
+            <div class="mock-log-line"><code><span class="log-time">10:42:03</span> <span class="log-mail">[Mail]</span> Dispatched XML/PDF to aceros@corp.com</code></div>
+        </div>
+    </div>
+</div>
+
+<style is:global>
+    .mock-ui-3 {
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .mock-chart-container { padding: 16px; border-bottom: 1px solid rgba(10,25,47,0.06); }
+    
+    .mock-chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .mock-metric { display: flex; flex-direction: column; }
+    .mock-metric > span { font-size: 0.75rem; color: #64748b; font-weight: 500; margin-bottom: 4px; }
+    .mock-metric b { font-size: 1.5rem; color: #0a192f; display: flex; align-items: center; gap: 8px; }
+    
+    .mock-badge.sat { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+    
+    .mock-bars { display: flex; align-items: flex-end; justify-content: space-between; height: 80px; gap: 8px; }
+    .mock-bar-col { flex: 1; height: 100%; background: rgba(10,25,47,0.03); border-radius: 4px 4px 0 0; position: relative; display: flex; align-items: flex-end; }
+    .mock-bar-fill { width: 100%; background: linear-gradient(to top, rgba(59, 130, 246, 0.8), rgba(16, 185, 129, 0.8)); border-radius: 4px 4px 0 0; }
+    
+    .mock-chart-footer { display: flex; justify-content: space-between; margin-top: 8px; }
+    .mock-chart-footer span { flex: 1; text-align: center; font-size: 0.6rem; color: #94a3b8; }
+    
+    .mock-log-container { background: #0a192f; padding: 16px; flex: 1; }
+    .mock-log-header { font-size: 0.7rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.05em; }
+    .mock-log { display: flex; flex-direction: column; gap: 8px; }
+    .mock-log-line { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.7rem; color: #e2e8f0; }
+    
+    .log-time { color: #64748b; margin-right: 6px; }
+    .log-hook { color: #f59e0b; margin-right: 6px; }
+    .log-sys { color: #10b981; margin-right: 6px; }
+    .log-mail { color: #3b82f6; margin-right: 6px; }
+</style>

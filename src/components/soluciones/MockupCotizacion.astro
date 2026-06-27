@@ -1,0 +1,118 @@
+---
+// src/components/soluciones/MockupCotizacion.astro
+---
+<div class="mock-ui mock-ui-1">
+    <div class="mock-header">
+        <div class="mock-dots"><span/><span/><span/></div>
+        <div class="mock-title">Cotización #4092</div>
+    </div>
+    <div class="mock-body">
+        <div class="mock-table">
+            <div class="mock-row mock-th">
+                <span>Producto</span>
+                <span>Cant.</span>
+                <span>Total</span>
+            </div>
+            <div class="mock-row">
+                <span class="mock-item-name"><div class="mock-icon cement"></div>Cemento</span>
+                <span>50</span>
+                <span>$12,500</span>
+            </div>
+            <div class="mock-row">
+                <span class="mock-item-name"><div class="mock-icon steel"></div>Varilla</span>
+                <span>120</span>
+                <span>$28,800</span>
+            </div>
+        </div>
+        <div class="mock-summary">
+            <div class="mock-total">
+                <span>Total Neto</span>
+                <b>$41,300</b>
+            </div>
+            <div class="mock-badge net30">Término: Net 30</div>
+        </div>
+        <div class="mock-btn">Aprobar cotización</div>
+    </div>
+</div>
+
+<style is:global>
+    .mock-ui {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid rgba(10,25,47,0.08);
+        box-shadow: 0 16px 40px -12px rgba(10,25,47,0.12), 0 4px 10px -4px rgba(10,25,47,0.06);
+        width: 100%;
+        max-width: 320px;
+        overflow: hidden;
+        font-family: var(--font-sans, system-ui, sans-serif);
+    }
+    
+    .mock-ui-1 .mock-header {
+        background: #f8fafc;
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(10,25,47,0.05);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .mock-dots { display: flex; gap: 6px; }
+    .mock-dots span { width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; }
+    .mock-dots span:nth-child(1) { background: #ef4444; }
+    .mock-dots span:nth-child(2) { background: #f59e0b; }
+    .mock-dots span:nth-child(3) { background: #10b981; }
+    
+    .mock-title { font-size: 0.8rem; font-weight: 600; color: #0a192f; }
+    
+    .mock-ui-1 .mock-body { padding: 16px; }
+    
+    .mock-table {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(10,25,47,0.06);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+    
+    .mock-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(10,25,47,0.04);
+        font-size: 0.75rem;
+        align-items: center;
+    }
+    .mock-row:last-child { border-bottom: none; }
+    
+    .mock-th {
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.65rem;
+    }
+    
+    .mock-item-name { display: flex; align-items: center; gap: 8px; font-weight: 500; color: #0a192f; }
+    .mock-icon { width: 24px; height: 24px; border-radius: 6px; }
+    .mock-icon.cement { background: #e2e8f0; }
+    .mock-icon.steel { background: #94a3b8; }
+    
+    .mock-summary { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .mock-total { display: flex; flex-direction: column; }
+    .mock-total span { font-size: 0.7rem; color: #64748b; }
+    .mock-total b { font-size: 1.25rem; color: #0a192f; }
+    
+    .mock-badge { font-size: 0.65rem; font-weight: 700; padding: 4px 8px; border-radius: 100px; text-transform: uppercase; }
+    .mock-badge.net30 { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+    
+    .mock-btn {
+        background: #0a192f;
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+    }
+</style>

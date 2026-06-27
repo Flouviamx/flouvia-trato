@@ -1,0 +1,94 @@
+---
+// src/components/soluciones/MockupPagos.astro
+---
+<div class="mock-ui mock-ui-2">
+    <div class="mock-balance-card">
+        <div class="mock-balance-top">
+            <span>Por cobrar hoy</span>
+            <span class="mock-trend positive">+12.5%</span>
+        </div>
+        <b>$277,810</b>
+        <div class="mock-progress">
+            <div class="mock-progress-bar" style="width: 72%"></div>
+        </div>
+        <div class="mock-balance-sub">8 facturas programadas para depósito</div>
+    </div>
+    <div class="mock-tx-list">
+        <div class="mock-tx-header">Transacciones Recientes</div>
+        <div class="mock-tx">
+            <div class="mock-tx-left">
+                <div class="mock-avatar ac">AC</div>
+                <div class="mock-tx-info">
+                    <b>Aceros Corp</b>
+                    <span>#INV-0012</span>
+                </div>
+            </div>
+            <div class="mock-tx-right">
+                <b>$65,340</b>
+                <span class="mock-status ok">Pagado</span>
+            </div>
+        </div>
+        <div class="mock-tx">
+            <div class="mock-tx-left">
+                <div class="mock-avatar fx">FX</div>
+                <div class="mock-tx-info">
+                    <b>Ferrex SA</b>
+                    <span>#INV-0013</span>
+                </div>
+            </div>
+            <div class="mock-tx-right">
+                <b>$89,940</b>
+                <span class="mock-status warn">Pendiente</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style is:global>
+    .mock-ui-2 {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .mock-balance-card, .mock-tx-list {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid rgba(10,25,47,0.08);
+        box-shadow: 0 12px 30px -10px rgba(10,25,47,0.1);
+        padding: 16px;
+    }
+    
+    .mock-balance-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .mock-balance-top > span:first-child { font-size: 0.8rem; color: #64748b; font-weight: 500; }
+    .mock-trend.positive { color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+    
+    .mock-balance-card > b { display: block; font-size: 1.8rem; color: #0a192f; margin-bottom: 12px; line-height: 1; }
+    
+    .mock-progress { height: 6px; background: #e2e8f0; border-radius: 100px; overflow: hidden; margin-bottom: 8px; }
+    .mock-progress-bar { height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); border-radius: 100px; }
+    .mock-balance-sub { font-size: 0.7rem; color: #94a3b8; }
+    
+    .mock-tx-header { font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 12px; }
+    .mock-tx { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(10,25,47,0.04); }
+    .mock-tx:last-child { border-bottom: none; padding-bottom: 0; }
+    
+    .mock-tx-left { display: flex; align-items: center; gap: 12px; }
+    .mock-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #ffffff; }
+    .mock-avatar.ac { background: #3b82f6; }
+    .mock-avatar.fx { background: #f59e0b; }
+    
+    .mock-tx-info { display: flex; flex-direction: column; }
+    .mock-tx-info b { font-size: 0.85rem; color: #0a192f; }
+    .mock-tx-info span { font-size: 0.7rem; color: #94a3b8; }
+    
+    .mock-tx-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .mock-tx-right b { font-size: 0.85rem; color: #0a192f; }
+    
+    .mock-status { font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 100px; text-transform: uppercase; }
+    .mock-status.ok { background: rgba(16, 185, 129, 0.15); color: #059669; }
+    .mock-status.warn { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+</style>

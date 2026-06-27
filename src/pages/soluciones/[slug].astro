@@ -7,8 +7,10 @@ import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/landing/Nav.astro';
 import Footer from '../../components/landing/Footer.astro';
 import PageAnims from '../../components/landing/PageAnims.astro';
-import SolucionBlockMockup from '../../components/soluciones/SolucionBlockMockup.astro';
 import ProFeatures from '../../components/soluciones/ProFeatures.astro';
+import MockupCotizacion from '../../components/soluciones/MockupCotizacion.astro';
+import MockupPagos from '../../components/soluciones/MockupPagos.astro';
+import MockupCFDI from '../../components/soluciones/MockupCFDI.astro';
 import { SOLUCIONES } from '../../lib/solucion';
 import { SOLUCIONES_EN } from '../../lib/solucion.en';
 import { getLangFromUrl } from '../../i18n/utils';
@@ -84,38 +86,15 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
 
                 <div class="cord-hero-graphics reveal">
                     <div class="chg-card chg-back">
-                        <div class="chg-head">
-                            <div class="chg-title">Volumen B2B (MXN)</div>
-                        </div>
-                        <div class="chg-chart">
-                            <div class="chg-bar" style="height: 40%"></div>
-                            <div class="chg-bar" style="height: 55%"></div>
-                            <div class="chg-bar" style="height: 45%"></div>
-                            <div class="chg-bar" style="height: 80%"></div>
-                            <div class="chg-bar" style="height: 100%"></div>
-                        </div>
+                        <MockupCotizacion />
                     </div>
                     
                     <div class="chg-card chg-mid">
-                        <div class="chg-head">
-                            <div class="chg-title">Aprobaciones Recientes</div>
-                        </div>
-                        <div class="chg-list">
-                            <div class="chg-item">
-                                <div class="chg-item-info"><span>Gama Industrias</span><b class="editorial">$142,450</b></div>
-                                <span class="chg-status ok">Pagado</span>
-                            </div>
-                            <div class="chg-item">
-                                <div class="chg-item-info"><span>Distribuidora Norte</span><b class="editorial">$58,900</b></div>
-                                <span class="chg-status warn">Net 30</span>
-                            </div>
-                        </div>
-                        <div class="chg-link">Ver todas las transacciones <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+                        <MockupPagos />
                     </div>
                     
                     <div class="chg-card chg-front">
-                        <h3 class="chg-main-title">Pagos en la plataforma</h3>
-                        <a href="/producto/cfdi" class="chg-explore">Explorar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></a>
+                        <MockupCFDI />
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 ---
-// src/components/soluciones/ProFeatures.astro
-// Componente de los 3 pilares "super pro" (estilo Stripe Enterprise)
+import MockupCotizacion from './MockupCotizacion.astro';
+import MockupPagos from './MockupPagos.astro';
+import MockupCFDI from './MockupCFDI.astro';
 ---
 
 <section class="cord-pillars-section stripe-container reveal">
@@ -9,39 +10,7 @@
         <!-- Pillar 1: Cotizaciones -->
         <div class="cord-pillar-card">
             <div class="cp-graphic">
-                <div class="mock-ui mock-ui-1">
-                    <div class="mock-header">
-                        <div class="mock-dots"><span/><span/><span/></div>
-                        <div class="mock-title">Cotización #4092</div>
-                    </div>
-                    <div class="mock-body">
-                        <div class="mock-table">
-                            <div class="mock-row mock-th">
-                                <span>Producto</span>
-                                <span>Cant.</span>
-                                <span>Total</span>
-                            </div>
-                            <div class="mock-row">
-                                <span class="mock-item-name"><div class="mock-icon cement"></div>Cemento Cruz Azul</span>
-                                <span>50</span>
-                                <span>$12,500</span>
-                            </div>
-                            <div class="mock-row">
-                                <span class="mock-item-name"><div class="mock-icon steel"></div>Varilla 3/8</span>
-                                <span>120</span>
-                                <span>$28,800</span>
-                            </div>
-                        </div>
-                        <div class="mock-summary">
-                            <div class="mock-total">
-                                <span>Total Neto</span>
-                                <b>$41,300</b>
-                            </div>
-                            <div class="mock-badge net30">Término: Net 30</div>
-                        </div>
-                        <div class="mock-btn">Aprobar cotización</div>
-                    </div>
-                </div>
+                <MockupCotizacion />
             </div>
             <div class="cp-content">
                 <h3>Cotizaciones interactivas</h3>
@@ -56,48 +25,7 @@
         <!-- Pillar 2: Pagos -->
         <div class="cord-pillar-card">
             <div class="cp-graphic">
-                <div class="mock-ui mock-ui-2">
-                    <div class="mock-balance-card">
-                        <div class="mock-balance-top">
-                            <span>Por cobrar hoy</span>
-                            <span class="mock-trend positive">+12.5%</span>
-                        </div>
-                        <b>$277,810</b>
-                        <div class="mock-progress">
-                            <div class="mock-progress-bar" style="width: 72%"></div>
-                        </div>
-                        <div class="mock-balance-sub">8 facturas programadas para depósito</div>
-                    </div>
-                    <div class="mock-tx-list">
-                        <div class="mock-tx-header">Transacciones Recientes</div>
-                        <div class="mock-tx">
-                            <div class="mock-tx-left">
-                                <div class="mock-avatar ac">AC</div>
-                                <div class="mock-tx-info">
-                                    <b>Aceros Corp</b>
-                                    <span>#INV-0012</span>
-                                </div>
-                            </div>
-                            <div class="mock-tx-right">
-                                <b>$65,340</b>
-                                <span class="mock-status ok">Pagado</span>
-                            </div>
-                        </div>
-                        <div class="mock-tx">
-                            <div class="mock-tx-left">
-                                <div class="mock-avatar fx">FX</div>
-                                <div class="mock-tx-info">
-                                    <b>Ferrex SA</b>
-                                    <span>#INV-0013</span>
-                                </div>
-                            </div>
-                            <div class="mock-tx-right">
-                                <b>$89,940</b>
-                                <span class="mock-status warn">Pendiente</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <MockupPagos />
             </div>
             <div class="cp-content">
                 <h3>Gestión de pagos B2B</h3>
@@ -112,37 +40,7 @@
         <!-- Pillar 3: Automatización CFDI -->
         <div class="cord-pillar-card">
             <div class="cp-graphic">
-                <div class="mock-ui mock-ui-3">
-                    <div class="mock-chart-container">
-                        <div class="mock-chart-header">
-                            <div class="mock-metric">
-                                <span>CFDIs Timbrados</span>
-                                <b>+1,204 <span class="mock-trend positive">+18%</span></b>
-                            </div>
-                            <div class="mock-badge sat">Sincronizado con SAT</div>
-                        </div>
-                        <div class="mock-bars">
-                            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:35%"></div></div>
-                            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:60%"></div></div>
-                            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:45%"></div></div>
-                            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:80%"></div></div>
-                            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:100%"></div></div>
-                            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:85%"></div></div>
-                            <div class="mock-bar-col"><div class="mock-bar-fill" style="height:70%"></div></div>
-                        </div>
-                        <div class="mock-chart-footer">
-                            <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
-                        </div>
-                    </div>
-                    <div class="mock-log-container">
-                        <div class="mock-log-header">Eventos de API</div>
-                        <div class="mock-log">
-                            <div class="mock-log-line"><code><span class="log-time">10:42:01</span> <span class="log-hook">[Webhook]</span> Payment confirmed: #INV-0012</code></div>
-                            <div class="mock-log-line"><code><span class="log-time">10:42:02</span> <span class="log-sys">[CFDI 4.0]</span> Stamp success. UUID: A8B4-9F...</code></div>
-                            <div class="mock-log-line"><code><span class="log-time">10:42:03</span> <span class="log-mail">[Mail]</span> Dispatched XML/PDF to aceros@corp.com</code></div>
-                        </div>
-                    </div>
-                </div>
+                <MockupCFDI />
             </div>
             <div class="cp-content">
                 <h3>Automatización de finanzas</h3>
