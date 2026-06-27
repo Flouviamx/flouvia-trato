@@ -109,7 +109,9 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
      - **`/producto/equipo`** — Directorio B2B, cambio rápido de orgs, SSO.
      - **`/producto/negociacion`** — versiones inmutables, aprobación por línea, firma SHA-256.
    ✅ **Home index (COMPLETADO):**
-     El bento grid en `Features.astro` se actualizó para incluir las "4 magias" de Cord: **Armado con IA** (editor-visual), **Cobranza con IA** (track-visual), **Finanzas CFO** (cfdi-visual), y **Multi-divisa / FX Lock** (link-visual).
+     El bento grid en `Features.astro` se actualizó para incluir las "4 magias" de Cord.
+   ✅ **Advanced Features "Full Canvas" (COMPLETADO):**
+     La sección `AdvancedFeatures.astro` en la Landing se reescribió a un estándar "top-tier motion graphics" estilo Notion. Se eliminaron las cajas anidadas. Los 4 paneles ahora son lienzos absolutos edge-to-edge: (1) **IA:** Command bar tipo terminal + widget de cotización. (2) **Cobranza:** UI de CRM en tiempo real + widget de pago Stripe. (3) **CFO Dashboard:** Gráficas de barra dobles con meta operativa y tooltips interactivos B2B. (4) **Multi-divisa (FX):** Trade ticket institucional USD/MXN con tasa Banxico asegurada.
    ✅ **Soluciones y Desarrolladores (COMPLETADO):**
      Se enriqueció la vertical de "Distribuidoras" con mockups de finanzas y aprobaciones (piloto pendiente de validación narrativa para las demás industrias y verticales nuevas). Se agregaron las páginas de `/desarrolladores` para **Multi-divisa FX** y **Fiscal internacional**.
    • **Soluciones (menor prioridad):** evaluar 1-2 verticales nuevas solo si hay narrativa real.
