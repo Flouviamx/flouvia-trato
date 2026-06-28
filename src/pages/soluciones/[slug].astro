@@ -797,25 +797,25 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
             <div class="cord-apps-marquee">
                 <div class="marquee-track">
                     <!-- First Set -->
-                    <div class="app-icon navy"><span class="app-letter">W</span></div>
-                    <div class="app-icon blue"><span class="app-letter">O</span></div>
-                    <div class="app-icon yellow"><span class="app-letter">P</span></div>
-                    <div class="app-icon dark"><span class="app-letter">|||</span></div>
-                    <div class="app-icon green"><span class="app-letter">↓</span></div>
-                    <div class="app-icon cyan"><span class="app-letter">xero</span></div>
-                    <div class="app-icon orange"><span class="app-letter">H</span></div>
-                    <div class="app-icon purple"><span class="app-letter">M</span></div>
-                    <div class="app-icon blue-alt"><span class="app-letter">S</span></div>
+                    <div class="app-icon navy"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/webflow')"></div></div>
+                    <div class="app-icon blue"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/contentful')"></div></div>
+                    <div class="app-icon yellow"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/mailchimp')"></div></div>
+                    <div class="app-icon dark"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/intercom')"></div></div>
+                    <div class="app-icon green"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/quickbooks')"></div></div>
+                    <div class="app-icon cyan"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/xero')"></div></div>
+                    <div class="app-icon orange"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/hubspot')"></div></div>
+                    <div class="app-icon purple"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/slack')"></div></div>
+                    <div class="app-icon blue-alt"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/salesforce')"></div></div>
                     <!-- Second Set (Duplicate for smooth infinite scroll) -->
-                    <div class="app-icon navy"><span class="app-letter">W</span></div>
-                    <div class="app-icon blue"><span class="app-letter">O</span></div>
-                    <div class="app-icon yellow"><span class="app-letter">P</span></div>
-                    <div class="app-icon dark"><span class="app-letter">|||</span></div>
-                    <div class="app-icon green"><span class="app-letter">↓</span></div>
-                    <div class="app-icon cyan"><span class="app-letter">xero</span></div>
-                    <div class="app-icon orange"><span class="app-letter">H</span></div>
-                    <div class="app-icon purple"><span class="app-letter">M</span></div>
-                    <div class="app-icon blue-alt"><span class="app-letter">S</span></div>
+                    <div class="app-icon navy"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/webflow')"></div></div>
+                    <div class="app-icon blue"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/contentful')"></div></div>
+                    <div class="app-icon yellow"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/mailchimp')"></div></div>
+                    <div class="app-icon dark"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/intercom')"></div></div>
+                    <div class="app-icon green"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/quickbooks')"></div></div>
+                    <div class="app-icon cyan"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/xero')"></div></div>
+                    <div class="app-icon orange"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/hubspot')"></div></div>
+                    <div class="app-icon purple"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/slack')"></div></div>
+                    <div class="app-icon blue-alt"><div class="app-mask" style="-webkit-mask-image: url('https://cdn.simpleicons.org/salesforce')"></div></div>
                 </div>
             </div>
         </section>
@@ -2797,14 +2797,19 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
         transform: translateY(-8px) scale(1.02);
         filter: brightness(1.05);
     }
-    .app-letter {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        font-size: 6rem;
-        font-weight: 800;
-        letter-spacing: -0.05em;
-        text-shadow: 1px 1px 0px rgba(255,255,255,0.2), -1px -1px 0px rgba(0,0,0,0.1);
+    .app-mask {
+        width: 80px;
+        height: 80px;
+        background-color: currentColor;
+        -webkit-mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.2)) drop-shadow(-1px -1px 0px rgba(0,0,0,0.15));
     }
-    .app-icon.cyan .app-letter { font-size: 3.5rem; letter-spacing: -0.05em; } /* For 'xero' */
+    .app-icon.cyan .app-mask { width: 100px; height: 100px; } /* xero logo is wide */
 
     /* Gradients mimicking the screenshot */
     .app-icon.navy { background: linear-gradient(135deg, #708499, #334155); color: rgba(0,0,0,0.3); }
