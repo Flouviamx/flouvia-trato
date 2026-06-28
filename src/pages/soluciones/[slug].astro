@@ -211,78 +211,139 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                                     </div>
                                 </div>
                                 <div class="stripe-fg-card-visual">
+                                <div class="stripe-fg-card-visual">
                                     {idx === 0 && (
-                                        <div class="pro-mockup-graph">
-                                            <svg viewBox="0 0 400 300" class="pro-svg">
-                                                <defs>
-                                                    <linearGradient id="chartGlow" x1="0" y1="0" x2="0" y2="1">
-                                                        <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.2" />
-                                                        <stop offset="100%" stop-color="#4f46e5" stop-opacity="0" />
-                                                    </linearGradient>
-                                                    <linearGradient id="chartLine" x1="0" y1="0" x2="1" y2="0">
-                                                        <stop offset="0%" stop-color="#6366f1" />
-                                                        <stop offset="100%" stop-color="#8b5cf6" />
-                                                    </linearGradient>
-                                                </defs>
-                                                <line x1="50" y1="200" x2="350" y2="200" stroke="#e2e8f0" stroke-width="1" />
-                                                <line x1="50" y1="150" x2="350" y2="150" stroke="#f1f5f9" stroke-width="1" />
-                                                <line x1="50" y1="100" x2="350" y2="100" stroke="#f1f5f9" stroke-width="1" />
+                                        <div class="pro-ui-card">
+                                            <div class="ui-header">
+                                                <div class="ui-title">Aprobación de Cotización</div>
+                                                <div class="ui-badge ui-badge-warning">Pendiente</div>
+                                            </div>
+                                            <div class="ui-body">
+                                                <div class="ui-amount">MXN 125,400.00</div>
+                                                <div class="ui-subtitle">Cliente: Industrias Apex S.A.</div>
                                                 
-                                                <path d="M 50 200 L 50 160 C 100 160 120 180 170 140 C 220 100 240 120 290 80 L 350 40 L 350 200 Z" fill="url(#chartGlow)" />
-                                                <path d="M 50 160 C 100 160 120 180 170 140 C 220 100 240 120 290 80 L 350 40" fill="none" stroke="url(#chartLine)" stroke-width="4" stroke-linecap="round" />
-                                                
-                                                <circle cx="170" cy="140" r="6" fill="#fff" stroke="#6366f1" stroke-width="3" />
-                                                <circle cx="290" cy="80" r="6" fill="#fff" stroke="#8b5cf6" stroke-width="3" />
-                                                
-                                                <rect x="230" y="30" width="90" height="36" rx="18" fill="#fff" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.1))" />
-                                                <circle cx="250" cy="48" r="4" fill="#10b981" />
-                                                <text x="262" y="52" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1e293b">Aprobado</text>
-                                            </svg>
+                                                <div class="ui-stats-row">
+                                                    <div class="ui-stat">
+                                                        <span>Margen</span>
+                                                        <strong>42.5%</strong>
+                                                    </div>
+                                                    <div class="ui-stat">
+                                                        <span>Descuento</span>
+                                                        <strong>15%</strong>
+                                                    </div>
+                                                </div>
+
+                                                <div class="ui-divider"></div>
+                                                <div class="ui-list">
+                                                    <div class="ui-list-item">
+                                                        <div class="ui-item-info">
+                                                            <span class="ui-item-title">Licencias Enterprise (x50)</span>
+                                                            <span class="ui-item-desc">Suscripción anual</span>
+                                                        </div>
+                                                        <div class="ui-item-value">MXN 90,000.00</div>
+                                                    </div>
+                                                    <div class="ui-list-item">
+                                                        <div class="ui-item-info">
+                                                            <span class="ui-item-title">Implementación Core</span>
+                                                            <span class="ui-item-desc">One-time fee</span>
+                                                        </div>
+                                                        <div class="ui-item-value">MXN 35,400.00</div>
+                                                    </div>
+                                                </div>
+
+                                                <button class="ui-btn-primary">Aprobar cotización</button>
+                                            </div>
                                         </div>
                                     )}
                                     {idx === 1 && (
-                                        <div class="stripe-grid-masonry">
-                                            <div class="sgm-col">
-                                                <div class="sgm-card sgm-white" style="height: 120px;">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-                                                    <span style="color: #0ea5e9">SAP Data</span>
-                                                </div>
-                                                <div class="sgm-card sgm-white" style="height: 140px;">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1265 20.17 10.2079 17.8485 10.0166C17.4338 6.61195 14.5126 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2332 4.0114 11.4638 4.03348 11.6908C1.78205 12.1818 0 14.2861 0 16.5C0 19.5376 2.46243 22 5.5 22H17.5Z"></path></svg>
-                                                    <span style="color: #8b5cf6">Oracle Cloud</span>
-                                                </div>
-                                                <div class="sgm-card sgm-white" style="height: 100px;">
-                                                    <img src="/imgs/logo-cord-icon.png" width="32" alt="Cord" />
-                                                </div>
+                                        <div class="pro-ui-card">
+                                            <div class="ui-header">
+                                                <div class="ui-title">Sincronización en Tiempo Real</div>
+                                                <div class="ui-badge ui-badge-success">En línea</div>
                                             </div>
-                                            <div class="sgm-col sgm-offset">
-                                                <div class="sgm-card sgm-blue" style="height: 160px;">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                                    <span>Salesforce</span>
+                                            <div class="ui-body">
+                                                <div class="ui-sync-flow">
+                                                    <div class="ui-sync-node"><img src="/imgs/logo-cord-icon.png" width="24" alt="Cord" /> Cord</div>
+                                                    <div class="ui-sync-line"><div class="ui-sync-dot"></div></div>
+                                                    <div class="ui-sync-node"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" width="24"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg> ERP Core</div>
                                                 </div>
-                                                <div class="sgm-card sgm-dark" style="height: 140px;">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 0 0 16.14 1.34l3.23-3.23M2.5 22v-6h6M21.87 8.43a9 9 0 0 0-16.14-1.34L2.5 10.32"></path></svg>
-                                                    <span>Dynamics</span>
+
+                                                <div class="ui-divider"></div>
+                                                <div class="ui-list">
+                                                    <div class="ui-list-item">
+                                                        <div class="ui-item-icon success"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                                        <div class="ui-item-info">
+                                                            <span class="ui-item-title">Factura FAC-8901</span>
+                                                            <span class="ui-item-desc">Sincronizado hoy 14:32</span>
+                                                        </div>
+                                                        <div class="ui-item-value">MXN 45k</div>
+                                                    </div>
+                                                    <div class="ui-list-item">
+                                                        <div class="ui-item-icon success"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                                        <div class="ui-item-info">
+                                                            <span class="ui-item-title">Cliente CLI-092</span>
+                                                            <span class="ui-item-desc">Sincronizado hoy 13:15</span>
+                                                        </div>
+                                                        <div class="ui-item-value">Success</div>
+                                                    </div>
+                                                    <div class="ui-list-item">
+                                                        <div class="ui-item-icon sync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 0 0 16.14 1.34l3.23-3.23M2.5 22v-6h6M21.87 8.43a9 9 0 0 0-16.14-1.34L2.5 10.32"></path></svg></div>
+                                                        <div class="ui-item-info">
+                                                            <span class="ui-item-title">Pago PAG-441</span>
+                                                            <span class="ui-item-desc">Procesando...</span>
+                                                        </div>
+                                                        <div class="ui-item-value" style="color:#94a3b8">Pending</div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
                                     {idx === 2 && (
-                                        <div class="stripe-sec-grid">
-                                            <div class="sec-card">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                                                <span>SOC 2 Type II</span>
+                                        <div class="pro-ui-card">
+                                            <div class="ui-header">
+                                                <div class="ui-title">Control de Accesos (RBAC)</div>
+                                                <div class="ui-badge ui-badge-gray">SOC 2 / ISO 27001</div>
                                             </div>
-                                            <div class="sec-card">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                                                <span>ISO 27001</span>
-                                            </div>
-                                            <div class="sec-card sec-dark">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
-                                                <span>Cifrado E2E</span>
+                                            <div class="ui-body">
+                                                <div class="ui-security-overview">
+                                                    <div class="ui-sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+                                                    <div>
+                                                        <div class="ui-sec-title">Cifrado E2E Activo</div>
+                                                        <div class="ui-sec-desc">Todas las transacciones están firmadas criptográficamente.</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="ui-divider"></div>
+                                                <div class="ui-list">
+                                                    <div class="ui-list-item">
+                                                        <div class="ui-avatar">AG</div>
+                                                        <div class="ui-item-info">
+                                                            <span class="ui-item-title">Ana García</span>
+                                                            <span class="ui-item-desc">ana@empresa.com</span>
+                                                        </div>
+                                                        <div class="ui-badge ui-badge-admin">Admin</div>
+                                                    </div>
+                                                    <div class="ui-list-item">
+                                                        <div class="ui-avatar bg-blue">LM</div>
+                                                        <div class="ui-item-info">
+                                                            <span class="ui-item-title">Luis Mendoza</span>
+                                                            <span class="ui-item-desc">luis@empresa.com</span>
+                                                        </div>
+                                                        <div class="ui-badge ui-badge-gray">Ventas</div>
+                                                    </div>
+                                                    <div class="ui-list-item">
+                                                        <div class="ui-avatar bg-green">CR</div>
+                                                        <div class="ui-item-info">
+                                                            <span class="ui-item-title">Carlos Ruiz</span>
+                                                            <span class="ui-item-desc">carlos@empresa.com</span>
+                                                        </div>
+                                                        <div class="ui-badge ui-badge-gray">Finanzas</div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
+                                </div>
                                 </div>
                             </div>
                         ))}
@@ -860,91 +921,220 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
         overflow: visible;
     }
 
-    .pro-svg {
-        width: 100%;
-        height: 100%;
-        overflow: visible;
-    }
-
-    /* Graphic 0: Graph */
-    .pro-mockup-graph {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transform: translateY(0);
-        transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .stripe-fg-card:hover .pro-mockup-graph {
-        transform: translateY(-8px) scale(1.02);
-    }
-
-    /* Graphic 1: Masonry Grid */
-    .stripe-grid-masonry {
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        padding: 2rem;
-    }
-    .sgm-col {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        width: 160px;
-    }
-    .sgm-offset {
-        margin-top: 40px;
-    }
-    .sgm-card {
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        box-shadow: 0 12px 32px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.5);
-        font-weight: 700;
-        font-size: 0.95rem;
-        transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .stripe-fg-card:hover .sgm-card {
-        transform: scale(1.02) translateY(-4px);
-    }
-    .sgm-card svg { width: 32px; height: 32px; }
-    .sgm-white { background: #fff; border: 1px solid rgba(0,0,0,0.03); color: #334155; }
-    .sgm-blue { background: #0070d2; color: #fff; box-shadow: 0 12px 32px rgba(0, 112, 210, 0.2); }
-    .sgm-dark { background: #0f172a; color: #fff; box-shadow: 0 12px 32px rgba(15, 23, 42, 0.2); }
-
-    /* Graphic 2: Security Stack */
-    .stripe-sec-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        width: 260px;
-    }
-    .sec-card {
+    /* UI Mockup Base */
+    .pro-ui-card {
         background: #fff;
-        border: 1px solid rgba(0,0,0,0.04);
-        border-radius: 16px;
-        padding: 20px 24px;
+        border-radius: 12px;
+        box-shadow: 0 50px 100px -20px rgba(50,50,93,0.1), 0 30px 60px -30px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(10,20,30,0.05);
+        width: 320px;
+        font-family: 'Inter', system-ui, sans-serif;
+        overflow: hidden;
+        transform: translateY(0);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        color: #334155;
+        text-align: left;
+    }
+    .stripe-fg-card:hover .pro-ui-card {
+        transform: translateY(-8px);
+    }
+    .ui-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fafbfc;
+    }
+    .ui-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+    }
+    .ui-badge {
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .ui-badge-warning { background: #fef3c7; color: #d97706; }
+    .ui-badge-success { background: #d1fae5; color: #059669; }
+    .ui-badge-gray { background: #f1f5f9; color: #64748b; }
+    .ui-badge-admin { background: #ede9fe; color: #7c3aed; }
+    .ui-body {
+        padding: 20px;
+    }
+    .ui-amount {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+    }
+    .ui-subtitle {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 20px;
+    }
+    .ui-stats-row {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 20px;
+    }
+    .ui-stat {
+        display: flex;
+        flex-direction: column;
+    }
+    .ui-stat span {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+    }
+    .ui-stat strong {
+        font-size: 1rem;
+        color: #334155;
+    }
+    .ui-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 16px -20px;
+    }
+    .ui-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .ui-list-item {
         display: flex;
         align-items: center;
-        gap: 16px;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.04);
+        justify-content: space-between;
+    }
+    .ui-item-info {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .ui-item-title {
+        font-size: 0.8rem;
         font-weight: 600;
-        color: #1e293b;
-        font-size: 1rem;
-        transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        color: #334155;
     }
-    .sec-card svg { width: 28px; height: 28px; }
-    .sec-dark { background: #0f172a; color: #fff; }
-    .stripe-fg-card:hover .sec-card {
-        transform: translateX(8px);
+    .ui-item-desc {
+        font-size: 0.7rem;
+        color: #94a3b8;
     }
+    .ui-item-value {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .ui-item-icon {
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+    }
+    .ui-item-icon svg { width: 14px; height: 14px; }
+    .ui-item-icon.success { background: #d1fae5; color: #059669; }
+    .ui-item-icon.sync { background: #dbeafe; color: #2563eb; animation: spin 2s linear infinite; }
+    .ui-btn-primary {
+        width: 100%;
+        background: var(--stripe-cyan);
+        color: #fff;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 20px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px -1px rgba(59,130,246,0.2);
+    }
+    .ui-sync-flow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .ui-sync-node {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .ui-sync-line {
+        flex-grow: 1;
+        height: 2px;
+        background: #e2e8f0;
+        margin: 0 12px;
+        position: relative;
+        overflow: hidden;
+    }
+    .ui-sync-dot {
+        position: absolute;
+        top: -2px; left: 0;
+        width: 6px; height: 6px;
+        background: var(--stripe-cyan);
+        border-radius: 50%;
+        animation: slideRight 2s infinite linear;
+    }
+    .ui-security-overview {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .ui-sec-icon {
+        width: 32px; height: 32px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #3b82f6;
+        flex-shrink: 0;
+    }
+    .ui-sec-icon svg { width: 18px; height: 18px; }
+    .ui-sec-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+    .ui-sec-desc {
+        font-size: 0.75rem;
+        color: #64748b;
+        line-height: 1.4;
+    }
+    .ui-avatar {
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #475569;
+        margin-right: 12px;
+    }
+    .bg-blue { background: #dbeafe; color: #1d4ed8; }
+    .bg-green { background: #d1fae5; color: #047857; }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes slideRight { 100% { left: 100%; } }
     
     .stripe-fg-sidebar {
         display: flex;
