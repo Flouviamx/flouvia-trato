@@ -37,6 +37,10 @@ Node requerido: **>=22.12.0** (ver `.nvmrc` → 24.15.0; alineado a Node 24 LTS,
 
 1. **PROHIBIDO EL USO DE EMOJIS (🚫 EMOJIS):** Por petición estricta de diseño de André, está estrictamente prohibido utilizar emojis (👍, 👎, 🚀, etc.) en el código, en el texto, en la UI o en los commits. Todo debe sentirse profesional, serio y corporativo (Enterprise/Quiet Luxury). En su lugar, usa iconos SVG de librerías como Lucide o Feather.
 2. **Sin etiquetas `<br/>` en strings:** Los títulos y textos no deben contener etiquetas `<br/>` incrustadas; usar espacios y dejar que CSS (e.g. `max-width`, `text-wrap: balance`) maneje los saltos de línea naturales.
+3. **Muerte al Grid Genérico:** André odia los layouts encajonados tipo "Bento grid" cerrado (boxes con bordes duros). Usa en su lugar el estilo "Airy Bento" (mucho espacio, divisores hairline) o flujos limpios de una sola columna centrada.
+4. **Estética "Apple ✕ Cord" (Light Mode):** El modo claro no debe ser `#ffffff` plano. Usa el gris característico de Apple (`#f5f5f7`) para fondos e inputs. Las tarjetas principales (contenedores flotantes) deben ser blancas puras, con `border-radius` masivo (ej. `40px` simulando squircles) y sombras difusas de múltiples capas. 
+5. **Micro-interacciones y UI Táctil:** Los inputs NO llevan bordes por defecto; usan un fondo gris suave (`#f5f5f7`) y revelan un contorno azul profundo (`#0a192f` o `rgba(10, 25, 47, 0.15)`) al recibir foco. Los botones primarios (CTAs) son "píldoras" magnéticas (`border-radius: 999px`) que responden con una ligera reducción/escala (`transform: scale()`) en hover y active.
+6. **Ultra-Premium y Minimalista:** Respeta la jerarquía tipográfica. Los títulos deben ser negros absolutos (`#050505`) con *tracking* ajustado (`letter-spacing: -0.04em`) y línea de altura corta (`1.1`). Deja que la interfaz respire con márgenes y paddings muy generosos. Todo debe poder manejarse fluido con el teclado (ej. `Enter` para avanzar).
 
 ---
 
