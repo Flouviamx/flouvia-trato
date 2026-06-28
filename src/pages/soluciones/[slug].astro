@@ -48,44 +48,27 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
     <Nav />
     <main class="stripe-main">
         
-        <!-- ── HERO (Stripe Enterprise Style) ── -->
+        <!-- ── HERO (Stripe Enterprise) ── -->
         <header class="stripe-hero">
             <div class="stripe-hero-bg">
-                <div class="stripe-hero-gradient"></div>
+                <div class="stripe-hero-aurora"></div>
+                <div class="stripe-hero-sweep"></div>
             </div>
             
-            <div class="cord-hero-layout stripe-container">
-                <div class="cord-hero-text">
-                    <div class="sol-eyebrow reveal">{solucion.eyebrow}</div>
-
-                    <h1 class="stripe-title masked-title" set:html={solucion.titulo} />
-                    
-                    <p class="stripe-sub reveal">{solucion.sub}</p>
-                    
-                    <div class="stripe-actions reveal">
-                        <a href={isEn ? '/en/registro' : '/registro'} class="btn-luxe">
-                            <span>{isEn ? 'Start now' : 'Empezar ahora'}</span>
-                            <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                            <div class="btn-shimmer"></div>
-                        </a>
-                        <a href="/contacto" class="btn-ghost">
-                            <span>{isEn ? 'Contact sales' : 'Contactar a ventas'}</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="cord-hero-graphics reveal">
-                    <div class="chg-card chg-back">
-                        <MockupCotizacion />
-                    </div>
-                    
-                    <div class="chg-card chg-mid">
-                        <MockupPagos />
-                    </div>
-                    
-                    <div class="chg-card chg-front">
-                        <MockupCFDI />
-                    </div>
+            <div class="stripe-hero-content stripe-container">
+                <h1 class="stripe-title" set:html={solucion.titulo} />
+                
+                <p class="stripe-sub reveal">{solucion.sub}</p>
+                
+                <div class="stripe-actions reveal">
+                    <a href={isEn ? '/en/registro' : '/registro'} class="btn-luxe">
+                        <span>{isEn ? 'Start now' : 'Empezar ahora'}</span>
+                        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        <div class="btn-shimmer"></div>
+                    </a>
+                    <a href="/contacto" class="btn-ghost">
+                        <span>{isEn ? 'Contact sales' : 'Contactar a ventas'}</span>
+                    </a>
                 </div>
             </div>
         </header>
@@ -283,84 +266,82 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
     }
 
     /* ════════════════════════════════════════════════════════════════
-       CORD HERO (Stripe Enterprise Style)
+       HERO (Stripe Enterprise)
     ════════════════════════════════════════════════════════════════ */
     .stripe-hero {
         position: relative;
-        padding: 90px 0 60px;
-        min-height: 75vh;
+        padding: 160px 0 100px;
+        min-height: 85vh;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        align-items: center;
         overflow: hidden;
     }
     
     .stripe-hero-bg {
         position: absolute;
-        inset: -20%;
+        inset: 0;
         z-index: 0;
-        background: var(--stripe-bg);
-        border-bottom: 1px solid rgba(10,25,47,0.05);
+        background: #0a192f;
         overflow: hidden;
     }
-    
-    .stripe-hero-gradient {
+
+    /* Aurora mesh — Stripe's signature gradient sweep */
+    .stripe-hero-aurora {
         position: absolute;
-        top: -30%;
-        right: -10%;
-        width: 80%;
-        height: 150%;
-        background: radial-gradient(ellipse at center, rgba(10, 25, 47, 0.12) 0%, rgba(59, 130, 246, 0.08) 40%, transparent 70%);
-        filter: blur(80px);
-    }
-    
-    .cord-hero-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-        align-items: center;
-        position: relative;
-        z-index: 10;
-        margin-top: 4rem;
-    }
-    
-    .cord-hero-text {
-        max-width: 600px;
-        text-align: left;
+        inset: 0;
+        background: 
+            radial-gradient(ellipse 80% 60% at 20% 80%, rgba(99, 102, 241, 0.5) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 80% at 80% 20%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+            radial-gradient(ellipse 100% 100% at 50% 0%, rgba(10, 25, 47, 0.9) 0%, transparent 80%);
+        opacity: 0.9;
     }
 
-    .sol-eyebrow {
-        display: inline-block;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: #0a192f;
-        background: rgba(10, 25, 47, 0.05);
-        padding: 5px 14px;
-        border-radius: 100px;
-        margin-bottom: 1.8rem;
+    /* Gold/amber sweep — Stripe Enterprise's diagonal light band */
+    .stripe-hero-sweep {
+        position: absolute;
+        top: -20%;
+        left: -20%;
+        width: 140%;
+        height: 140%;
+        background: conic-gradient(from 200deg at 40% 60%, transparent 0deg, rgba(251, 191, 36, 0.15) 40deg, rgba(245, 158, 11, 0.12) 80deg, transparent 120deg);
+        filter: blur(60px);
+        animation: sweep-drift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes sweep-drift {
+        0% { transform: rotate(0deg) scale(1); }
+        100% { transform: rotate(8deg) scale(1.05); }
+    }
+    
+    .stripe-hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 900px;
     }
     
     .stripe-title {
-        font-size: clamp(2.4rem, 4.8vw, 4.5rem);
+        font-size: clamp(2.8rem, 6vw, 5.2rem);
         line-height: 1.06;
         font-weight: 800;
         letter-spacing: -0.04em;
-        margin-bottom: 1.5rem;
-        color: #0a192f;
-        text-align: left;
+        margin: 0 0 2rem;
+        color: #ffffff;
         text-wrap: balance;
     }
     
     .stripe-sub {
-        font-size: 1.15rem;
-        line-height: 1.6;
-        color: #555c68;
-        max-width: 550px;
-        margin-bottom: 2.5rem;
+        font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+        line-height: 1.65;
+        color: rgba(255, 255, 255, 0.6);
+        max-width: 680px;
+        margin: 0 auto 3rem;
         font-weight: 400;
-        text-align: left;
     }
     
     .stripe-actions {
@@ -368,6 +349,7 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
         gap: 0.8rem;
         align-items: center;
         flex-wrap: wrap;
+        justify-content: center;
     }
 
     /* ── btn-luxe (copiado exacto de Hero.astro) ── */
@@ -376,8 +358,8 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: #0a192f;
-        color: #fff;
+        background: #fff;
+        color: #0a192f;
         padding: 18px 38px;
         border-radius: 100px;
         text-decoration: none;
@@ -385,7 +367,7 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
         font-weight: 600;
         overflow: hidden;
         transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 24px rgba(10,25,47,0.18);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
     .btn-luxe span { position: relative; z-index: 2; }
     .btn-luxe svg.btn-arrow {
@@ -396,209 +378,38 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
     .btn-luxe:hover svg.btn-arrow { transform: translate(4px); }
     .btn-shimmer {
         position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+        background: linear-gradient(90deg, transparent, rgba(10, 25, 47, 0.06), transparent);
         transform: skew(-20deg); transition: 0s; z-index: 1;
     }
     .btn-luxe:hover {
         transform: translateY(-2px);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 12px 32px rgba(10,25,47,0.24);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.3);
     }
     .btn-luxe:active {
         transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     .btn-luxe:hover .btn-shimmer {
         left: 150%;
         transition: left 0.9s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* ── btn-ghost (copiado exacto de Hero.astro) ── */
+    /* ── btn-ghost (adaptado para fondo oscuro) ── */
     .btn-ghost {
         display: inline-flex; align-items: center; gap: 9px;
-        color: #0a192f; text-decoration: none;
+        color: #fff; text-decoration: none;
         font-size: 1rem; font-weight: 600;
         padding: 15px 26px; border-radius: 100px;
-        border: 1px solid rgba(10,25,47,0.08);
-        background: rgba(255,255,255,0.6);
+        border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.05);
         transition: background 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
     }
     .btn-ghost svg { width: 14px; height: 14px; opacity: 0.7; }
     .btn-ghost:hover {
-        background: #fff;
+        background: rgba(255,255,255,0.12);
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(10,25,47,0.06);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
     }
-    
-    /* ════════════════════════════════════════════════════════════════
-       CORD HERO GRAPHICS (Overlapping Cards)
-    ════════════════════════════════════════════════════════════════ */
-    .cord-hero-graphics {
-        position: relative;
-        height: 500px;
-        width: 100%;
-        perspective: 1200px;
-    }
-    
-    .chg-card {
-        position: absolute;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
-        border: 1px solid rgba(10, 25, 47, 0.08);
-        border-radius: 16px;
-        box-shadow: 0 30px 60px -20px rgba(10, 25, 47, 0.15);
-        overflow: hidden;
-        transition: transform 0.4s ease;
-    }
-    
-    /* Back Card (Chart) */
-    .chg-back {
-        top: 0;
-        right: 0;
-        width: 320px;
-        height: 280px;
-        transform: translateZ(-100px) rotateY(-5deg) rotateX(5deg);
-        z-index: 1;
-        opacity: 0.9;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .chg-chart {
-        flex: 1;
-        display: flex;
-        align-items: flex-end;
-        gap: 12px;
-        margin-top: 1rem;
-    }
-    
-    .chg-bar {
-        flex: 1;
-        background: linear-gradient(to top, rgba(59, 130, 246, 0.8), rgba(16, 185, 129, 0.8));
-        border-radius: 4px 4px 0 0;
-    }
-    
-    /* Middle Card (Approvals) */
-    .chg-mid {
-        top: 140px;
-        right: 120px;
-        width: 340px;
-        padding: 1.5rem;
-        transform: translateZ(0) rotateY(-2deg);
-        z-index: 2;
-    }
-    
-    .chg-head {
-        border-bottom: 1px solid var(--stripe-border);
-        padding-bottom: 0.8rem;
-        margin-bottom: 0.8rem;
-    }
-    
-    .chg-title {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--stripe-text);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .chg-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .chg-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .chg-item-info {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .chg-item-info span {
-        font-size: 0.75rem;
-        color: var(--stripe-muted);
-    }
-    
-    .chg-item-info b {
-        font-size: 1rem;
-        color: var(--stripe-text);
-    }
-    
-    .chg-status {
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 100px;
-        text-transform: uppercase;
-    }
-    
-    .chg-status.ok { background: rgba(16, 185, 129, 0.15); color: #059669; }
-    .chg-status.warn { background: rgba(245, 158, 11, 0.15); color: #b45309; }
-    
-    .chg-link {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--stripe-cyan);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        cursor: pointer;
-    }
-    
-    .chg-link svg { width: 14px; height: 14px; }
-    
-    /* Front Card (Pagos) */
-    .chg-front {
-        bottom: 20px;
-        right: 40px;
-        padding: 2rem;
-        width: 300px;
-        transform: translateZ(50px) rotateY(2deg);
-        z-index: 3;
-    }
-    
-    .chg-main-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--stripe-text);
-        line-height: 1.2;
-        margin-bottom: 1.5rem;
-    }
-    
-    .chg-explore {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        background: rgba(10, 25, 47, 0.05);
-        color: var(--stripe-text);
-        border-radius: 50%;
-        text-decoration: none;
-        transition: background 0.2s;
-        font-size: 0; /* Hide text, just show icon */
-    }
-    
-    .chg-explore:hover {
-        background: rgba(10, 25, 47, 0.1);
-    }
-    
-    .chg-explore svg {
-        width: 18px;
-        height: 18px;
-    }
-    
-    /* Hover Interactions */
-    .cord-hero-graphics:hover .chg-back { transform: translateZ(-80px) rotateY(0deg) rotateX(0deg) translateY(-10px) translateX(-20px); }
-    .cord-hero-graphics:hover .chg-mid { transform: translateZ(20px) rotateY(0deg) translateY(-5px) translateX(-10px); }
-    .cord-hero-graphics:hover .chg-front { transform: translateZ(80px) rotateY(0deg) translateY(5px) translateX(10px); }
     
     /* ════════════════════════════════════════════════════════════════
        CORD MARQUEE
@@ -1023,48 +834,35 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
         justify-content: center;
     }
 
+    /* Overrides para botones en fondo claro (CTA) */
+    .stripe-cta-card .btn-luxe {
+        background: #0a192f;
+        color: #fff;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 24px rgba(10,25,47,0.18);
+    }
+    .stripe-cta-card .btn-luxe:hover {
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 12px 32px rgba(10,25,47,0.24);
+    }
+    .stripe-cta-card .btn-luxe .btn-shimmer {
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+    }
+    .stripe-cta-card .btn-ghost {
+        color: #0a192f;
+        border-color: rgba(10,25,47,0.08);
+        background: rgba(255,255,255,0.6);
+    }
+    .stripe-cta-card .btn-ghost:hover {
+        background: #fff;
+        box-shadow: 0 6px 16px rgba(10,25,47,0.06);
+    }
+
     /* ════════════════════════════════════════════════════════════════
        RESPONSIVE
     ════════════════════════════════════════════════════════════════ */
     @media (max-width: 992px) {
-        .cord-hero-layout {
-            grid-template-columns: 1fr;
-            margin-top: 6rem;
-        }
-        
-        .cord-hero-text {
-            text-align: center;
-            margin: 0 auto;
-        }
-
-        .stripe-title { text-align: center; }
-        .stripe-sub { text-align: center; margin-left: auto; margin-right: auto; }
-        .sol-eyebrow { margin-left: auto; margin-right: auto; }
-        
-        .stripe-actions {
-            justify-content: center;
-        }
-        
-        .cord-hero-graphics {
-            height: 400px;
-            margin-top: 2rem;
-            transform: scale(0.85);
-            transform-origin: top center;
-        }
-        
-        .chg-mid {
-            right: 50%;
-            transform: translateX(50%) translateZ(0) rotateY(-2deg);
-        }
-        
-        .chg-back {
-            right: 50%;
-            transform: translateX(30%) translateY(-30px) translateZ(-100px) rotateY(-5deg) rotateX(5deg);
-        }
-        
-        .chg-front {
-            right: 50%;
-            transform: translateX(60%) translateY(40px) translateZ(50px) rotateY(2deg);
+        .stripe-hero {
+            padding: 140px 0 80px;
+            min-height: 70vh;
         }
         
         .stripe-bento-grid {
