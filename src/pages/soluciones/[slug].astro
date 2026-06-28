@@ -45,19 +45,15 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
     description={solucion.metaDescription ?? solucion.sub}
 >
     <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
-    <Nav darkHero={solucion.slug === 'empresas' || solucion.slug === 'startups'} />
+    <Nav darkHero={solucion.slug === 'empresas'} />
     <main class="stripe-main">
         
         {solucion.slug === 'startups' ? (
-            <!-- ── HERO (Startup Flow) ── -->
+            <!-- ── HERO (Stripe Startups Style) ── -->
             <header class="startup-hero">
                 <div class="startup-hero-bg">
-                    <div class="startup-flow-orb-1"></div>
-                    <div class="startup-flow-orb-2"></div>
-                    <div class="startup-flow-orb-3"></div>
-                    <div class="startup-glass-doc doc-1"></div>
-                    <div class="startup-glass-doc doc-2"></div>
-                    <div class="startup-glass-doc doc-3"></div>
+                    <div class="startup-hero-blob-1"></div>
+                    <div class="startup-hero-blob-2"></div>
                 </div>
                 
                 <div class="startup-hero-content stripe-container">
@@ -72,10 +68,10 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                     <div class="startup-actions">
                         <a href={isEn ? '/en/registro' : '/registro'} class="btn-startup-primary">
                             <span>{isEn ? 'Start building' : 'Empezar ahora'}</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                         </a>
                         <a href="/contacto/ventas" class="btn-startup-secondary">
-                            <span>{isEn ? 'Book a demo' : 'Agendar demo'}</span>
+                            <span>{isEn ? 'Book a demo' : 'Contactar a ventas'}</span>
+                            <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </a>
                     </div>
                 </div>
@@ -1924,199 +1920,152 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
         justify-content: center;
         align-items: center;
         overflow: hidden;
-        background: #0a192f;
+        background: #f6f9fc; /* Stripe light bg */
     }
     
     .startup-hero-bg {
         position: absolute;
         inset: 0;
         z-index: 0;
-        background: #0a192f;
+        background: #f6f9fc;
         overflow: hidden;
+        /* Sutil patrón de puntos */
+        background-image: radial-gradient(rgba(10, 37, 64, 0.05) 1px, transparent 1px);
+        background-size: 24px 24px;
     }
 
-    /* Tres orbes de luz fluidos que rotan para dar sensación de velocidad y fluidez */
-    .startup-flow-orb-1 {
+    /* Manchas de color vibrante desenfocadas (Stripe style) */
+    .startup-hero-blob-1 {
         position: absolute;
-        top: -20%; left: -10%;
-        width: 70vw; height: 70vw;
-        background: radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 60%);
-        border-radius: 50%;
-        filter: blur(80px);
-        animation: float-orb 15s infinite alternate ease-in-out;
-    }
-
-    .startup-flow-orb-2 {
-        position: absolute;
-        bottom: -20%; right: -10%;
+        top: -10%; right: 10%;
         width: 60vw; height: 60vw;
-        background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 60%);
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.15) 50%, transparent 70%);
         border-radius: 50%;
-        filter: blur(80px);
-        animation: float-orb-reverse 18s infinite alternate ease-in-out;
+        filter: blur(60px);
+        animation: stripe-blob 15s infinite alternate ease-in-out;
     }
 
-    .startup-flow-orb-3 {
+    .startup-hero-blob-2 {
         position: absolute;
-        top: 30%; left: 40%;
+        bottom: -20%; left: 0%;
         width: 50vw; height: 50vw;
-        background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 60%);
+        background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, rgba(16, 185, 129, 0.1) 50%, transparent 70%);
         border-radius: 50%;
-        filter: blur(80px);
-        animation: float-orb 20s infinite alternate-reverse ease-in-out;
+        filter: blur(60px);
+        animation: stripe-blob-reverse 20s infinite alternate ease-in-out;
     }
 
-    @keyframes float-orb {
+    @keyframes stripe-blob {
         0% { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(10%, 15%) scale(1.1); }
+        100% { transform: translate(-5%, 10%) scale(1.1); }
     }
-    @keyframes float-orb-reverse {
+    @keyframes stripe-blob-reverse {
         0% { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(-10%, -15%) scale(1.1); }
-    }
-
-    /* Documentos / Cotizaciones de cristal flotantes */
-    .startup-glass-doc {
-        position: absolute;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        transform: rotate(-15deg);
-        z-index: 1;
-        /* Lineas falsas adentro para simular una cotizacion */
-        background-image: 
-            linear-gradient(rgba(255,255,255,0.1) 2px, transparent 2px),
-            linear-gradient(rgba(255,255,255,0.05) 2px, transparent 2px);
-        background-size: 40% 2px, 80% 2px;
-        background-position: 10% 20%, 10% 40%;
-        background-repeat: no-repeat;
-    }
-
-    .doc-1 {
-        width: 300px; height: 400px;
-        top: 20%; left: 5%;
-        animation: float-doc 25s infinite linear;
-    }
-    .doc-2 {
-        width: 250px; height: 350px;
-        top: 50%; right: 10%;
-        animation: float-doc 30s infinite linear reverse;
-    }
-    .doc-3 {
-        width: 350px; height: 450px;
-        bottom: -20%; left: 30%;
-        animation: float-doc 35s infinite linear;
-    }
-
-    @keyframes float-doc {
-        0% { transform: translateY(0) rotate(-15deg); }
-        50% { transform: translateY(-30px) rotate(-10deg); }
-        100% { transform: translateY(0) rotate(-15deg); }
+        100% { transform: translate(10%, -10%) scale(1.05); }
     }
 
     .startup-hero-content {
         position: relative;
         z-index: 10;
-        text-align: center;
+        text-align: left;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        max-width: 900px;
+        align-items: flex-start;
+        max-width: 1140px;
         width: 100%;
         margin: 0 auto;
-        padding-top: 4rem;
+        padding-top: 2rem;
     }
 
     .startup-badge {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(99, 102, 241, 0.1);
+        color: #4f46e5;
         border-radius: 9999px;
         padding: 6px 16px;
         font-size: 0.85rem;
-        font-weight: 500;
-        color: #e2e8f0;
+        font-weight: 600;
         margin-bottom: 2rem;
-        backdrop-filter: blur(10px);
     }
     
     .badge-dot {
         width: 6px;
         height: 6px;
-        background: #10b981;
+        background: #4f46e5;
         border-radius: 50%;
-        box-shadow: 0 0 10px #10b981;
     }
 
     .startup-title {
-        font-size: clamp(3rem, 6vw, 5.5rem);
-        line-height: 1;
+        font-size: clamp(3rem, 5vw, 5.5rem);
+        line-height: 1.05;
         font-weight: 800;
-        letter-spacing: -0.05em;
+        letter-spacing: -0.04em;
         margin: 0 0 1.5rem;
-        color: #fff;
-        background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.5) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #0a2540;
         text-wrap: balance;
+        max-width: 900px;
     }
     
     .startup-sub {
-        font-size: clamp(1.1rem, 2vw, 1.3rem);
+        font-size: clamp(1.1rem, 1.8vw, 1.3rem);
         line-height: 1.6;
-        color: #94a3b8;
+        color: #425466;
         max-width: 650px;
         margin: 0 0 2.5rem 0;
         font-weight: 400;
-        text-wrap: balance;
     }
 
     .startup-actions {
         display: flex;
         gap: 1rem;
         align-items: center;
-        justify-content: center;
+        flex-wrap: wrap;
     }
 
     .btn-startup-primary {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: #fff;
-        color: #000;
+        background: #0a2540;
+        color: #fff;
         padding: 0.8rem 1.8rem;
         border-radius: 9999px;
         font-weight: 600;
         font-size: 1rem;
         text-decoration: none;
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
     }
     
     .btn-startup-primary:hover {
+        background: #111;
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(255,255,255,0.2);
+        box-shadow: 0 10px 20px rgba(10, 37, 64, 0.2);
     }
 
     .btn-startup-secondary {
         display: inline-flex;
         align-items: center;
-        background: rgba(255,255,255,0.05);
-        color: #fff;
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 0.8rem 1.8rem;
-        border-radius: 9999px;
-        font-weight: 500;
+        gap: 6px;
+        color: #0a2540;
+        font-weight: 600;
         font-size: 1rem;
         text-decoration: none;
-        transition: background 0.2s;
+        transition: color 0.2s;
+    }
+
+    .btn-startup-secondary svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.2s;
     }
 
     .btn-startup-secondary:hover {
-        background: rgba(255,255,255,0.1);
+        color: #4f46e5;
+    }
+
+    .btn-startup-secondary:hover svg {
+        transform: translateX(4px);
     }
 </style>
