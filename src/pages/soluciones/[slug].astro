@@ -784,6 +784,41 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                 </div>
             </div>
         </section>
+        <!-- ── CORD APPS MARQUEE ── -->
+        <section class="cord-apps-section reveal">
+            <div class="stripe-container">
+                <div class="cord-apps-header">
+                    <h2 class="cord-apps-title">{isEn ? 'Bring all your tools together with Cord Apps' : 'Reúne todas tus herramientas en un solo lugar con Cord Apps'}</h2>
+                    <p class="cord-apps-desc">{isEn ? 'Connect the tools that manage your business, like Hubspot, Salesforce, and SAP, to Cord. Add apps from our Marketplace or build custom integrations.' : 'Conecta las herramientas que gestionan tu empresa, como Hubspot, Salesforce y SAP, a Cord. Agrega aplicaciones desde nuestro Marketplace o crea integraciones personalizadas.'}</p>
+                    <a href="/desarrolladores/integraciones" class="cord-apps-link">{isEn ? 'Build a Cord App' : 'Desarrolla una aplicación en Cord'} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                </div>
+            </div>
+            
+            <div class="cord-apps-marquee">
+                <div class="marquee-track">
+                    <!-- First Set -->
+                    <div class="app-icon navy"><span class="app-letter">W</span></div>
+                    <div class="app-icon blue"><span class="app-letter">O</span></div>
+                    <div class="app-icon yellow"><span class="app-letter">P</span></div>
+                    <div class="app-icon dark"><span class="app-letter">|||</span></div>
+                    <div class="app-icon green"><span class="app-letter">↓</span></div>
+                    <div class="app-icon cyan"><span class="app-letter">xero</span></div>
+                    <div class="app-icon orange"><span class="app-letter">H</span></div>
+                    <div class="app-icon purple"><span class="app-letter">M</span></div>
+                    <div class="app-icon blue-alt"><span class="app-letter">S</span></div>
+                    <!-- Second Set (Duplicate for smooth infinite scroll) -->
+                    <div class="app-icon navy"><span class="app-letter">W</span></div>
+                    <div class="app-icon blue"><span class="app-letter">O</span></div>
+                    <div class="app-icon yellow"><span class="app-letter">P</span></div>
+                    <div class="app-icon dark"><span class="app-letter">|||</span></div>
+                    <div class="app-icon green"><span class="app-letter">↓</span></div>
+                    <div class="app-icon cyan"><span class="app-letter">xero</span></div>
+                    <div class="app-icon orange"><span class="app-letter">H</span></div>
+                    <div class="app-icon purple"><span class="app-letter">M</span></div>
+                    <div class="app-icon blue-alt"><span class="app-letter">S</span></div>
+                </div>
+            </div>
+        </section>
 
         <!-- ── SECURITY / TRUST CENTER ── -->
         {solucion.security && (
@@ -2680,7 +2715,108 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
     .graphic-code-line:nth-child(2) { width: 65%; background: #27c93f; margin-left: 20px; }
     .graphic-code-line:nth-child(3) { width: 55%; background: #27c93f; margin-left: 20px; }
     .graphic-code-line:nth-child(4) { width: 45%; background: #ffbd2e; margin-left: 20px; }
-    .graphic-code-line:nth-child(5) { width: 25%; background: rgba(255,255,255,0.3); }</style>
+    .graphic-code-line:nth-child(5) { width: 25%; background: rgba(255,255,255,0.3); }
+
+    /* ── CORD APPS MARQUEE ── */
+    .cord-apps-section {
+        padding: 8rem 0;
+        background: #ffffff;
+        overflow: hidden;
+    }
+    .cord-apps-header {
+        max-width: 650px;
+        margin: 0 auto 5rem auto;
+        text-align: center;
+    }
+    .cord-apps-title {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 700;
+        color: #0a2540;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+    }
+    .cord-apps-desc {
+        font-size: 1.15rem;
+        color: #425466;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    .cord-apps-link {
+        color: #0071e3;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 1.05rem;
+        transition: color 0.2s;
+    }
+    .cord-apps-link:hover { color: #005bb5; }
+    .cord-apps-link svg { width: 16px; height: 16px; transition: transform 0.2s; }
+    .cord-apps-link:hover svg { transform: translateX(4px); }
+
+    .cord-apps-marquee {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        overflow: hidden;
+        padding: 2rem 0; /* Room for shadow */
+    }
+    .marquee-track {
+        display: flex;
+        gap: 32px;
+        width: max-content;
+        animation: marquee 35s linear infinite;
+    }
+    .marquee-track:hover {
+        animation-play-state: paused;
+    }
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(calc(-50% - 16px)); } /* 50% + half gap */
+    }
+    .app-icon {
+        width: 160px;
+        height: 160px;
+        border-radius: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        /* Outer soft drop shadow + Double Inner Shadow for 3D Gummy Effect */
+        box-shadow: 
+            0 24px 48px -12px rgba(0,0,0,0.15),
+            inset 0 8px 16px rgba(255,255,255,0.4),
+            inset 0 -8px 16px rgba(0,0,0,0.15);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s;
+        will-change: transform;
+        user-select: none;
+    }
+    .app-icon:hover {
+        transform: translateY(-8px) scale(1.02);
+        filter: brightness(1.05);
+    }
+    .app-letter {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 6rem;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+        text-shadow: 1px 1px 0px rgba(255,255,255,0.2), -1px -1px 0px rgba(0,0,0,0.1);
+    }
+    .app-icon.cyan .app-letter { font-size: 3.5rem; letter-spacing: -0.05em; } /* For 'xero' */
+
+    /* Gradients mimicking the screenshot */
+    .app-icon.navy { background: linear-gradient(135deg, #708499, #334155); color: rgba(0,0,0,0.3); }
+    .app-icon.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: rgba(0,0,0,0.25); }
+    .app-icon.yellow { background: linear-gradient(135deg, #fef08a, #eab308); color: rgba(0,0,0,0.2); }
+    .app-icon.dark { background: linear-gradient(135deg, #475569, #1e293b); color: rgba(0,0,0,0.35); }
+    .app-icon.green { background: linear-gradient(135deg, #d9f99d, #a3e635); color: rgba(0,0,0,0.25); }
+    .app-icon.cyan { background: linear-gradient(135deg, #a5f3fc, #06b6d4); color: rgba(0,0,0,0.25); }
+    .app-icon.orange { background: linear-gradient(135deg, #fdba74, #ea580c); color: rgba(0,0,0,0.2); }
+    .app-icon.purple { background: linear-gradient(135deg, #d8b4fe, #9333ea); color: rgba(0,0,0,0.25); }
+    .app-icon.blue-alt { background: linear-gradient(135deg, #60a5fa, #2563eb); color: rgba(0,0,0,0.2); }
+</style>
 
 <script>
     // Reactive Parallax Effect for Startups Hero Blobs
