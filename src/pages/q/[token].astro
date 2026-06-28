@@ -3,13 +3,48 @@
 import Layout from '../../layouts/Layout.astro';
 import QuoteCard from '../../components/q/QuoteCard.astro';
 import { getCotizacionByToken, markViewed } from '../../lib/queries';
+import { findQuoteByToken, ORG as mockOrg } from '../../lib/mock';
 
 const { token } = Astro.params;
-const result = await getCotizacionByToken(token ?? '');
+let result;
+
+if (token === 'demo') {
+    const mockQuote = findQuoteByToken('demo');
+    if (mockQuote) {
+        result = {
+            quote: {
+                ...mockQuote,
+                // Simulamos que faltan 7 días para que no diga "vencida"
+                diasVigencia: 7
+            },
+            org: {
+                ...mockOrg,
+                colorMarca: '#0a192f',
+                logoUrl: '',
+                pdfMensaje: '',
+                ivaPct: 16,
+                embedDomains: '',
+                emailContacto: mockOrg.email,
+                telefono: '',
+                whatsapp: '',
+                portalBanner: '',
+                portalBienvenida: '',
+                portalMostrarChat: true,
+                portalPowered: true
+            },
+            conversacion: []
+        };
+    }
+} else {
+    result = await getCotizacionByToken(token ?? '');
+}
+
 if (!result) return Astro.redirect('/');
 const { quote: q, org: ORG, conversacion } = result;
 
-await markViewed(token ?? '');
+if (token !== 'demo') {
+    await markViewed(token ?? '');
+}
 
 const yaAprobada = ['approved', 'paid', 'invoiced'].includes(q.status);
 const yaRechazada = q.status === 'rejected';
