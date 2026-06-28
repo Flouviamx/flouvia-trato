@@ -63,6 +63,13 @@ const {
                     <span class="footer-col-title">{t("nav.soluciones")}</span>
                     <a href={l("/soluciones/empresas")}>{isEn ? 'Enterprise' : 'Empresas'}</a>
                     <a href={l("/soluciones/startups")}>{isEn ? 'Startups' : 'Startups'}</a>
+                    
+                    <span style="height: 1px; background: rgba(255,255,255,0.1); width: 100%; margin: 0.2rem 0;"></span>
+                    <span style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: #5a5f6b; font-weight: 700;">{isEn ? 'By Use Case' : 'Por Caso de Uso'}</span>
+                    <a href={l("/casos-de-uso/agencias")}>{isEn ? 'Agencies' : 'Agencias'}</a>
+                    <a href={l("/casos-de-uso/saas")}>{isEn ? 'B2B SaaS' : 'SaaS B2B'}</a>
+                    <a href={l("/casos-de-uso/comercializadoras")}>{isEn ? 'Wholesalers' : 'Comercializadoras'}</a>
+                    <a href={l("/casos-de-uso/software-factory")}>{isEn ? 'Dev Teams' : 'Dev Teams'}</a>
                 </div>
                 <div class="footer-col">
                     <span class="footer-col-title">{t("nav.desarrolladores")}</span>
