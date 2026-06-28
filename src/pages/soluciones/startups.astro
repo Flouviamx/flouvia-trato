@@ -263,10 +263,10 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                                     <div class="int-mini-card" style="width: 85%; padding: 16px; background: #0f172a; border-color: #1e293b;">
                                         <div style="font-family: 'SF Mono', Consolas, monospace; font-size: 11px; line-height: 1.6; color: #e2e8f0;">
                                             <div style="color: #10b981; font-weight: 600; margin-bottom: 8px;">POST /webhook 200 OK</div>
-                                            <div style="color: #64748b;">{</div>
+                                            <div style="color: #64748b;">&#123;</div>
                                             <div style="margin-left: 12px;"><span style="color: #38bdf8;">"type"</span>: <span style="color: #a3e635;">"payment.paid"</span>,</div>
                                             <div style="margin-left: 12px;"><span style="color: #38bdf8;">"amount"</span>: <span style="color: #fb923c;">990.00</span></div>
-                                            <div style="color: #64748b;">}</div>
+                                            <div style="color: #64748b;">&#125;</div>
                                         </div>
                                     </div>
                                 </div>
@@ -286,7 +286,7 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                                         <div style="font-family: 'SF Mono', Consolas, monospace; font-size: 11px; line-height: 1.6; color: #e2e8f0;">
                                             <div><span style="color: #fb923c;">curl</span> -X POST https://api.cord.mx \</div>
                                             <div style="margin-left: 12px;">-H <span style="color: #a3e635;">"Auth: Bearer sk_..."</span> \</div>
-                                            <div style="margin-left: 12px;">-d <span style="color: #a3e635;">'{"amount": 990}'</span></div>
+                                            <div style="margin-left: 12px;">-d <span style="color: #a3e635;">'&#123;"amount": 990&#125;'</span></div>
                                         </div>
                                     </div>
                                 </div>
