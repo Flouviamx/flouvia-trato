@@ -291,55 +291,46 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                             <div class="stripe-pillar-card reveal">
                                 <div class="stripe-pillar-graphic">
                                     {i === 0 && (
-                                        <div class="pillar-mock pillar-mock-magic">
-                                            <div class="integrated-magic">
-                                                <div class="int-invoice-item">
-                                                    <span class="int-item-name">Suscripción Anual</span>
-                                                    <span class="int-item-price">$120,000 MXN</span>
-                                                </div>
-                                                <button class="int-btn-primary">
-                                                    Aceptar y Pagar
-                                                    <div class="int-cursor">
-                                                        <svg viewBox="0 0 24 24" fill="white" stroke="#000" stroke-width="1.5"><path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.42c.45 0 .67-.54.35-.85L5.5 3.21z"/></svg>
+                                        <div class="pillar-mock-light">
+                                            <div class="stripe-light-card">
+                                                <div class="slc-header">Propuesta P-1042</div>
+                                                <div class="slc-body">
+                                                    <div class="slc-row">
+                                                        <span>Suscripción Anual</span>
+                                                        <strong>$120,000.00</strong>
                                                     </div>
-                                                </button>
+                                                    <button class="slc-btn">Aceptar y Pagar</button>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
                                     {i === 1 && (
-                                        <div class="pillar-mock pillar-mock-premium">
-                                            <div class="integrated-premium">
-                                                <div class="int-kpi-row">
-                                                    <div class="int-kpi"><span>Ingresos Mensuales</span><strong>$450,000 MXN</strong></div>
-                                                    <div class="int-kpi"><span>Crecimiento</span><strong class="text-green">+12.5%</strong></div>
+                                        <div class="pillar-mock-light">
+                                            <div class="stripe-light-card">
+                                                <div class="slc-kpi">
+                                                    <span class="slc-kpi-label">Ingresos Mensuales</span>
+                                                    <strong class="slc-kpi-value">$450,000</strong>
                                                 </div>
-                                                <div class="int-chart-area">
-                                                    <svg class="int-chart-line" viewBox="0 0 100 40" preserveAspectRatio="none">
-                                                        <defs>
-                                                            <linearGradient id="carbonGrad" x1="0" y1="0" x2="0" y2="1">
-                                                                <stop offset="0%" stop-color="rgba(255,255,255,0.15)" />
-                                                                <stop offset="100%" stop-color="rgba(255,255,255,0)" />
-                                                            </linearGradient>
-                                                        </defs>
-                                                        <path d="M0,40 L0,30 C20,30 30,10 50,20 C70,30 80,5 100,10 L100,40 Z" fill="url(#carbonGrad)"></path>
-                                                        <path d="M0,30 C20,30 30,10 50,20 C70,30 80,5 100,10" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"></path>
-                                                    </svg>
+                                                <div class="slc-chart">
+                                                    <div class="slc-bar" style="height: 40%"></div>
+                                                    <div class="slc-bar" style="height: 60%"></div>
+                                                    <div class="slc-bar" style="height: 50%"></div>
+                                                    <div class="slc-bar" style="height: 80%"></div>
+                                                    <div class="slc-bar" style="height: 100%"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
                                     {i === 2 && (
-                                        <div class="pillar-mock pillar-mock-cfdi">
-                                            <div class="integrated-cfdi">
-                                                <div class="int-code-lines">
-                                                    <div>&lt;<span class="int-code-tag">cfdi:Comprobante</span> <span class="int-code-attr">Version</span>=<span class="int-code-string">"4.0"</span>&gt;</div>
-                                                    <div style="padding-left:12px;">&lt;<span class="int-code-tag">cfdi:Emisor</span> <span class="int-code-attr">Rfc</span>=<span class="int-code-string">"CORD991201..."</span>/&gt;</div>
-                                                    <div style="padding-left:12px;">&lt;<span class="int-code-tag">cfdi:Receptor</span> <span class="int-code-attr">Rfc</span>=<span class="int-code-string">"GUS810214..."</span>/&gt;</div>
-                                                    <div>&lt;/<span class="int-code-tag">cfdi:Comprobante</span>&gt;</div>
+                                        <div class="pillar-mock-light">
+                                            <div class="stripe-light-card">
+                                                <div class="slc-header" style="border: none; margin-bottom: 8px;">
+                                                    <div class="slc-badge"><svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="10 3 4.5 8.5 2 6"></polyline></svg> Timbrado SAT</div>
                                                 </div>
-                                                <div class="int-status-badge">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                                    Timbrado por el SAT
+                                                <div class="slc-xml">
+                                                    &lt;cfdi:Comprobante&gt;<br/>
+                                                    &nbsp;&nbsp;&lt;cfdi:Emisor Rfc="CORD..."/&gt;<br/>
+                                                    &lt;/cfdi:Comprobante&gt;
                                                 </div>
                                             </div>
                                         </div>
@@ -2086,97 +2077,56 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
     }
     
     .stripe-pillar-graphic {
-        background: linear-gradient(180deg, #0a2540 0%, #041221 100%); /* Premium Gradient */
+        background: #f6f9fc;
         height: 240px;
         position: relative;
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         justify-content: center;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
+        border-bottom: 1px solid rgba(0,0,0,0.04);
         overflow: hidden;
     }
     
-    .stripe-pillar-graphic::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-        background-size: 20px 20px;
-        opacity: 0.5;
-        mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
-        -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
-    }
-    
-    .pillar-mock {
+    .pillar-mock-light {
         width: 100%; height: 100%;
-        display: flex; align-items: center; justify-content: center;
-        position: relative;
+        display: flex; align-items: flex-end; justify-content: center;
+        position: relative; padding: 0 32px;
     }
 
-    /* --- INTEGRATED HIGH-FIDELITY MOCKUPS --- */
-    /* 1. Magic Link (Cierre Instantáneo) */
-    .pillar-mock-magic, .pillar-mock-premium, .pillar-mock-cfdi {
-        background: none;
+    .stripe-light-card {
+        background: #ffffff;
+        width: 100%;
+        border-radius: 12px 12px 0 0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.04);
+        border-bottom: none;
+        padding: 24px;
+        transform: translateY(16px);
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s;
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
     }
-    .integrated-magic {
-        display: flex; flex-direction: column; gap: 24px;
-        align-items: center; justify-content: center; width: 100%;
-        transform: translateY(10px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    .stripe-pillar-card:hover .stripe-light-card {
+        transform: translateY(0);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.03);
     }
-    .stripe-pillar-card:hover .integrated-magic { transform: translateY(-5px); }
-    .int-invoice-item {
-        display: flex; flex-direction: column; align-items: center; gap: 6px;
-    }
-    .int-item-name { color: #888; font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
-    .int-item-price { color: #ffffff; font-size: 28px; font-weight: 700; font-family: "Inter", sans-serif; letter-spacing: -0.5px; }
-    .int-btn-primary {
-        background: #ffffff; color: #000000; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;
-        position: relative; cursor: pointer; transition: background 0.3s, box-shadow 0.3s;
-        box-shadow: 0 4px 14px rgba(255,255,255,0.1);
-    }
-    .stripe-pillar-card:hover .int-btn-primary { background: #e5e5e5; box-shadow: 0 6px 20px rgba(255,255,255,0.15); }
-    .int-cursor {
-        position: absolute; right: -15px; bottom: -20px; width: 24px; height: 24px;
-        transform: translate(25px, 25px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        color: #ffffff; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
-    }
-    .stripe-pillar-card:hover .int-cursor { transform: translate(0, 0); }
 
-    /* 2. Premium UI (Presentación premium) */
-    .integrated-premium {
-        width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end;
-        position: relative; padding: 24px;
-    }
-    .int-kpi-row { display: flex; gap: 16px; position: relative; z-index: 2; margin-bottom: 20px; transform: translateY(10px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-    .stripe-pillar-card:hover .int-kpi-row { transform: translateY(0); }
-    .int-kpi { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-    .int-kpi span { font-size: 11px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-    .int-kpi strong { font-size: 20px; color: #ffffff; font-family: "Inter", sans-serif; font-weight: 600; }
-    .int-kpi strong.text-green { color: #d4d4d4; }
-    .int-chart-area { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; opacity: 0.8; transition: opacity 0.6s, transform 0.6s; transform: scaleY(0.9); transform-origin: bottom; }
-    .stripe-pillar-card:hover .int-chart-area { opacity: 1; transform: scaleY(1); }
-    .int-chart-line { width: 100%; height: 100%; }
-
-    /* 3. CFDI 4.0 (Facturación automática) */
-    .integrated-cfdi {
-        width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
-    }
-    .int-code-lines { 
-        font-family: 'SF Mono', Consolas, monospace; font-size: 12px; display: flex; flex-direction: column; gap: 8px;
-        color: #737373; background: #000000; padding: 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
-        transform: translateY(10px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s, border-color 0.6s;
-    }
-    .stripe-pillar-card:hover .int-code-lines { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.8); border-color: rgba(255,255,255,0.15); }
-    .int-code-tag { color: #888; }
-    .int-code-attr { color: #a3a3a3; }
-    .int-code-string { color: #e5e5e5; }
-    .int-status-badge {
-        background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #a3a3a3; padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 500;
-        display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        transform: scale(0.95) translateY(10px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, color 0.3s;
-    }
-    .stripe-pillar-card:hover .int-status-badge { transform: scale(1) translateY(0); background: rgba(255, 255, 255, 0.08); color: #fff; }
+    /* Shared Mockup Elements */
+    .slc-header { font-size: 11px; font-weight: 600; color: #475569; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .slc-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 16px; }
+    .slc-row span { color: #64748b; font-weight: 500; }
+    .slc-row strong { color: #0f172a; font-weight: 700; font-size: 16px; }
+    .slc-btn { background: #0ea5e9; color: #ffffff; border: none; width: 100%; padding: 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .stripe-pillar-card:hover .slc-btn { background: #0284c7; }
+    
+    .slc-kpi { display: flex; flex-direction: column; gap: 4px; margin-bottom: 24px; }
+    .slc-kpi-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .slc-kpi-value { font-size: 26px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; }
+    .slc-chart { display: flex; align-items: flex-end; gap: 8px; height: 60px; }
+    .slc-bar { flex: 1; background: linear-gradient(180deg, #6366f1 0%, #0ea5e9 100%); border-radius: 4px 4px 0 0; opacity: 0.8; transition: opacity 0.3s, transform 0.5s; transform-origin: bottom; transform: scaleY(0.85); }
+    .stripe-pillar-card:hover .slc-bar { opacity: 1; transform: scaleY(1); }
+    
+    .slc-xml { font-family: 'SF Mono', Consolas, monospace; font-size: 11px; color: #475569; background: #f8fafc; padding: 12px; border-radius: 8px; line-height: 1.6; border: 1px solid #f1f5f9; }
+    .slc-badge { display: inline-flex; align-items: center; gap: 4px; background: #ecfdf5; color: #059669; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
     
     .stripe-pillar-content {
         padding: 2.5rem;
