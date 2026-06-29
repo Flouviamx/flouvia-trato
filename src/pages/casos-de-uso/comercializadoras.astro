@@ -298,6 +298,35 @@ const metaDesc = "Digitaliza las ventas de tu comercializadora. Cotiza volumen, 
     </main>
 
     
+                <!-- POWER SECTION -->
+        <section class="uc-power">
+            <div class="uc-container">
+                <h2 class="uc-power-title reveal">Acelera el flujo de efectivo de tu comercializadora con Cord</h2>
+                <div class="uc-power-grid">
+                    <div class="uc-power-item reveal">
+                        <div class="uc-power-icon"><div class="uc-pi-chart"><span></span><span></span><span></span></div></div>
+                        <h3>Líneas de crédito B2B bajo control</h3>
+                        <p>Administra límites de crédito por cliente con precisión. Cord te permite definir plazos (Net 30, 60, 90) y bloquear automáticamente la autorización de nuevos pedidos si un cliente tiene facturas vencidas.</p>
+                    </div>
+                    <div class="uc-power-item reveal">
+                        <div class="uc-power-icon"><div class="uc-pi-sync"></div></div>
+                        <h3>Gestión de promesas de pago</h3>
+                        <p>Nuestro CRM de cobranza hace el seguimiento pesado por ti. Registra <a href="#">promesas de pago</a> y programa recordatorios automáticos multicanal (Email, SMS, WhatsApp) antes y después del vencimiento.</p>
+                    </div>
+                    <div class="uc-power-item reveal">
+                        <div class="uc-power-icon"><div class="uc-pi-toggle"></div></div>
+                        <h3>Multimoneda y tipos de cambio</h3>
+                        <p>Opera local e internacionalmente sin fricción. Cord soporta facturación en USD y MXN, calculando automáticamente las <a href="#">ganancias o pérdidas cambiarias</a> al momento de la conciliación bancaria.</p>
+                    </div>
+                    <div class="uc-power-item reveal">
+                        <div class="uc-power-icon"><div class="uc-pi-doc"></div></div>
+                        <h3>Complementos de Pago (REP) automatizados</h3>
+                        <p>Cumple con el SAT sin dolores de cabeza. Emitimos y timbramos automáticamente el <a href="#">Complemento de Recepción de Pagos</a> en cuanto un cliente liquida una factura PPD parcial o totalmente.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- INTEGRATIONS SECTION -->
         <section class="uc-integrations">
             <div class="uc-container">
@@ -1097,6 +1126,182 @@ const metaDesc = "Digitaliza las ventas de tu comercializadora. Cotiza volumen, 
             height: 350px;
             max-width: 500px;
             margin: 0 auto;
+        }
+    }
+
+    /* ── POWER SECTION (2x2 GRID) ── */
+    .uc-power {
+        padding: 6rem 0 8rem;
+        background: transparent;
+    }
+    .uc-power-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #0a2540;
+        margin-bottom: 4rem;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        max-width: 600px;
+    }
+    .uc-power-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem 3rem;
+    }
+    .uc-power-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* CSS MOCKUPS FOR ICONS */
+    .uc-power-icon {
+        width: 54px;
+        height: 54px;
+        margin-bottom: 1.5rem;
+        position: relative;
+        border-radius: 12px;
+        background: #f8fafc;
+        box-shadow: 0 4px 12px rgba(10,37,64,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    
+    /* 1. Toggle / Switch */
+    .uc-pi-toggle {
+        width: 28px;
+        height: 16px;
+        background: #3b82f6;
+        border-radius: 10px;
+        position: relative;
+    }
+    .uc-pi-toggle::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 50%;
+    }
+    
+    /* 2. Chart / Bars */
+    .uc-pi-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 24px;
+    }
+    .uc-pi-chart span {
+        width: 6px;
+        background: #3b82f6;
+        border-radius: 2px 2px 0 0;
+    }
+    .uc-pi-chart span:nth-child(1) { height: 12px; background: #93c5fd; }
+    .uc-pi-chart span:nth-child(2) { height: 18px; }
+    .uc-pi-chart span:nth-child(3) { height: 24px; background: #1e3a8a; }
+    
+    /* 3. Sync / Refresh (using CSS borders) */
+    .uc-pi-sync {
+        width: 24px;
+        height: 24px;
+        border: 3px solid #3b82f6;
+        border-top-color: transparent;
+        border-radius: 50%;
+        position: relative;
+    }
+    .uc-pi-sync::after {
+        content: '';
+        position: absolute;
+        top: -6px;
+        right: -3px;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #3b82f6;
+        transform: rotate(-45deg);
+    }
+    
+    /* 4. Invoice / Document */
+    .uc-pi-doc {
+        width: 20px;
+        height: 26px;
+        background: #fff;
+        border: 2px solid #3b82f6;
+        border-radius: 4px;
+        position: relative;
+    }
+    .uc-pi-doc::before {
+        content: '';
+        position: absolute;
+        top: 4px; left: 3px; right: 8px;
+        height: 2px; background: #93c5fd;
+    }
+    .uc-pi-doc::after {
+        content: '';
+        position: absolute;
+        top: 10px; left: 3px; right: 3px;
+        height: 2px; background: #93c5fd;
+    }
+    
+    /* 5. Wallet / Card */
+    .uc-pi-card {
+        width: 26px;
+        height: 18px;
+        background: #1e3a8a;
+        border-radius: 4px;
+        position: relative;
+    }
+    .uc-pi-card::after {
+        content: '';
+        position: absolute;
+        top: 4px; left: 0; right: 0;
+        height: 4px;
+        background: #3b82f6;
+    }
+    
+    /* 6. Code / Bracket */
+    .uc-pi-code {
+        color: #3b82f6;
+        font-family: monospace;
+        font-size: 20px;
+        font-weight: bold;
+        letter-spacing: -2px;
+    }
+
+    .uc-power-item h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0a2540;
+        margin-bottom: 1rem;
+        border-left: 3px solid #3b82f6;
+        padding-left: 12px;
+        line-height: 1.4;
+    }
+    .uc-power-item p {
+        font-size: 1.05rem;
+        color: #425466;
+        line-height: 1.6;
+    }
+    .uc-power-item a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+    .uc-power-item a:hover {
+        color: #2563eb;
+    }
+
+    @media (max-width: 768px) {
+        .uc-power-grid {
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+        .uc-power-title {
+            font-size: 2rem;
+            margin-bottom: 2.5rem;
         }
     }
 

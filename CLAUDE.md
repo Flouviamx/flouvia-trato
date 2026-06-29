@@ -1710,3 +1710,9 @@ El roadmap público (`/roadmap` y `/en/roadmap`) fue rediseñado para alcanzar u
    • Diseño de logotipos: Contenedores blancos `.uc-bubble-inner` con `border-radius: 50%`, y una capa envolvente `.uc-bubble` con animación de `floatBubble` (6s, asíncrona entre logotipos por `animation-delay`).
    • Escalado en Hover: Se usa `transition` y `box-shadow` en hover sin interrumpir el `floatBubble`, para un UI feel moderno ('super cabrón').
    • Data específica: SaaS usa Stripe/Vercel/Notion; Comercializadoras usa SAP/Salesforce/Shopify; Agencias usa Asana/Figma/HubSpot; Software Factory usa GitHub/Jira/GitLab.
+
+✅ **Optimización Financiera en Casos de Uso (jun 2026)** — Se añadió la sección 'Optimiza tus ingresos' (Power Section) a las 4 vistas.
+   • Layout: Grid 2x2 con texto a la izquierda y un ícono (mini-mockup CSS) a la izquierda del texto en pantallas grandes.
+   • Diseño de Iconos: Se diseñaron 6 mini-mockups usando puro CSS (Toggle, Chart, Sync, Doc, Card, Code) con detalles sutiles en `box-shadow` y colores de Cord.
+   • Detalles Tipográficos: Títulos `<h3>` de la cuadrícula con una sutil línea lateral (border-left) en color azul de acento (estilo Stripe).
+   • Data específica: Textos de alto valor explicativo enfocados en SaaS (Suscripciones, Churn, MRR), Agencias (Retainers, Hitos), Comercializadoras (Crédito B2B, REP, Multimoneda) y Software Factory (Cobros por Commits, T&M, Analítica de márgenes).
