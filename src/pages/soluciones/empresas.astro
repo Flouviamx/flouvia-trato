@@ -15,6 +15,7 @@ import MockupCFDI from '../../components/soluciones/MockupCFDI.astro';
 import { SOLUCIONES } from '../../lib/solucion';
 import { SOLUCIONES_EN } from '../../lib/solucion.en';
 import { getLangFromUrl } from '../../i18n/utils';
+import '../../styles/mockups.css';
 
 const lang = getLangFromUrl(Astro.url);
 const isEn = Astro.props.isEn || lang === 'en';
@@ -438,139 +439,105 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                                 <div class="stripe-fg-card-visual">
                                 <div class="stripe-fg-card-visual">
                                     {idx === 0 && (
-                                        <div class="pro-ui-card real-ui">
-                                            <div class="rui-topbar">
-                                                <div style="font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-                                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4z"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-9H5a2 2 0 0 0-2 2z"></path></svg>
-                                                    Reconocimiento de ingresos
+                                        <div class="cmk-stage">
+                                            <div class="cmk-shot">
+                                                <div class="cmk-nav">
+                                                    <span class="cmk-nav-title">Editor · COT-2207</span>
+                                                    <span class="cmk-badge cmk-b-amber">Distribuidora · nivel Oro -12%</span>
                                                 </div>
-                                                <div class="rui-dropdown-header" style="margin-top: 0;"><span>Junio 2026</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-                                            </div>
-                                            <div>
-                                                <div class="rui-header-flex">
-                                                    <div>
-                                                        <div class="rui-value">MXN 5,839,417.15</div>
-                                                        <div class="rui-label text-green">+14.2% vs mes anterior</div>
+                                                <div class="cmk-th" style="grid-template-columns:1.7fr 92px 66px">
+                                                    <span>Producto</span><span class="cmk-r">Negociado</span><span class="cmk-r">Margen</span>
+                                                </div>
+                                                <div class="cmk-tr" style="grid-template-columns:1.7fr 92px 66px">
+                                                    <span class="cmk-t1">Cemento CPC 30R · 50kg</span>
+                                                    <span class="cmk-amt editorial">$189.00</span>
+                                                    <span class="cmk-badge cmk-b-green" style="justify-self:end">32%</span>
+                                                </div>
+                                                <div class="cmk-tr" style="grid-template-columns:1.7fr 92px 66px">
+                                                    <span class="cmk-t1">Varilla corrugada 3/8"</span>
+                                                    <span class="cmk-amt editorial">$168.50</span>
+                                                    <span class="cmk-badge cmk-b-amber" style="justify-self:end">21%</span>
+                                                </div>
+                                                <div class="cmk-tr" style="grid-template-columns:1.7fr 92px 66px">
+                                                    <span class="cmk-t1">Block estructural 15cm</span>
+                                                    <span class="cmk-amt editorial">$24.90</span>
+                                                    <span class="cmk-badge cmk-b-red" style="justify-self:end">14%</span>
+                                                </div>
+                                                <div class="cmk-body" style="padding-top:14px">
+                                                    <div class="cmk-alert cmk-alert-amber">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                                        Margen 14% por debajo del mínimo (25%). Requiere aprobación de gerencia.
                                                     </div>
-                                                    <div class="rui-tabs-small">
-                                                        <span class="active">Abierto</span>
-                                                        <span>Cerrado</span>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="rui-chart-container">
-                                                    <div class="rui-chart-bar" style="height: 40%"></div>
-                                                    <div class="rui-chart-bar" style="height: 60%"></div>
-                                                    <div class="rui-chart-bar" style="height: 50%"></div>
-                                                    <div class="rui-chart-bar" style="height: 80%"></div>
-                                                    <div class="rui-chart-bar bar-active" style="height: 90%"></div>
-                                                    <div class="rui-chart-bar" style="height: 70%"></div>
-                                                    <div class="rui-chart-bar" style="height: 100%"></div>
-                                                </div>
-                                                <div class="rui-chart-labels">
-                                                    <span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span><span>Jul</span>
-                                                </div>
-
-                                                <div class="rui-divider"></div>
-                                                
-                                                <div class="rui-dropdown-header">
-                                                    <span>Resumen de Junio de 2026</span>
-                                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                                                </div>
-                                                <div class="rui-table-mini">
-                                                    <div class="rt-row"><span class="rt-label">Ingresos reconocidos previamente</span><span class="rt-val">MXN 1,215,752.67</span></div>
-                                                    <div class="rt-row"><span class="rt-label">Ingresos por servicios no facturados</span><span class="rt-val">MXN 4,244,870.34</span></div>
-                                                    <div class="rt-row"><span class="rt-label">Menos reembolsos</span><span class="rt-val text-red">MXN 22.38</span></div>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
                                     {idx === 1 && (
-                                        <div class="pro-ui-card real-ui">
-                                            <div class="rui-topbar" style="padding-top: 0;">
-                                                <div style="font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; color: #0a2540;">
-                                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-                                                    Flujo de Datos ERP
+                                        <div class="cmk-stage">
+                                            <div class="cmk-shot">
+                                                <div class="cmk-nav">
+                                                    <div class="cmk-nav-l"><span class="cmk-nav-title">Webhooks</span><span class="cmk-nav-sub">· entregas recientes</span></div>
+                                                    <span class="cmk-badge cmk-b-green"><span class="cmk-dot cmk-dot-green"></span>Activo</span>
                                                 </div>
-                                                <span class="badge-blue">Sincronizando</span>
-                                            </div>
-                                            
-                                            <div style="margin: 16px 0 24px 0;">
-                                                <div class="rui-pipeline-visual">
-                                                    <div class="rp-node" style="background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><img src="/imgs/logo-cord-navy.png" width="22" alt="Cord"/></div>
-                                                    <div class="rp-line"><div class="rp-dot"></div><div class="rp-dot delay-1"></div></div>
-                                                    <div class="rp-node" style="background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" width="22"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg></div>
+                                                <div class="cmk-th" style="grid-template-columns:1.5fr 60px 52px">
+                                                    <span>Evento</span><span class="cmk-r">Código</span><span class="cmk-r">ms</span>
                                                 </div>
-                                            </div>
-                                            
-                                            <div class="rui-terminal" style="border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.1);">
-                                                <div class="rui-term-header">
-                                                    <div style="display: flex; gap: 8px; align-items: center; font-weight: 600;">
-                                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-                                                        <span>Terminal - Conexión Activa</span>
+                                                <div class="cmk-tr" style="grid-template-columns:1.5fr 60px 52px">
+                                                    <span class="cmk-t1" style="font-family:ui-monospace,Menlo,monospace;font-size:12px">quote.paid</span>
+                                                    <span class="cmk-badge cmk-b-green" style="justify-self:end">200</span>
+                                                    <span class="cmk-t2 cmk-r">142</span>
+                                                </div>
+                                                <div class="cmk-tr" style="grid-template-columns:1.5fr 60px 52px">
+                                                    <span class="cmk-t1" style="font-family:ui-monospace,Menlo,monospace;font-size:12px">quote.approved</span>
+                                                    <span class="cmk-badge cmk-b-green" style="justify-self:end">200</span>
+                                                    <span class="cmk-t2 cmk-r">98</span>
+                                                </div>
+                                                <div class="cmk-tr" style="grid-template-columns:1.5fr 60px 52px">
+                                                    <span class="cmk-t1" style="font-family:ui-monospace,Menlo,monospace;font-size:12px">quote.viewed</span>
+                                                    <span class="cmk-badge cmk-b-green" style="justify-self:end">200</span>
+                                                    <span class="cmk-t2 cmk-r">110</span>
+                                                </div>
+                                                <div class="cmk-tr" style="grid-template-columns:1.5fr 60px 52px">
+                                                    <span class="cmk-t1" style="font-family:ui-monospace,Menlo,monospace;font-size:12px">quote.sent</span>
+                                                    <span class="cmk-badge cmk-b-green" style="justify-self:end">200</span>
+                                                    <span class="cmk-t2 cmk-r">87</span>
+                                                </div>
+                                                <div class="cmk-tr" style="grid-template-columns:1.5fr 60px 52px">
+                                                    <span class="cmk-t1" style="font-family:ui-monospace,Menlo,monospace;font-size:12px">invoice.stamped</span>
+                                                    <span class="cmk-badge cmk-b-green" style="justify-self:end">200</span>
+                                                    <span class="cmk-t2 cmk-r">156</span>
+                                                </div>
+                                                <div class="cmk-body" style="padding-top:12px">
+                                                    <div style="display:flex;align-items:center;gap:7px">
+                                                        <span class="cmk-dot cmk-dot-green"></span>
+                                                        <span class="cmk-t2" style="color:#64748b">Firma HMAC-SHA256 en X-Cord-Signature</span>
                                                     </div>
                                                 </div>
-                                                <div><span class="term-green">➜</span> <span class="term-blue">cord</span> webhooks listen --events quote.paid</div>
-                                                <div style="margin-top: 8px;">[14:32:01] <span class="term-blue">INFO</span> Escuchando eventos de Cord...</div>
-                                                <div>[14:32:02] <span class="term-green">SUCCESS</span> Conexión establecida (3ms)</div>
-                                                <div>[14:32:03] <span class="term-blue">INFO</span> Evento recibido: quote.paid (COT-0148)</div>
-                                                <div>[14:32:04] <span class="term-purple">POST</span> https://tu-erp.com/webhooks/cord (2.4kb)</div>
-                                                <div>[14:32:05] <span class="term-green">SUCCESS</span> Payload entregado correctamente.</div>
                                             </div>
                                         </div>
                                     )}
                                     {idx === 2 && (
-                                        <div class="pro-ui-card real-ui">
-                                            <div class="rui-topbar">
-                                                <div style="font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-                                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                                                    Seguridad y Accesos
+                                        <div class="cmk-stage">
+                                            <div class="cmk-shot">
+                                                <div class="cmk-nav"><span class="cmk-nav-title">Seguridad y cumplimiento</span></div>
+                                                <div class="cmk-body">
+                                                    <div class="cmk-seal">
+                                                        <div class="cmk-seal-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                                        <div><div class="cmk-t1">Cotización firmada · validez legal</div><div class="cmk-hash">sha256: 9f86d081884c7d659a2feaa0c55ad015</div></div>
+                                                    </div>
+                                                    <div class="cmk-divider"></div>
+                                                    <div class="cmk-eyebrow" style="margin-bottom:6px">Roles y accesos (RBAC)</div>
+                                                <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0">
+                                                    <div style="display:flex;align-items:center;gap:10px"><div class="cmk-av cmk-av-1">AG</div><div><div class="cmk-t1">Ana García</div><div class="cmk-t2">ana@empresa.com</div></div></div>
+                                                    <span class="cmk-badge cmk-b-blue">Admin</span>
                                                 </div>
-                                                <button class="rui-btn-save">Guardar</button>
-                                            </div>
-                                            <div>
-                                                <div class="rui-setting-group">
-                                                    <div class="rui-setting-row">
-                                                        <div class="rs-info">
-                                                            <span class="rs-title">Autenticación de 2 Factores (2FA)</span>
-                                                            <span class="rs-desc">Requerido para todos los admins.</span>
-                                                        </div>
-                                                        <div class="rui-toggle active"><div class="rt-knob"></div></div>
-                                                    </div>
-                                                    <div class="rui-setting-row">
-                                                        <div class="rs-info">
-                                                            <span class="rs-title">Cifrado de datos</span>
-                                                            <span class="rs-desc">AES-256 GCM en tránsito y reposo.</span>
-                                                        </div>
-                                                        <div class="rui-toggle active"><div class="rt-knob"></div></div>
-                                                    </div>
+                                                <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0">
+                                                    <div style="display:flex;align-items:center;gap:10px"><div class="cmk-av cmk-av-2">CR</div><div><div class="cmk-t1">Carlos Ruiz</div><div class="cmk-t2">carlos@empresa.com</div></div></div>
+                                                    <span class="cmk-badge cmk-b-gray">Vendedor</span>
                                                 </div>
-                                                
-                                                <div style="margin-top: 24px; margin-bottom: 8px; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Políticas de Acceso (RBAC)</div>
-                                                <div class="rui-rbac-list">
-                                                    <div class="rbac-row">
-                                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                                            <div class="rbac-avatar rbac-grad-1">AG</div>
-                                                            <div class="rs-info">
-                                                                <span class="rs-title">Ana García</span>
-                                                                <span class="rs-desc">ana@empresa.com</span>
-                                                            </div>
-                                                        </div>
-                                                        <span class="rbac-badge badge-admin">Admin</span>
-                                                    </div>
-                                                    <div class="rbac-row">
-                                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                                            <div class="rbac-avatar rbac-grad-2">CR</div>
-                                                            <div class="rs-info">
-                                                                <span class="rs-title">Carlos Ruiz</span>
-                                                                <span class="rs-desc">carlos@empresa.com</span>
-                                                            </div>
-                                                        </div>
-                                                        <span class="rbac-badge badge-gray">
-                                                            Finanzas
-                                                            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                                                        </span>
-                                                    </div>
+                                                    <div class="cmk-divider"></div>
+                                                    <div class="cmk-eyebrow" style="margin-bottom:8px">Registro de auditoría</div>
+                                                    <div class="cmk-kv" style="border-bottom:none"><span class="cmk-k">Ana García aprobó COT-1042 · IP 189.203.x</span><span class="cmk-t2">hace 4 min</span></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -641,32 +608,28 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                         <div class="stripe-fg-card reveal">
                             <div class="stripe-fg-card-content">
                                 <h3 class="stripe-fg-title">Motor de Reglas de Negocio</h3>
-                                <p class="stripe-fg-desc">Automatiza decisiones de riesgo, establece límites de crédito dinámicos y aplica descuentos basándote en cientos de variables configurables en tiempo real.</p>
+                                <p class="stripe-fg-desc">Automatiza decisiones de riesgo, establece límites de crédito dinámicos y aplica reglas de aprobación según monto, descuento y margen en tiempo real.</p>
                                 <div class="stripe-fg-tags">
                                     <a class="stripe-fg-tag">Automatización</a>
                                     <a class="stripe-fg-tag">Lógica custom</a>
                                 </div>
                             </div>
                             <div class="stripe-fg-card-visual">
-                                <div class="pro-ui-card real-ui">
-                                    <div class="rui-topbar">
-                                        <div style="font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
-                                            Constructor de Reglas
+                                <div class="cmk-stage">
+                                    <div class="cmk-shot">
+                                        <div class="cmk-nav">
+                                            <span class="cmk-nav-title">Reglas de aprobación</span>
+                                            <div class="cmk-seg"><span class="on">Activas</span><span>Todas</span></div>
                                         </div>
-                                        <div class="rui-toggle active"><div class="rt-knob"></div></div>
-                                    </div>
-                                    <div style="padding: 20px; background: #fafbfc; height: 100%;">
-                                        <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 12px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                                            <span style="color: #64748b; font-weight: 600;">SI</span> <span class="badge-blue">Monto Cotización</span> <span style="font-weight: bold;">></span> <span>$500,000</span>
-                                        </div>
-                                        <div style="width: 2px; height: 16px; background: #cbd5e1; margin: 0 auto;"></div>
-                                        <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 12px; margin-top: 12px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                                            <span style="color: #64748b; font-weight: 600;">Y</span> <span class="badge-blue">Riesgo Crediticio</span> <span style="font-weight: bold;">=</span> <span class="badge-admin">Alto</span>
-                                        </div>
-                                        <div style="width: 2px; height: 16px; background: #cbd5e1; margin: 0 auto;"></div>
-                                        <div style="background: #fff; border: 1px solid #10b981; border-radius: 8px; padding: 12px; font-size: 12px; margin-top: 12px; box-shadow: 0 4px 6px rgba(16,185,129,0.1);">
-                                            <span style="color: #10b981; font-weight: 800;">ENTONCES</span> <span style="font-weight: 600;">Requerir firma de VP</span>
+                                        <div class="cmk-body">
+                                            <div class="cmk-rule">
+                                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span class="cmk-eyebrow">Regla · margen y monto</span><span class="cmk-toggle"></span></div>
+                                                <div class="cmk-rule-line"><span class="cmk-kw">SI</span> <span class="cmk-tok cmk-tok-blue">Monto</span> &gt; <b>$500,000</b> <span class="cmk-kw">Y</span> <span class="cmk-tok cmk-tok-amber">Margen</span> &lt; <b>25%</b><br/><span class="cmk-kw">ENTONCES</span> <span class="cmk-tok cmk-tok-green">Requerir aprobación de un gerente</span></div>
+                                            </div>
+                                            <div class="cmk-rule dim">
+                                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span class="cmk-eyebrow">Regla · descuento</span><span class="cmk-toggle off"></span></div>
+                                                <div class="cmk-rule-line"><span class="cmk-kw">SI</span> <span class="cmk-tok cmk-tok-blue">Descuento</span> &gt; <b>15%</b> <span class="cmk-kw">ENTONCES</span> <span class="cmk-tok cmk-tok-green">Aprobación de dirección</span></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -684,33 +647,29 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                                 </div>
                             </div>
                             <div class="stripe-fg-card-visual">
-                                <div class="pro-ui-card real-ui" style="padding: 0;">
-                                    <div class="rui-topbar">
-                                        <div style="font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
-                                            Métricas Core
+                                <div class="cmk-stage">
+                                    <div class="cmk-shot">
+                                        <div class="cmk-nav">
+                                            <span class="cmk-nav-title">Analítica</span>
+                                            <div class="cmk-seg"><span class="on">30 días</span><span>Trim.</span><span>Año</span></div>
                                         </div>
-                                        <div class="rui-dropdown-header" style="margin-top:0;"><span>Hoy</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-                                    </div>
-                                    <div style="padding: 24px;">
-                                        <div style="display: flex; gap: 16px; margin-bottom: 24px;">
-                                            <div style="flex: 1; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                                <div style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase;">API Calls</div>
-                                                <div style="font-size: 20px; font-weight: 800; color: #0f172a; margin-top: 4px;">1.2M</div>
+                                        <div class="cmk-body">
+                                            <div class="cmk-kpis">
+                                                <div><div class="cmk-kpi-l">Cotizado</div><div class="cmk-kpi-v editorial">$4.2M</div><div class="cmk-up">+18%</div></div>
+                                                <div><div class="cmk-kpi-l">Tasa de cierre</div><div class="cmk-kpi-v editorial">42%</div><div class="cmk-up">+6%</div></div>
+                                                <div><div class="cmk-kpi-l">Ticket prom.</div><div class="cmk-kpi-v editorial">$128K</div><div class="cmk-up">+9%</div></div>
                                             </div>
-                                            <div style="flex: 1; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                                <div style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase;">Latencia</div>
-                                                <div style="font-size: 20px; font-weight: 800; color: #0f172a; margin-top: 4px;">14ms</div>
+                                            <div class="cmk-divider"></div>
+                                            <div class="cmk-eyebrow" style="margin-bottom:10px">Cotizado vs. cerrado</div>
+                                            <div class="cmk-bars">
+                                                <div class="cmk-bar" style="height:42%"></div>
+                                                <div class="cmk-bar" style="height:58%"></div>
+                                                <div class="cmk-bar" style="height:50%"></div>
+                                                <div class="cmk-bar" style="height:74%"></div>
+                                                <div class="cmk-bar" style="height:64%"></div>
+                                                <div class="cmk-bar on" style="height:96%"></div>
                                             </div>
-                                        </div>
-                                        <div style="height: 60px; display: flex; align-items: flex-end; gap: 8px;">
-                                            <div style="flex: 1; background: #3b82f6; height: 30%; border-radius: 2px;"></div>
-                                            <div style="flex: 1; background: #3b82f6; height: 50%; border-radius: 2px;"></div>
-                                            <div style="flex: 1; background: #3b82f6; height: 40%; border-radius: 2px;"></div>
-                                            <div style="flex: 1; background: #3b82f6; height: 80%; border-radius: 2px;"></div>
-                                            <div style="flex: 1; background: #3b82f6; height: 60%; border-radius: 2px;"></div>
-                                            <div style="flex: 1; background: #3b82f6; height: 90%; border-radius: 2px;"></div>
-                                            <div style="flex: 1; background: #0ea5e9; height: 100%; border-radius: 2px; box-shadow: 0 0 10px rgba(14,165,233,0.5);"></div>
+                                            <div class="cmk-axis"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -721,46 +680,34 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
                         <div class="stripe-fg-card reveal">
                             <div class="stripe-fg-card-content">
                                 <h3 class="stripe-fg-title">Multi-Entidad y Divisas</h3>
-                                <p class="stripe-fg-desc">Opera globalmente. Consolida subsidiarias, convierte divisas automáticamente y mantén la contabilidad segmentada en una única plataforma.</p>
+                                <p class="stripe-fg-desc">Opera en varias divisas y entidades: convierte con tasa protegida (FX lock) y mantén cada negocio separado en una sola plataforma.</p>
                                 <div class="stripe-fg-tags">
                                     <a class="stripe-fg-tag">Globalización</a>
                                     <a class="stripe-fg-tag">Consolidación</a>
                                 </div>
                             </div>
                             <div class="stripe-fg-card-visual">
-                                <div class="pro-ui-card real-ui">
-                                    <div class="rui-topbar" style="padding-top: 0; padding-bottom: 24px; border: none;">
-                                        <div style="font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; color: #0a2540;">
-                                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                            Consolidación Global
+                                <div class="cmk-stage">
+                                    <div class="cmk-shot">
+                                        <div class="cmk-nav">
+                                            <span class="cmk-nav-title">Multi-divisa</span>
+                                            <span class="cmk-badge cmk-b-blue">FX lock · 30 días</span>
                                         </div>
-                                        <div style="background: #f1f5f9; color: #334155; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-                                            <img src="https://flagcdn.com/w20/mx.png" width="16" style="border-radius:2px;" /> MXN
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="rui-table-mini">
-                                            <div class="rt-row" style="padding: 16px 20px; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 12px; align-items: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.01);">
-                                                <div style="display: flex; align-items: center; gap: 12px;">
-                                                    <img src="https://flagcdn.com/w20/us.png" width="24" style="border-radius:3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);" />
-                                                    <span style="font-weight: 600; color: #1e293b; font-size: 14px;">Cord USA Inc.</span>
-                                                </div>
-                                                <span class="badge-blue" style="font-size: 12px; padding: 4px 10px; background: #f1f5f9; color: #64748b;">USD 14M</span>
+                                        <div class="cmk-body">
+                                            <div class="cmk-fx">
+                                                <div class="cmk-fx-leg"><div class="cmk-fx-cur">USD</div><div class="cmk-fx-val">$10,000</div></div>
+                                                <div class="cmk-fx-arrow"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                                                <div class="cmk-fx-leg"><div class="cmk-fx-cur">MXN</div><div class="cmk-fx-val">$182,400</div></div>
                                             </div>
-                                            <div class="rt-row" style="padding: 16px 20px; border: 2px solid #3b82f6; border-radius: 12px; margin-bottom: 12px; align-items: center; background: #eff6ff; box-shadow: 0 10px 20px -5px rgba(59,130,246,0.15);">
-                                                <div style="display: flex; align-items: center; gap: 12px;">
-                                                    <img src="https://flagcdn.com/w20/mx.png" width="24" style="border-radius:3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);" />
-                                                    <span style="font-weight: 700; color: #0a2540; font-size: 14px;">Cord México S.A.</span>
-                                                </div>
-                                                <span class="badge-blue" style="font-size: 12px; padding: 4px 10px; background: #2563eb; color: #fff;">MXN 280M</span>
+                                            <div style="display:flex;justify-content:space-between;margin-top:10px">
+                                                <span class="cmk-t2">Tasa Banxico 17.92</span>
+                                                <span class="cmk-t2" style="color:#047857">Tu tasa protegida 18.24</span>
                                             </div>
-                                            <div class="rt-row" style="padding: 16px 20px; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; align-items: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.01);">
-                                                <div style="display: flex; align-items: center; gap: 12px;">
-                                                    <img src="https://flagcdn.com/w20/co.png" width="24" style="border-radius:3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);" />
-                                                    <span style="font-weight: 600; color: #1e293b; font-size: 14px;">Cord Colombia</span>
-                                                </div>
-                                                <span class="badge-blue" style="font-size: 12px; padding: 4px 10px; background: #f1f5f9; color: #64748b;">COP 3.2B</span>
-                                            </div>
+                                            <div class="cmk-divider"></div>
+                                            <div class="cmk-eyebrow" style="margin-bottom:6px">Entidades</div>
+                                            <div class="cmk-kv"><span style="display:flex;align-items:center;gap:8px"><img src="https://flagcdn.com/w20/mx.png" width="18" style="border-radius:2px" alt="" /><span class="cmk-t1">Cord México S.A.</span></span><span class="cmk-v editorial">$280.0M MXN</span></div>
+                                            <div class="cmk-kv"><span style="display:flex;align-items:center;gap:8px"><img src="https://flagcdn.com/w20/us.png" width="18" style="border-radius:2px" alt="" /><span class="cmk-t1">Cord USA Inc.</span></span><span class="cmk-v editorial">$14.0M USD</span></div>
+                                            <div class="cmk-kv" style="border-bottom:none"><span style="display:flex;align-items:center;gap:8px"><img src="https://flagcdn.com/w20/co.png" width="18" style="border-radius:2px" alt="" /><span class="cmk-t1">Cord Colombia</span></span><span class="cmk-v editorial">$3.2B COP</span></div>
                                         </div>
                                     </div>
                                 </div>
