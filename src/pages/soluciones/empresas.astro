@@ -1862,109 +1862,162 @@ const clientLogos = ['GAMA', 'ACEROS', 'VERTICE', 'ZARCO', 'FERREX', 'CEMENTOS']
         overflow: hidden;
     }
 
-    /* Enterprise Mockup Shared Styles */
+    /* Enterprise Mockup Shared Styles - PREMIUM REDESIGN */
     .ent-mock-panel {
-        background: #fff;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.06), 0 4px 8px rgba(0,0,0,0.03);
-        width: 260px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 14px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 
+            0 20px 40px -10px rgba(15, 23, 42, 0.08), 
+            0 10px 20px -5px rgba(15, 23, 42, 0.04),
+            inset 0 1px 0 rgba(255, 255, 255, 1);
+        width: 270px;
         display: flex;
         flex-direction: column;
-        font-family: 'Inter', -apple-system, sans-serif;
-        transform: translateY(15px);
-        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+        transform: translateY(12px) scale(0.98);
+        transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        overflow: hidden;
+        position: relative;
     }
     
     .stripe-pillar-card:hover .ent-mock-panel {
-        transform: translateY(5px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.04);
+        transform: translateY(0) scale(1);
+        box-shadow: 
+            0 30px 60px -15px rgba(15, 23, 42, 0.12), 
+            0 15px 30px -10px rgba(15, 23, 42, 0.06),
+            inset 0 1px 0 rgba(255, 255, 255, 1);
+        border-color: rgba(203, 213, 225, 0.8);
+    }
+    
+    .ent-mock-panel::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.02;
+        pointer-events: none;
+        z-index: 0;
     }
 
     .ent-mock-header {
-        padding: 12px 16px;
+        padding: 14px 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        position: relative;
+        z-index: 1;
     }
     
     .ent-mock-header.border-bottom {
-        border-bottom: 1px solid #f1f5f9;
-        padding-bottom: 10px;
-        margin-bottom: 6px;
+        border-bottom: 1px dashed #e2e8f0;
     }
 
     .ent-mock-title {
         font-size: 11px;
         font-weight: 700;
         color: #0f172a;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .ent-mock-title::before {
+        content: '';
+        display: block;
+        width: 4px;
+        height: 12px;
+        background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+        border-radius: 4px;
     }
 
     .ent-mock-body {
-        padding: 0 16px 16px;
+        padding: 14px 18px 18px;
         display: flex;
         flex-direction: column;
         gap: 8px;
+        position: relative;
+        z-index: 1;
+        background: #ffffff;
     }
 
     /* Mockup 1: Control (Reglas) */
     .ent-mock-badge {
-        font-size: 9px; font-weight: 600; padding: 3px 6px; border-radius: 4px; text-transform: uppercase;
+        font-size: 9px; font-weight: 700; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
     }
-    .badge-active { background: #dcfce7; color: #166534; }
+    .badge-active { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
     
     .ent-mock-row {
         display: flex; justify-content: space-between; align-items: center;
-        background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 10px 12px;
+        background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 10px 14px;
+        box-shadow: 0 1px 3px rgba(15,23,42,0.02);
+        transition: all 0.2s ease;
     }
-    .em-disabled { opacity: 0.5; }
     
-    .ent-mock-col { display: flex; flex-direction: column; gap: 2px; }
-    .em-label { font-size: 9px; color: #64748b; font-weight: 500; }
-    .em-value { font-size: 11px; color: #0f172a; font-weight: 600; }
+    .stripe-pillar-card:hover .ent-mock-row {
+        border-color: #e2e8f0;
+        box-shadow: 0 2px 6px rgba(15,23,42,0.04);
+        transform: translateY(-1px);
+    }
+    
+    .em-disabled { opacity: 0.4; filter: grayscale(100%); transform: none !important; box-shadow: none !important; }
+    
+    .ent-mock-col { display: flex; flex-direction: column; gap: 3px; }
+    .em-label { font-size: 9px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+    .em-value { font-size: 11.5px; color: #0f172a; font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: -0.02em;}
     .text-right { text-align: right; align-items: flex-end; }
     
-    .em-badge { font-size: 9px; font-weight: 600; padding: 3px 6px; border-radius: 4px; display: inline-block; }
-    .badge-review { background: #fef08a; color: #854d0e; }
-    .badge-finance { background: #ffedd5; color: #9a3412; }
-    .badge-auto { background: #dcfce7; color: #166534; }
+    .em-badge { font-size: 9.5px; font-weight: 600; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid transparent; }
+    .badge-review { background: #fffbeb; color: #b45309; border-color: #fef3c7; }
+    .badge-finance { background: #fef2f2; color: #b91c1c; border-color: #fee2e2; }
+    .badge-auto { background: #ecfdf5; color: #047857; border-color: #d1fae5; }
 
     /* Mockup 2: ERP Sync */
-    .em-status { display: flex; align-items: center; gap: 4px; }
-    .em-pulse { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 0 2px rgba(34,197,94,0.2); animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); } 70% { box-shadow: 0 0 0 4px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
-    .em-status-text { font-size: 9px; font-weight: 700; color: #15803d; letter-spacing: 0.5px; }
+    .em-status { display: flex; align-items: center; gap: 6px; background: #ecfdf5; padding: 4px 8px; border-radius: 6px; border: 1px solid #d1fae5; }
+    .em-pulse { width: 6px; height: 6px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 70% { box-shadow: 0 0 0 6px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+    .em-status-text { font-size: 9px; font-weight: 700; color: #047857; letter-spacing: 0.05em; text-transform: uppercase; }
     
-    .em-sync-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+    .em-sync-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px dashed #e2e8f0; }
     .em-sync-row:last-child { border-bottom: none; padding-bottom: 0; }
     
-    .em-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: white; }
-    .sap-icon { background: linear-gradient(135deg, #008ee7, #005a9e); }
-    .oracle-icon { background: linear-gradient(135deg, #f80000, #c20000); font-size: 11px; }
+    .em-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .sap-icon { background: linear-gradient(135deg, #008ce7, #004d91); }
+    .oracle-icon { background: linear-gradient(135deg, #ff0000, #a60000); font-size: 11px; }
     
     .em-sync-info { display: flex; flex-direction: column; flex: 1; gap: 2px; }
-    .em-sync-title { font-size: 11px; font-weight: 600; color: #0f172a; }
-    .em-sync-time { font-size: 9px; color: #64748b; }
+    .em-sync-title { font-size: 11.5px; font-weight: 600; color: #0f172a; }
+    .em-sync-time { font-size: 9.5px; color: #64748b; font-weight: 500; }
     
-    .em-check svg { width: 14px; height: 14px; color: #22c55e; }
+    .em-check { width: 20px; height: 20px; background: #ecfdf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #10b981; }
+    .em-check svg { width: 12px; height: 12px; stroke-width: 3px; }
 
     /* Mockup 3: Security RBAC */
-    .em-btn-add { font-size: 10px; font-weight: 600; background: #0f172a; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
-    .em-btn-add:hover { background: #1e293b; }
+    .em-btn-add { font-size: 10.5px; font-weight: 600; background: linear-gradient(180deg, #1e293b, #0f172a); color: white; border: 1px solid #020617; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(15,23,42,0.1), inset 0 1px 0 rgba(255,255,255,0.1); }
+    .em-btn-add:hover { background: linear-gradient(180deg, #334155, #1e293b); transform: translateY(-1px); box-shadow: 0 4px 6px rgba(15,23,42,0.15), inset 0 1px 0 rgba(255,255,255,0.1); }
     
-    .em-user-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .em-user-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 8px; border-radius: 8px; transition: background 0.2s; }
+    .em-user-row:hover { background: #f8fafc; }
     .em-user-row:last-child { margin-bottom: 0; }
     
-    .em-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
-    .avatar-admin { background: #e0e7ff; color: #4338ca; }
-    .avatar-finance { background: #d1fae5; color: #047857; }
+    .em-avatar { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.2); }
+    .avatar-admin { background: linear-gradient(135deg, #6366f1, #4338ca); color: white; }
+    .avatar-finance { background: linear-gradient(135deg, #10b981, #047857); color: white; }
     
     .em-user-info { display: flex; flex-direction: column; flex: 1; gap: 2px; }
-    .em-user-name { font-size: 11px; font-weight: 600; color: #0f172a; }
-    .em-user-email { font-size: 9px; color: #64748b; }
+    .em-user-name { font-size: 12px; font-weight: 600; color: #0f172a; }
+    .em-user-email { font-size: 9.5px; color: #64748b; font-weight: 500; }
     
-    .em-role-select { font-size: 10px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 4px; background: #f1f5f9; padding: 5px 8px; border-radius: 4px; border: 1px solid #e2e8f0; cursor: pointer; }
-    .em-role-select svg { width: 10px; height: 10px; }
+    .em-role-select { font-size: 10.5px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; background: #ffffff; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; box-shadow: 0 1px 2px rgba(15,23,42,0.02); transition: all 0.2s; }
+    .em-role-select:hover { border-color: #cbd5e1; color: #0f172a; box-shadow: 0 2px 4px rgba(15,23,42,0.04); }
+    .em-role-select svg { width: 12px; height: 12px; color: #94a3b8; transition: color 0.2s; }
+    .em-role-select:hover svg { color: #475569; }
 
 
     .stripe-pillar-content {
