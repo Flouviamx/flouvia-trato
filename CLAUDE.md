@@ -41,7 +41,7 @@ Node requerido: **>=22.12.0** (ver `.nvmrc` → 24.15.0; alineado a Node 24 LTS,
 4. **Estética "Apple ✕ Cord" (Light Mode):** El modo claro no debe ser `#ffffff` plano. Usa el gris característico de Apple (`#f5f5f7`) para fondos e inputs. Las tarjetas principales (contenedores flotantes) deben ser blancas puras, con `border-radius` masivo (ej. `40px` simulando squircles) y sombras difusas de múltiples capas. 
 5. **Micro-interacciones y UI Táctil:** Los inputs NO llevan bordes por defecto; usan un fondo gris suave (`#f5f5f7`) y revelan un contorno azul profundo (`#0a192f` o `rgba(10, 25, 47, 0.15)`) al recibir foco. Los botones primarios (CTAs) son "píldoras" magnéticas (`border-radius: 999px`) que responden con una ligera reducción/escala (`transform: scale()`) en hover y active.
 6. **Ultra-Premium y Minimalista:** Respeta la jerarquía tipográfica. Los títulos deben ser negros absolutos (`#050505`) con *tracking* ajustado (`letter-spacing: -0.04em`) y línea de altura corta (`1.1`). Deja que la interfaz respire con márgenes y paddings muy generosos. Todo debe poder manejarse fluido con el teclado (ej. `Enter` para avanzar).
-7. **Mockups Premium (Estándar de IA):** Siempre que se te pida crear o actualizar un "mockup" de UI para la landing page, DEBES leer y seguir estrictamente las reglas definidas en `MOCKUP_STANDARDS.md`. Debes abstraer la UI real a un componente puramente visual de Tailwind con contenedores flotantes tipo macOS y micro-interacciones.
+7. **Mockups Premium (Estándar de IA):** Siempre que se te pida crear o actualizar un "mockup" de UI para la landing page, DEBES leer y seguir estrictamente las reglas definidas en `MOCKUP_STANDARDS.md`. El objetivo es una **calca realista de un screenshot** — tabla densa, datos plausibles, superficie blanca sólida — estilo Stripe/Linear. **Este proyecto NO usa Tailwind.** Los mockups van en CSS vanilla con clases prefijadas: `bm-*` (BlockMockup), `sbm-*` (SolucionBlockMockup), `cmk-*` (kit compartido en `src/styles/mockups.css` para `/soluciones/empresas` y `/soluciones/startups`). El patrón de bleed: `cmk-stage { inset:0 }` llena la celda visual; `cmk-shot { width: max(520px, calc(100%+56px)); bottom: -40px }` sangra por derecha/abajo; el padre `.stripe-fg-card { overflow:hidden }` recorta como imagen cortada. NUNCA cajas encajonadas ni card-dentro-de-card.
 8. **Logos de Marcas e Integraciones:** Cuando necesites mostrar un logotipo real de una marca (ej. Stripe, Zapier), utiliza siempre la API de Google Favicon V2 para obtener iconos de alta calidad dinámicamente (`<img src="https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://dominio.com&size=128" />`). NUNCA uses emojis ni SVGs estáticos pesados para marcas.
 9. **Iconografía Duotone Premium (SVG):** Para ilustrar conceptos, características o menús, NUNCA utilices SVGs de trazos delgados simples y aburridos. Todos los iconos SVG decorativos deben seguir el estándar "Glass Duotone":
    - **Trazos:** Usa `stroke="currentColor"` con un grosor legible y moderno (`stroke-width="1.75"` a `2.5`).
@@ -120,6 +120,35 @@ Los 46 price_ids/meters reales viven en `billing.ts`. El meter de IA está cable
      son standalone (`empresas.astro`/`startups.astro` + wrappers `/en/...` que pasan `isEn`); NO hay
      `/soluciones` index ni `[slug].astro`. Validar links data-driven (`uc.link`, `p.href`, interlink),
      no solo los `href="..."` literales. Los `href="#"` restantes son chrome de mockups (no navegación).
+
+✅ **Kit de mockups `cmk-*` + patrón screenshot-bleed (jun 2026)** — auditoría de las páginas
+   `/soluciones/empresas` y `/soluciones/startups` reveló que sus mockups usaban tarjetas flotantes
+   genéricas ("card-dentro-de-card"). Se reescribieron TODOS los 12 mockups (6 por página: 3 "core"
+   + 3 "advanced") con el patrón de **calca realista estilo Stripe**:
+   • **`src/styles/mockups.css`** (NUEVA) — hoja compartida con prefijo `cmk-*` para no colisionar
+     con `bm-*`/`sbm-*`. Clases clave: `cmk-stage` (`position:absolute; inset:0` — llena la celda
+     visual), `cmk-shot` (`width: max(520px, calc(100%+56px)); bottom:-40px` — sobresale y sangra
+     por derecha/abajo; el padre `.stripe-fg-card { overflow:hidden }` lo recorta), `cmk-nav`,
+     `cmk-th`/`cmk-tr`, `cmk-badge` (variantes green/blue/gray/amber/red), `cmk-kpis`, `cmk-bars`,
+     `cmk-kv`, `cmk-toggle`, `cmk-rule`/`cmk-tok` (motor de reglas), `cmk-seal` (SHA-256),
+     `cmk-fx` (ticket multi-divisa), `cmk-chrome` (browser frame), `cmk-alert`.
+   • **Bug crítico de div duplicado:** ambas páginas tenían `<div class="stripe-fg-card-visual">`
+     DOS veces seguidas (abre sin cerrar + vuelve a abrir). Como `cmk-stage` es `position:absolute`,
+     el div interno colapsaba a ~0px de ancho → todo el contenido se estrujaba a 1-2 caracteres
+     de ancho. Eliminado el duplicado en `empresas.astro` y `startups.astro`.
+   • **Mockups reescritos con datos reales y densos** (tabla de cotizaciones con folio/cliente/total/
+     estado, portal público con browser chrome + total hero + CTA, CFDI 4.0 con UUID/RFC/timestamp,
+     motor de reglas con tokens SI/Y/ENTONCES, analítica con KPIs + bar chart, ticket FX USD→MXN,
+     editor con margen por línea + alerta de aprobación, log de webhooks con eventos reales, sello
+     SHA-256 + RBAC con roles Admin/Vendedor + audit log).
+   • **`MOCKUP_STANDARDS.md` reescrito** desde cero: ya no menciona Tailwind ni "contenedores macOS".
+     Nuevo estándar: CSS vanilla `cmk-*`/`bm-*`, realismo > minimalismo, tablas densas, superficie
+     blanca sólida, sombras compuestas, skeletons solo para periferia, patrón bleed documentado.
+   • **`src/lib/solucion.ts` actualizado:** tipo `pillars` recibe campo opcional `href`; se enlazaron
+     todas las páginas de producto reales (`/producto/aprobaciones`, `/desarrolladores/api`, etc.).
+   ⚠️ **Regla de construcción de mockups para estas páginas:** importar
+     `../../styles/mockups.css` en el frontmatter; usar `cmk-stage` + `cmk-shot` dentro del
+     `<div class="stripe-fg-card-visual">`; NO anidar dos `stripe-fg-card-visual` seguidos.
 
 ✅ **Core loop: la IA como puerta de entrada del editor (jun 2026)** — track de "core loop mágico".
    En `/app/cotizaciones/nueva` el bloque "Armar con IA" (que ya iba primero pero se veía secundario:
