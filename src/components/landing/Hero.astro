@@ -125,22 +125,7 @@ const l = (p: string) => lang === 'es' ? p : `/en${p === '/' ? '' : p}`;
 
     <!-- Trust strip -->
     <div class="hero-trust reveal">
-        <span class="trust-label">{t("trust.label")}</span>
-        <div class="trust-logos">
-            <span class="trust-logo">Flouvia</span>
-            <span class="trust-sep"></span>
-            <span class="trust-logo">Shopify Plus</span>
-            <span class="trust-sep"></span>
-            <span class="trust-logo">CFDI 4.0 · SAT</span>
-            <span class="trust-sep"></span>
-            <span class="trust-logo">Stripe</span>
-        </div>
-        <p class="trust-usecase">
-            Usado por distribuidores en <b>{t("trust.usecase.2")}</b>
-            <span class="tu-sep">·</span> <b>−67%</b> tiempo de procesamiento
-            <span class="tu-sep">·</span> <b>+25%</b> ticket promedio
-            <span class="tu-sep">·</span> <b>100%</b> automatización de órdenes
-        </p>
+        <span class="trust-label">{t("trust.label")} FLOUVIA</span>
     </div>
 </section>
 
@@ -500,16 +485,6 @@ const l = (p: string) => lang === 'es' ? p : `/en${p === '/' ? '' : p}`;
     /* Trust */
     .hero-trust { margin-top: 5rem; display: flex; flex-direction: column; align-items: center; gap: 1.3rem; }
     .trust-label { font-size: 0.62rem; font-weight: 800; letter-spacing: 2px; color: #aab; }
-    .trust-logos { display: flex; align-items: center; gap: 1.6rem; flex-wrap: wrap; justify-content: center; }
-    .trust-logo { font-size: 1.05rem; font-weight: 600; color: #889; opacity: 0.65; }
-    .trust-sep { width: 4px; height: 4px; border-radius: 50%; background: #ccd; }
-    .trust-usecase {
-        margin: 0.4rem 0 0; max-width: 760px; text-align: center;
-        font-size: 0.82rem; line-height: 1.7; color: #8a93a5; font-weight: 500;
-    }
-    .trust-usecase b { color: #44506a; font-weight: 700; }
-    .trust-usecase .tu-sep { color: #c5ccd8; margin: 0 0.45rem; }
-    @media (max-width: 560px) { .trust-usecase .tu-sep { display: none; } .trust-usecase b { display: inline-block; } }
 
     @media (max-width: 900px) {
         .hero { padding-top: 8.5rem; }
