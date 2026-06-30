@@ -31,12 +31,15 @@ const magneticNodes = [
     <Nav />
     
     <main class="use-case-main">
-        <!-- HERO SECTION -->
-        <header class="uc-hero">
+        <!-- HERO & TRUST WRAPPER -->
+        <div class="uc-hero-trust-group">
             <div class="uc-hero-bg">
                 <GreenRampShader client:only="react" />
             </div>
-            <div class="uc-container uc-hero-inner">
+
+            <!-- HERO SECTION -->
+            <header class="uc-hero">
+                        <div class="uc-container uc-hero-inner">
                 <div class="uc-hero-content">
                     <h1 class="uc-title reveal">Propuestas magnéticas que cierran tratos</h1>
                     <p class="uc-sub reveal">
@@ -82,6 +85,7 @@ const magneticNodes = [
                 </div>
             </div>
         </section>
+        </div>
 
         <!-- STRIPE-LIKE SPLIT SECTION -->
         <section class="uc-split-feature">
@@ -363,6 +367,14 @@ const magneticNodes = [
     }
 
     /* ── HERO SECTION ── */
+    .uc-hero-trust-group {
+        position: relative;
+        overflow: hidden;
+        background: #ffffff;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    /* ── HERO SECTION ── */
     .uc-hero {
         position: relative;
         min-height: 100vh;
@@ -370,9 +382,6 @@ const magneticNodes = [
         display: flex;
         align-items: center;
         padding: 8rem 0 4rem;
-        background: #ffffff;
-        overflow: hidden;
-        border-bottom: 1px solid var(--color-border);
     }
 
     /* Shader background (R3F) — fondo absoluto del hero */
@@ -480,9 +489,10 @@ const magneticNodes = [
 
     /* ── TRUST LOGOS ── */
     .uc-trust {
+        position: relative;
+        z-index: 1;
         text-align: center;
         padding: 3rem 5%;
-        background: var(--color-bg);
     }
     .uc-trust p {
         font-size: 0.9rem; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.5rem;
